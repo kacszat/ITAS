@@ -1,0 +1,56 @@
+/* Ustawienie tła */
+.root {
+    /*-fx-background-color: #2b2b2b; !* Ciemnoszare tło *!*/
+    -fx-background-image: url("/com/itasoftware/itasoftware/photos/background-photo-v1.jpg");
+    -fx-background-size: cover; /* lub contain w zależności od potrzeby */
+    -fx-background-position: top;
+}
+
+/* Stylizacja etykiet */
+.menu-label {
+    -fx-text-fill: #ffffff; /* Biały tekst */
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0
+}
+
+.name-label {
+    -fx-text-fill: #ffffff; /* Biały tekst */
+    -fx-font-size: 64px;
+    -fx-font-weight: bold;
+}
+
+/* Stylizacja przycisków */
+.menu-button {
+    -fx-pref-width: 200px;
+    /*-fx-max-width: 300px;*/
+    -fx-background-color: #3c3f41; /* Ciemnoszary */
+    -fx-text-fill: #ffffff; /* Biały tekst */
+    -fx-font-size: 14px;
+    -fx-border-color: #555555; /* Lekko jaśniejszy obrys */
+    -fx-border-width: 1px;
+    /*-fx-border-radius: 5px;*/
+    /*-fx-background-radius: 5px;*/
+    -fx-padding: 10px;
+}
+
+/* Efekt podświetlenia przycisku */
+.menu-button:hover {
+    -fx-background-color: #4a4d50; /* Jaśniejszy szary */
+}
+
+.menu-vbox {
+    -fx-background-color: #3b3b3b;
+    -fx-padding: 20;
+    -fx-max-height: 600px;
+    -fx-alignment: "TOP_CENTER";
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.name-vbox {
+    -fx-background-color: #3b3b3b;
+    -fx-padding: 20;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}

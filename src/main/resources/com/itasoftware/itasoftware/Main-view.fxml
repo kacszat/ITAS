@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.itasoftware.itasoftware.MainController"
+            stylesheets="@style.css">
+
+<!-- Ustawienie marginesów dla całego układu -->
+<padding>
+    <Insets top="60" right="60" bottom="60" left="60"/>
+</padding>
+
+<top>
+    <!-- Górny box: panel z nazwą -->
+    <HBox spacing="50.0" BorderPane.alignment="CENTER" style="-fx-padding: 0 0 40 0;">
+        <VBox spacing="10.0" prefWidth="1050" styleClass="name-vbox">
+<!--        <VBox spacing="10.0" style="-fx-background-color: #2b2b2b; -fx-padding: 20;" prefWidth="1050">-->
+            <Label text="ITAsoftware" styleClass="name-label"/>
+        </VBox>
+    </HBox>
+</top>
+
+
+<center>
+    <HBox spacing="50.0" BorderPane.alignment="CENTER">
+        <!-- Lewy box: panel z przyciskami -->
+        <VBox spacing="10.0" prefWidth="400" styleClass="menu-vbox">
+            <Label text="Menu" styleClass="menu-label"/>
+            <Button text="Generator skrzyżowań" onAction="#onGeneratorButtonClick" styleClass="menu-button"/>
+            <Button text="Symulacja ruchu" onAction="#onSimulationButtonClick" styleClass="menu-button"/>
+            <Button text="Ustawienia" onAction="#onSettingsButtonClick" styleClass="menu-button"/>
+        </VBox>
+        <!-- Prawy box: panel na pliki -->
+        <VBox spacing="10.0" prefWidth="600" styleClass="menu-vbox">
+            <Label text="Ostatnio otwierane pliki" styleClass="menu-label"/>
+            <!-- W przyszłości w tym miejscu możesz dodać listę lub inne elementy -->
+        </VBox>
+    </HBox>
+</center>
+
+</BorderPane>
