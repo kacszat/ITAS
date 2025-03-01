@@ -23,7 +23,7 @@
     <HBox spacing="50.0" BorderPane.alignment="CENTER" style="-fx-padding: 0 0 40 0;">
         <VBox spacing="10.0" prefWidth="1050" styleClass="name-vbox">
 <!--        <VBox spacing="10.0" style="-fx-background-color: #2b2b2b; -fx-padding: 20;" prefWidth="1050">-->
-            <Label text="ITAsoftware" styleClass="name-label"/>
+            <Label text="Intersections Traffic Analysis Software" styleClass="name-label"/>
         </VBox>
     </HBox>
 </top>
@@ -33,7 +33,7 @@
     <HBox spacing="50.0" BorderPane.alignment="CENTER">
         <!-- Lewy box: panel z przyciskami -->
         <VBox spacing="10.0" prefWidth="400" styleClass="menu-vbox">
-            <Label text="Menu" styleClass="menu-label"/>
+            <Label text="Menu główne" styleClass="menu-label"/>
             <Button text="Generator skrzyżowań" onAction="#onGeneratorButtonClick" styleClass="menu-button"/>
             <Button text="Symulacja ruchu" onAction="#onSimulationButtonClick" styleClass="menu-button"/>
             <Button text="Ustawienia" onAction="#onSettingsButtonClick" styleClass="menu-button"/>
