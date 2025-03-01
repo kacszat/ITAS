@@ -11,12 +11,12 @@
     -fx-text-fill: #ffffff; /* Biały tekst */
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-padding: 0 0 20 0
+    -fx-padding: 0 0 20 0;
 }
 
 .name-label {
     -fx-text-fill: #ffffff; /* Biały tekst */
-    -fx-font-size: 64px;
+    -fx-font-size: 48px;
     -fx-font-weight: bold;
 }
 
@@ -26,7 +26,7 @@
     /*-fx-max-width: 300px;*/
     -fx-background-color: #3c3f41; /* Ciemnoszary */
     -fx-text-fill: #ffffff; /* Biały tekst */
-    -fx-font-size: 14px;
+    -fx-font-size: 15px;
     -fx-border-color: #555555; /* Lekko jaśniejszy obrys */
     -fx-border-width: 1px;
     /*-fx-border-radius: 5px;*/
@@ -40,17 +40,19 @@
 }
 
 .menu-vbox {
-    -fx-background-color: #3b3b3b;
+    -fx-background-color: #474747;
     -fx-padding: 20;
     -fx-max-height: 600px;
     -fx-alignment: "TOP_CENTER";
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.2, 4, 4);
 }
 
 .name-vbox {
-    -fx-background-color: #3b3b3b;
+    -fx-background-color: #474747;
     -fx-padding: 20;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.2, 4, 4);
 }
