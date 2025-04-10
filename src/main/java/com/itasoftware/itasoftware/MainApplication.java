@@ -28,12 +28,38 @@ public class MainApplication extends Application {
     );
 
     private int currentPhotoIndex = 0;
+    private String baseFontStyle;
 
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main-view.fxml"));
         Pane root = fxmlLoader.load();
-        Scene scene = new Scene(root, 1280, 720);
+
+        double baseWidth = 1920.0;
+        double baseHeight = 1080.0;
+        double startWidth = 1280.0;
+        double startHeight = 720.0;
+
+        // Rzeczywista rozdzielczość ekranu
+        double screenWidth = javafx.stage.Screen.getPrimary().getBounds().getWidth();
+        double screenHeight = javafx.stage.Screen.getPrimary().getBounds().getHeight();
+
+        // Skala (najmniejszy współczynnik z szerokości i wysokości)
+        double scaleX = screenWidth / baseWidth;
+        double scaleY = screenHeight / baseHeight;
+        double scale = Math.min(scaleX, scaleY); // zachowaj proporcje
+
+        // Skalowanie korzenia UI
+        root.setScaleX(scale);
+        root.setScaleY(scale);
+
+        // Przeskalowanie font-u w całej scenie
+        baseFontStyle = "-fx-font-size: " + (15 * scale) + "px;";
+        root.setStyle(baseFontStyle);
+
+        // Dopasowanie sceny do skalowanego UI
+        Scene scene = new Scene(root, startWidth * scale, startHeight * scale);
+
         stage.setTitle("ITAS");
         stage.setScene(scene);
         stage.show();
@@ -46,8 +72,9 @@ public class MainApplication extends Application {
             currentPhotoIndex = (currentPhotoIndex + 1) % BACKGROUND_PHOTOS.size();
             URL imageUrl = getClass().getResource(BACKGROUND_PHOTOS.get(currentPhotoIndex));
             if (imageUrl != null) {
-                root.setStyle("-fx-background-image: url('" + imageUrl.toExternalForm() + "');" +
-                        "-fx-background-size: cover; -fx-background-position: top;");
+                String backgroundStyle = "-fx-background-image: url('" + imageUrl.toExternalForm() + "');" +
+                        "-fx-background-size: cover; -fx-background-position: top;";
+                root.setStyle(backgroundStyle + baseFontStyle);
             } else {
                 System.err.println("Nie znaleziono obrazu: " + BACKGROUND_PHOTOS.get(currentPhotoIndex));
             }
