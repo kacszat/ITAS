@@ -29,40 +29,38 @@ public class MainApplication extends Application {
 
     private int currentPhotoIndex = 0;
     private String baseFontStyle;
+    static Stage primaryStage; // Przechowywanie Stage
+    static double startWidth = 1280.0; // Startowa szerokość okna
+    static double startHeight = 720.0; // Startowa wysokość okna
+    static double actualWidth;  // Aktualna szerokość okna
+    static double actualHeight; // Aktualna wysokość okna
 
     @Override
     public void start(Stage stage) throws IOException {
+        primaryStage = stage;  // Zapamiętanie głównego Stage
+        loadMainView();
+    }
+
+    // Ładowanie Main-view.fxml
+    public void loadMainView() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main-view.fxml"));
         Pane root = fxmlLoader.load();
 
-        double baseWidth = 1920.0;
-        double baseHeight = 1080.0;
-        double startWidth = 1280.0;
-        double startHeight = 720.0;
-
-        // Rzeczywista rozdzielczość ekranu
-        double screenWidth = javafx.stage.Screen.getPrimary().getBounds().getWidth();
-        double screenHeight = javafx.stage.Screen.getPrimary().getBounds().getHeight();
-
-        // Skala (najmniejszy współczynnik z szerokości i wysokości)
-        double scaleX = screenWidth / baseWidth;
-        double scaleY = screenHeight / baseHeight;
-        double scale = Math.min(scaleX, scaleY); // zachowaj proporcje
-
         // Skalowanie korzenia UI
+        double scale = ViewScale.getScale();
         root.setScaleX(scale);
         root.setScaleY(scale);
 
         // Przeskalowanie font-u w całej scenie
-        baseFontStyle = "-fx-font-size: " + (15 * scale) + "px;";
+        baseFontStyle = ViewScale.getFontStyle();
         root.setStyle(baseFontStyle);
 
         // Dopasowanie sceny do skalowanego UI
         Scene scene = new Scene(root, startWidth * scale, startHeight * scale);
 
-        stage.setTitle("ITAS");
-        stage.setScene(scene);
-        stage.show();
+        primaryStage.setTitle("ITAS");
+        primaryStage.setScene(scene);
+        primaryStage.show();
         startBackgroundRotation(root);
     }
 
@@ -81,6 +79,16 @@ public class MainApplication extends Application {
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+    }
+
+    // Pobranie aktualnych rozmiarów okna (bez ramki okna systemowego Windows)
+    public static void updateViewSize() {
+        Scene currentScene = primaryStage.getScene();
+        actualWidth = currentScene.getWidth();
+        actualHeight = currentScene.getHeight();
+
+        startWidth = actualWidth;
+        startHeight = actualHeight;
     }
 
     public static void main(String[] args) {

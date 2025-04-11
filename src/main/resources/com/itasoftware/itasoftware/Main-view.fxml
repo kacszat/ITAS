@@ -11,7 +11,8 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.itasoftware.itasoftware.MainController"
-            stylesheets="@style.css">
+            stylesheets="@style.css"
+            styleClass="root-main">
 
 <!-- Ustawienie marginesów dla całego układu -->
 <padding>
@@ -20,8 +21,8 @@
 
 <top>
     <!-- Górny box: panel z nazwą -->
-    <HBox spacing="50.0" BorderPane.alignment="CENTER" style="-fx-padding: 0 0 40 0;">
-        <VBox spacing="10.0" prefWidth="1050" styleClass="name-vbox">
+    <HBox BorderPane.alignment="CENTER" style="-fx-padding: 0 0 2.7em 0; -fx-spacing: 3.4em">
+        <VBox styleClass="name-vbox">
 <!--        <VBox spacing="10.0" style="-fx-background-color: #2b2b2b; -fx-padding: 20;" prefWidth="1050">-->
             <Label text="Intersections Traffic Analysis Software" styleClass="name-label"/>
         </VBox>
@@ -30,16 +31,17 @@
 
 
 <center>
-    <HBox spacing="50.0" BorderPane.alignment="CENTER">
+    <HBox BorderPane.alignment="CENTER" style="-fx-spacing: 3.4em">
         <!-- Lewy box: panel z przyciskami -->
-        <VBox spacing="10.0" prefWidth="400" styleClass="menu-vbox">
+        <VBox styleClass="menu-vbox" style="-fx-pref-width: 26.7em">
             <Label text="Menu główne" styleClass="menu-label"/>
             <Button text="Generator skrzyżowań" onAction="#onGeneratorButtonClick" styleClass="menu-button"/>
             <Button text="Symulacja ruchu" onAction="#onSimulationButtonClick" styleClass="menu-button"/>
             <Button text="Ustawienia" onAction="#onSettingsButtonClick" styleClass="menu-button"/>
+            <Button text="Wyjście" onAction="#onExitButtonClick" styleClass="menu-button"/>
         </VBox>
         <!-- Prawy box: panel na pliki -->
-        <VBox spacing="10.0" prefWidth="600" styleClass="menu-vbox">
+        <VBox styleClass="menu-vbox" style="-fx-pref-width: 40em">
             <Label text="Ostatnio otwierane pliki" styleClass="menu-label"/>
             <!-- W przyszłości w tym miejscu możesz dodać listę lub inne elementy -->
         </VBox>

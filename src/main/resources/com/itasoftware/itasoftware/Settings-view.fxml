@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.itasoftware.itasoftware.SettingsController"
+      stylesheets="@style.css"
+      styleClass="root-gray">
+
+<MenuBar>
+    <Menu text="Plik">
+        <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+    </Menu>
+    <Menu text="Test">
+        <MenuItem text="Test"/>
+    </Menu>
+</MenuBar>
+
+<BorderPane>
+    <!-- Ustawienie marginesów dla całego układu -->
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <!-- Środkowy panel (dynamiczna szerokość) -->
+    <center>
+        <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em">
+            <Label text="Ustawienia" styleClass="menu-label"/>
+        </VBox>
+    </center>
+</BorderPane>
+
+</VBox>

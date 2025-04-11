@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.itasoftware.itasoftware.GeneratorController"
+      stylesheets="@style.css"
+      styleClass="root-gray">
+
+    <MenuBar>
+        <Menu text="Plik">
+            <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+        </Menu>
+        <Menu text="Test">
+            <MenuItem text="Test"/>
+        </Menu>
+    </MenuBar>
+
+    <BorderPane>
+        <!-- Ustawienie marginesów dla całego układu -->
+        <padding>
+            <Insets top="30" right="30" bottom="30" left="30"/>
+        </padding>
+
+        <!-- Lewy panel -->
+        <left>
+            <VBox styleClass="generator-vbox" style="-fx-pref-width: 16em;">
+                <Label text="Panel lewy" styleClass="menu-label"/>
+            </VBox>
+        </left>
+
+        <!-- Prawy panel -->
+        <right>
+            <VBox styleClass="generator-vbox" style="-fx-pref-width: 16em;">
+                <Label text="Panel prawy" styleClass="menu-label"/>
+            </VBox>
+        </right>
+
+        <!-- Środkowy panel (dynamiczna szerokość) -->
+        <center>
+            <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em" VBox.vgrow="ALWAYS">
+                <BorderPane.margin>
+                    <Insets left="30" right="30"/>
+                </BorderPane.margin>
+                <Label text="Panel środkowy generatora" styleClass="menu-label"/>
+            </VBox>
+        </center>
+    </BorderPane>
+
+</VBox>

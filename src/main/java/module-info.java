@@ -10,6 +10,7 @@ module com.itasoftware.itasoftware {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires java.desktop;
 
     opens com.itasoftware.itasoftware to javafx.fxml;
     exports com.itasoftware.itasoftware;
