@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -42,10 +43,16 @@
         <!-- Środkowy panel (dynamiczna szerokość) -->
         <center>
             <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em" VBox.vgrow="ALWAYS">
+                <Label text="Panel środkowy generatora" styleClass="menu-label"/>
+
                 <BorderPane.margin>
                     <Insets left="30" right="30"/>
                 </BorderPane.margin>
-                <Label text="Panel środkowy generatora" styleClass="menu-label"/>
+
+                <StackPane fx:id="genCanvasContainer" VBox.vgrow="ALWAYS">
+                    <Canvas fx:id="genCanvas" width="800" height="800"/>
+                </StackPane>
+
             </VBox>
         </center>
     </BorderPane>

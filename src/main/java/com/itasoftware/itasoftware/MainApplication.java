@@ -34,6 +34,8 @@ public class MainApplication extends Application {
     static double startHeight = 720.0; // Startowa wysokość okna
     static double actualWidth;  // Aktualna szerokość okna
     static double actualHeight; // Aktualna wysokość okna
+    static double lastWidth;  // Ostatnia szerokość okna
+    static double lastHeight; // Ostatnia wysokość okna
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -57,6 +59,20 @@ public class MainApplication extends Application {
 
         // Dopasowanie sceny do skalowanego UI
         Scene scene = new Scene(root, startWidth * scale, startHeight * scale);
+
+//        // Dopasowanie sceny do skalowanego UI
+//        Scene scene;
+//        if (SettingsController.isViewMaximized) {
+//            scene = new Scene(root); // bez rozmiaru
+//            primaryStage.setScene(scene);
+//            primaryStage.setMaximized(true);
+//        } else {
+//            scene = new Scene(root, startWidth * scale, startHeight * scale);
+//            primaryStage.setScene(scene);
+//            primaryStage.setMaximized(false);
+//        }
+//        System.out.println("Scene size: " + MainApplication.primaryStage.getScene().getWidth() + "x" + MainApplication.primaryStage.getScene().getHeight());
+//        System.out.println("Maximized: " + MainApplication.primaryStage.isMaximized());
 
         primaryStage.setTitle("ITAS");
         primaryStage.setScene(scene);

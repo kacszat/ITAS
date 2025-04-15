@@ -1,21 +1,13 @@
 package com.itasoftware.itasoftware;
 
-import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GeneratorApplication extends Application {
-    @Override
-    public void start(Stage stage) throws IOException {
-
-    }
-
-    public static void main(String[] args) {
-        launch();
-    }
+public class GeneratorApplication {
 
     public void loadGeneratorView() throws IOException {
         try {
@@ -31,5 +23,4 @@ public class GeneratorApplication extends Application {
             e.printStackTrace();
         }
     }
-
 }

@@ -57,6 +57,23 @@ public class MainController {
             // Pobranie aktualnego rozmiaru
             MainApplication.updateViewSize();
 
+//            // Przełączenie na nową scenę
+//            Scene newScene;
+//            if (SettingsController.isViewMaximized) {
+//                // Nie ustawiamy rozmiarów sceny - system sam to zrobi
+//                newScene = new Scene(newRoot);
+//                MainApplication.primaryStage.setScene(newScene);
+//                MainApplication.primaryStage.setMaximized(true);
+//            } else {
+//                MainApplication.updateViewSize(); // Aktualizacja rozmiarów
+//                newScene = new Scene(newRoot, MainApplication.actualWidth, MainApplication.actualHeight);
+//                MainApplication.primaryStage.setScene(newScene);
+//                MainApplication.primaryStage.setMaximized(false);
+//            }
+//            System.out.println("Scene size: " + MainApplication.primaryStage.getScene().getWidth() + "x" + MainApplication.primaryStage.getScene().getHeight());
+//            System.out.println("Maximized: " + MainApplication.primaryStage.isMaximized());
+//            MainApplication.primaryStage.show();
+
             // Przełączenie na nową scenę
             Scene newScene = new Scene(newRoot, MainApplication.actualWidth, MainApplication.actualHeight);
             MainApplication.primaryStage.setScene(newScene);  // Zmiana sceny na nową

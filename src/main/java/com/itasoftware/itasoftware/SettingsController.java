@@ -1,22 +1,12 @@
 package com.itasoftware.itasoftware;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.stage.Stage;
-
 import java.io.IOException;
 
-public class SettingsController extends Application {
+public class SettingsController {
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-
-    }
+    public static boolean isViewMaximized = false;
 
     // Powrót do głównego menu
     @FXML
@@ -27,6 +17,27 @@ public class SettingsController extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
+
+    @FXML
+    protected void onFullScreenButtonClick() {
+//        if (!MainApplication.primaryStage.isMaximized()) {
+//            isViewMaximized = true; // Jeśli nie jest zmaksymalizowany, ustaw na true
+//            MainApplication.primaryStage.setMaximized(true); // Maksymalizacja okna
+//        } else {
+//            isViewMaximized = false;
+//            MainApplication.primaryStage.setMaximized(false);
+//        }
+//
+//        Platform.runLater(() -> {
+//            System.out.println("Scene size: " + MainApplication.primaryStage.getScene().getWidth() + "x" + MainApplication.primaryStage.getScene().getHeight());
+//            System.out.println("Maximized: " + MainApplication.primaryStage.isMaximized());
+//
+//            MainApplication.updateViewSize(); // aktualizuj tylko po czasie
+//        });
+//
+//        System.out.println("Scene size: " + MainApplication.primaryStage.getScene().getWidth() + "x" + MainApplication.primaryStage.getScene().getHeight());
+//        System.out.println("Maximized: " + MainApplication.primaryStage.isMaximized());
+    }
+
 }

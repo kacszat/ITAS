@@ -28,7 +28,9 @@
     <!-- Środkowy panel (dynamiczna szerokość) -->
     <center>
         <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em">
-            <Label text="Ustawienia" styleClass="menu-label"/>
+            <Label text="Ustawienia" styleClass="menu-label" style="-fx-padding: 0 0 1em 0"/>
+            <Label text="Opcje wyświetlania:"/>
+            <Button text="Pełny ekran" onAction="#onFullScreenButtonClick"/>
         </VBox>
     </center>
 </BorderPane>
