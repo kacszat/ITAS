@@ -75,6 +75,20 @@
     -fx-pref-height: Infinity;
 }
 
+.generator-text {
+    -fx-font-size: 1em;
+    -fx-text-fill: #ffffff;
+}
+
+.generator-slider {
+    -fx-max-width: 15em;
+}
+
+.generator-slider .axis {
+    -fx-tick-label-fill: #ffffff;  /* Kolor tekstu legendy */
+    -fx-tick-mark-fill: #ffffff;   /* Kolor kresek */
+}
+
 
 .menu-bar {
     -fx-background-color: -fx-background; /* Użycie systemowego koloru tła */

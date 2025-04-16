@@ -28,22 +28,34 @@
 
         <!-- Lewy panel -->
         <left>
-            <VBox styleClass="generator-vbox" style="-fx-pref-width: 16em;">
+            <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
                 <Label text="Panel lewy" styleClass="menu-label"/>
+                <Label text="Jezdnia północna:" styleClass="generator-text"/>
+                <Slider fx:id="sliderNorthEntry" styleClass="generator-slider"/>
+                <Slider fx:id="sliderNorthExit" styleClass="generator-slider"/>
+                <Label text="Jezdnia południowa:" styleClass="generator-text"/>
+                <Slider fx:id="sliderSouthEntry" styleClass="generator-slider"/>
+                <Slider fx:id="sliderSouthExit" styleClass="generator-slider"/>
+                <Label text="Jezdnia zachodnia:" styleClass="generator-text"/>
+                <Slider fx:id="sliderWestEntry" styleClass="generator-slider"/>
+                <Slider fx:id="sliderWestExit" styleClass="generator-slider"/>
+                <Label text="Jezdnia wschodnia:" styleClass="generator-text"/>
+                <Slider fx:id="sliderEastEntry" styleClass="generator-slider"/>
+                <Slider fx:id="sliderEastExit" styleClass="generator-slider"/>
             </VBox>
         </left>
 
         <!-- Prawy panel -->
         <right>
-            <VBox styleClass="generator-vbox" style="-fx-pref-width: 16em;">
+            <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
                 <Label text="Panel prawy" styleClass="menu-label"/>
             </VBox>
         </right>
 
         <!-- Środkowy panel (dynamiczna szerokość) -->
         <center>
-            <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em" VBox.vgrow="ALWAYS">
-                <Label text="Panel środkowy generatora" styleClass="menu-label"/>
+            <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 20em" VBox.vgrow="ALWAYS">
+                <Label text="Wizualizacja tworzonego skrzyżowania" styleClass="menu-label"/>
 
                 <BorderPane.margin>
                     <Insets left="30" right="30"/>
