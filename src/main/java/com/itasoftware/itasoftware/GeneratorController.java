@@ -2,6 +2,7 @@ package com.itasoftware.itasoftware;
 
 import javafx.fxml.FXML;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import javafx.event.ActionEvent;
@@ -20,6 +21,7 @@ public class GeneratorController {
     @FXML private StackPane genCanvasContainer;
     private static final List<IntersectionLane> intersectionLanes = new ArrayList<>();
     private static final List<StopLine> stopLines = new ArrayList<>();
+    private static final List<IntersectionLaneButton> intersectionLaneButtons = new ArrayList<>();
     private final Map<Slider, SliderLane> sliderMap = new HashMap<>();
     @FXML private Slider sliderNorthEntry, sliderNorthExit, sliderSouthEntry, sliderSouthExit, sliderEastEntry, sliderEastExit, sliderWestEntry, sliderWestExit;
 
@@ -67,12 +69,12 @@ public class GeneratorController {
             configureSlider(slider);
             slider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 SliderLane info = sliderMap.get(slider);
-                System.out.println("Zmiana suwaka: " + info.getLocalization() + " " + info.getType() + " -> " + newVal.intValue());
+                //System.out.println("Zmiana suwaka: " + info.getLocalization() + " " + info.getType() + " -> " + newVal.intValue());
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
 
-        drawCanvas(); // pierwsze rysowanie
+        drawCanvas(); // Pierwsze rysowanie
     }
 
     // Ustawienia sliderów
@@ -145,17 +147,34 @@ public class GeneratorController {
         drawCanvas();
     }
 
-    private void clearLists() {
-        intersectionLanes.clear();
-        stopLines.clear();
+    @FXML
+    private void defaultIntersection() {    // Załadowanie domyślnego skrzyżowania
+        for (Slider slider : sliderMap.keySet()) {
+            slider.setValue(1);
+            slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                SliderLane info = sliderMap.get(slider);
+                updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
+            });
+        }
+    }
+
+    @FXML
+    private void clearIntersection() {      // Wyczyszczenie skrzyżowania
+        for (Slider slider : sliderMap.keySet()) {
+            slider.setValue(0);
+            slider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                SliderLane info = sliderMap.get(slider);
+                updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
+            });
+        }
     }
 
     // Rysowanie pasów ruchu skrzyżowania
     private void drawLanes(GraphicsContext gc, IntersectionLane lane) {
         double centerX = genCanvas.getWidth() / 2;
         double centerY = genCanvas.getHeight() / 2;
-        double laneWidth = 20;
-        double laneHeight = 400;
+        double laneWidth = 25;      // Szerokość pasa ruchu
+        double laneHeight = 400;    // Długość pasa ruchu
 
         double x = 0, y = 0, w = 0, h = 0;
         int offset = lane.getIndex();
@@ -239,6 +258,8 @@ public class GeneratorController {
 
         double cutoff = intersectionCount * laneWidth;
         int stopLaneHeight = 2;
+        int buttonSize = 15;
+        double buttonBuffer = (laneWidth - buttonSize)/2;
 
         // Rysowanie białych linii (z uwzględnieniem cutoff)
         gc.setStroke(Color.WHITE);
@@ -252,6 +273,7 @@ public class GeneratorController {
                     gc.strokeLine(x, y, x, centerY - cutoff);
                 }
                 drawStopLine(gc, x, (centerY - cutoff - stopLaneHeight), laneWidth, stopLaneHeight, lane);
+                drawIntersectionLaneButton(gc, (x + buttonBuffer), (centerY - cutoff - stopLaneHeight - laneWidth), buttonSize, buttonSize, lane);
             }
             case SOUTH -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -260,6 +282,7 @@ public class GeneratorController {
                     gc.strokeLine(x + w, centerY + cutoff, x + w, y + h);
                 }
                 drawStopLine(gc, x, (centerY + cutoff), laneWidth, stopLaneHeight, lane);
+                drawIntersectionLaneButton(gc, (x + buttonBuffer), (centerY + cutoff + laneWidth - buttonSize), buttonSize, buttonSize, lane);
             }
             case EAST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -268,6 +291,7 @@ public class GeneratorController {
                     gc.strokeLine(centerX + cutoff, y, x + w, y);
                 }
                 drawStopLine(gc, (centerX + cutoff), y, stopLaneHeight, laneWidth, lane);
+                drawIntersectionLaneButton(gc, (centerX + cutoff + laneWidth - buttonSize), (y + buttonBuffer), buttonSize, buttonSize, lane);
             }
             case WEST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -276,6 +300,7 @@ public class GeneratorController {
                     gc.strokeLine(centerX - cutoff, y + h, x - w, y + h);
                 }
                 drawStopLine(gc, (centerX - cutoff - stopLaneHeight), y, stopLaneHeight, laneWidth, lane);
+                drawIntersectionLaneButton(gc, (centerX - cutoff - stopLaneHeight - laneWidth), (y + buttonBuffer), buttonSize, buttonSize, lane);
             }
         }
     }
@@ -297,5 +322,49 @@ public class GeneratorController {
 
         StopLine stopLine = new StopLine(lane.getLocalization(), lane.getType(), lane.getIndex(), centerX, centerY);
         stopLines.add(stopLine);
+    }
+
+    boolean isIntersectionLaneButtonShown = false;
+
+    @FXML   // Pokazanie przycisków na pasach ruchu
+    private void showIntersectionLaneButton() {
+        isIntersectionLaneButtonShown = !isIntersectionLaneButtonShown;
+        drawCanvas();
+    }
+
+    // Funkcja rysująca przycisk i dodająca obiekt do klasy IntersectionLaneButton
+    private void drawIntersectionLaneButton(GraphicsContext gc, double x1, double y1, double x2, double y2, IntersectionLane lane) {
+
+        if (isIntersectionLaneButtonShown)
+            if (lane.getType() == IntersectionLane.Type.ENTRY) {
+                gc.setFill(Color.RED);
+                gc.fillRect(x1, y1, x2, y2);
+//                Button button = new Button();
+//                button.setPrefSize(15, 15);
+//                button.setLayoutX(x1);
+//                button.setLayoutY(y1);
+//
+//                // Obsługa kliknięcia – zmiana koloru
+//                button.setOnAction(event -> {
+//                    String currentStyle = button.getStyle();
+//                    if (currentStyle.contains("red")) {
+//                        button.setStyle("-fx-background-color: yellow;");
+//                    } else {
+//                        button.setStyle("-fx-background-color: red;");
+//                    }
+//                });
+//
+//                genCanvasContainer.getChildren().add(button); // <--- TO jest kluczowe!
+            }
+            else {
+                gc.setFill(Color.BLUE);
+                gc.fillRect(x1, y1, x2, y2);
+            }
+
+        double centerX = (x1+x2)/2;
+        double centerY = (y1+y2)/2;
+
+        IntersectionLaneButton intersectionLaneButton = new IntersectionLaneButton(lane.getLocalization(), lane.getType(), lane.getIndex(), centerX, centerY);
+        intersectionLaneButtons.add(intersectionLaneButton);
     }
 }

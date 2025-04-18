@@ -75,18 +75,62 @@
     -fx-pref-height: Infinity;
 }
 
+.generator-hbox {
+    -fx-spacing: 1em;
+}
+
 .generator-text {
     -fx-font-size: 1em;
     -fx-text-fill: #ffffff;
 }
 
 .generator-slider {
-    -fx-max-width: 15em;
+    -fx-min-width: 15em;
 }
 
 .generator-slider .axis {
     -fx-tick-label-fill: #ffffff;  /* Kolor tekstu legendy */
     -fx-tick-mark-fill: #ffffff;   /* Kolor kresek */
+}
+
+.generator-region1 {
+    -fx-pref-width: 3em;
+}
+
+.generator-combobox {
+    -fx-min-width: 20em;
+    -fx-border-color: #ffffff;
+    -fx-background-color: #3c3f41;
+}
+
+.generator-combobox{
+    -fx-min-width: 20em;
+    -fx-border-color: #ffffff;
+    -fx-background-color: #3c3f41;
+    -fx-padding: 0.2em;
+}
+
+.generator-combobox .list-cell{
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #ffffff;
+}
+
+.generator-combobox .list-cell:hover{
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #3c3f41;
+}
+
+.generator-button {
+    -fx-pref-width: 15em;
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 1em;
+    -fx-border-color: #ffffff;
+    -fx-padding: 0.5em;
+}
+
+.generator-button:hover {
+    -fx-background-color: #4a4d50;
 }
 
 
@@ -108,7 +152,7 @@
 }
 
 .menu-item {
-    -fx-background-color: white;
+    -fx-background-color: #ffffff;
     -fx-text-fill: black;
     -fx-border-color: transparent;
     -fx-padding: 0.1em 0.4em 0.1em 0.4em;

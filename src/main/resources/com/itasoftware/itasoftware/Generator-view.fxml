@@ -5,6 +5,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.itasoftware.itasoftware.GeneratorController"
@@ -29,19 +31,70 @@
         <!-- Lewy panel -->
         <left>
             <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
-                <Label text="Panel lewy" styleClass="menu-label"/>
+                <Region style="-fx-padding: 0 0 1em 0"/>
+                <Label text="Wybór typu skrzyżowania:" styleClass="generator-text"/>
+                <ComboBox styleClass="generator-combobox" value="Skrzyżowanie klasyczne">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Skrzyżowanie klasyczne"/>
+                            <String fx:value="Test 1"/>
+                            <String fx:value="Test 2"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Region style="-fx-padding: 0 0 2em 0"/>
+
                 <Label text="Jezdnia północna:" styleClass="generator-text"/>
-                <Slider fx:id="sliderNorthEntry" styleClass="generator-slider"/>
-                <Slider fx:id="sliderNorthExit" styleClass="generator-slider"/>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wlot:  " styleClass="generator-text"/>
+                    <Slider fx:id="sliderNorthEntry" styleClass="generator-slider"/>
+                </HBox>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wylot:" styleClass="generator-text"/>
+                    <Slider fx:id="sliderNorthExit" styleClass="generator-slider"/>
+                </HBox>
+
                 <Label text="Jezdnia południowa:" styleClass="generator-text"/>
-                <Slider fx:id="sliderSouthEntry" styleClass="generator-slider"/>
-                <Slider fx:id="sliderSouthExit" styleClass="generator-slider"/>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wlot:  " styleClass="generator-text"/>
+                    <Slider fx:id="sliderSouthEntry" styleClass="generator-slider"/>
+                </HBox>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wylot:" styleClass="generator-text"/>
+                    <Slider fx:id="sliderSouthExit" styleClass="generator-slider"/>
+                </HBox>
+
                 <Label text="Jezdnia zachodnia:" styleClass="generator-text"/>
-                <Slider fx:id="sliderWestEntry" styleClass="generator-slider"/>
-                <Slider fx:id="sliderWestExit" styleClass="generator-slider"/>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wlot:  " styleClass="generator-text"/>
+                    <Slider fx:id="sliderWestEntry" styleClass="generator-slider"/>
+                </HBox>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wylot:" styleClass="generator-text"/>
+                    <Slider fx:id="sliderWestExit" styleClass="generator-slider"/>
+                </HBox>
+
                 <Label text="Jezdnia wschodnia:" styleClass="generator-text"/>
-                <Slider fx:id="sliderEastEntry" styleClass="generator-slider"/>
-                <Slider fx:id="sliderEastExit" styleClass="generator-slider"/>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wlot:  " styleClass="generator-text"/>
+                    <Slider fx:id="sliderEastEntry" styleClass="generator-slider"/>
+                </HBox>
+                <HBox styleClass="generator-hbox">
+                    <Region styleClass="generator-region1"/>
+                    <Label text="Wylot:" styleClass="generator-text"/>
+                    <Slider fx:id="sliderEastExit" styleClass="generator-slider"/>
+                </HBox>
+
+                <Region style="-fx-padding: 0 0 2em 0"/>
+                <Button text="Domyślne skrzyżowanie" styleClass="generator-button" onAction="#defaultIntersection"/>
+                <Button text="Wyczyść skrzyżowanie" styleClass="generator-button" onAction="#clearIntersection"/>
             </VBox>
         </left>
 
@@ -49,6 +102,7 @@
         <right>
             <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
                 <Label text="Panel prawy" styleClass="menu-label"/>
+                <Button text="Wyznacz trajektorie ruchu" styleClass="generator-button" onAction="#showIntersectionLaneButton"/>
             </VBox>
         </right>
 
@@ -64,6 +118,8 @@
                 <StackPane fx:id="genCanvasContainer" VBox.vgrow="ALWAYS">
                     <Canvas fx:id="genCanvas" width="800" height="800"/>
                 </StackPane>
+
+                <Pane style="-fx-background-color: #474747; -fx-min-height: 1em; -fx-pref-height: 1em" />
 
             </VBox>
         </center>
