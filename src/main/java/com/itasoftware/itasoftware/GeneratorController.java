@@ -24,7 +24,11 @@ public class GeneratorController {
     private static final List<IntersectionLaneButton> intersectionLaneButtons = new ArrayList<>();
     private final Map<Slider, SliderLane> sliderMap = new HashMap<>();
     @FXML private Slider sliderNorthEntry, sliderNorthExit, sliderSouthEntry, sliderSouthExit, sliderEastEntry, sliderEastExit, sliderWestEntry, sliderWestExit;
-
+    boolean isIntersectionLaneButtonShown = false;
+    private IntersectionLaneButton activeEntryButton = null;
+    private IntersectionLaneButton activeExitButton = null;
+    List<IntersectionLaneButton> listActiveEntryButtons = new ArrayList<>();
+    List<IntersectionLaneButton> listActiveExitButtons = new ArrayList<>();
 
     // Powrót do głównego menu
     @FXML
@@ -45,6 +49,21 @@ public class GeneratorController {
             scaleCanvas();
         });
 
+        // Wczytanie sliderów i pasów ruchu
+        loadSlidersAndIntersectionLanes();
+
+        // Wykrywanie kliknięć myszką
+        mouseClickHandler();
+
+        // Czyszczenie listy przycisków
+        intersectionLaneButtons.clear();
+
+        // Rysowanie
+        drawCanvas();
+    }
+
+    // Funkcja wczytująca slidery
+    private void loadSlidersAndIntersectionLanes() {
         if (intersectionLanes.isEmpty()) {
             intersectionLanes.add(new IntersectionLane(IntersectionLane.Localization.NORTH, IntersectionLane.Type.ENTRY, 0));
             intersectionLanes.add(new IntersectionLane(IntersectionLane.Localization.NORTH, IntersectionLane.Type.EXIT, 0));
@@ -73,8 +92,6 @@ public class GeneratorController {
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
-
-        drawCanvas(); // Pierwsze rysowanie
     }
 
     // Ustawienia sliderów
@@ -136,6 +153,9 @@ public class GeneratorController {
     private void updateIntersectionLanes(SliderLane.Localization slider_localization, SliderLane.Type slider_type, int count) {
         // Usunięcie starych pasów
         intersectionLanes.removeIf(lane -> lane.getLocalization().name().equals(slider_localization.name()) && lane.getType().name().equals(slider_type.name()));
+
+        // Czyszczenie listy przycisków
+        intersectionLaneButtons.clear();
 
         // Dodawanie nowych pasów
         for (int i = 0; i < count; i++) {
@@ -273,7 +293,7 @@ public class GeneratorController {
                     gc.strokeLine(x, y, x, centerY - cutoff);
                 }
                 drawStopLine(gc, x, (centerY - cutoff - stopLaneHeight), laneWidth, stopLaneHeight, lane);
-                drawIntersectionLaneButton(gc, (x + buttonBuffer), (centerY - cutoff - stopLaneHeight - laneWidth), buttonSize, buttonSize, lane);
+                drawIntersectionLaneButton(gc, (x + buttonBuffer), (centerY - cutoff - stopLaneHeight - laneWidth), buttonSize, buttonSize, buttonSize, lane);
             }
             case SOUTH -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -282,7 +302,7 @@ public class GeneratorController {
                     gc.strokeLine(x + w, centerY + cutoff, x + w, y + h);
                 }
                 drawStopLine(gc, x, (centerY + cutoff), laneWidth, stopLaneHeight, lane);
-                drawIntersectionLaneButton(gc, (x + buttonBuffer), (centerY + cutoff + laneWidth - buttonSize), buttonSize, buttonSize, lane);
+                drawIntersectionLaneButton(gc, (x + buttonBuffer), (centerY + cutoff + laneWidth - buttonSize), buttonSize, buttonSize, buttonSize, lane);
             }
             case EAST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -291,7 +311,7 @@ public class GeneratorController {
                     gc.strokeLine(centerX + cutoff, y, x + w, y);
                 }
                 drawStopLine(gc, (centerX + cutoff), y, stopLaneHeight, laneWidth, lane);
-                drawIntersectionLaneButton(gc, (centerX + cutoff + laneWidth - buttonSize), (y + buttonBuffer), buttonSize, buttonSize, lane);
+                drawIntersectionLaneButton(gc, (centerX + cutoff + laneWidth - buttonSize), (y + buttonBuffer), buttonSize, buttonSize, buttonSize, lane);
             }
             case WEST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -300,7 +320,7 @@ public class GeneratorController {
                     gc.strokeLine(centerX - cutoff, y + h, x - w, y + h);
                 }
                 drawStopLine(gc, (centerX - cutoff - stopLaneHeight), y, stopLaneHeight, laneWidth, lane);
-                drawIntersectionLaneButton(gc, (centerX - cutoff - stopLaneHeight - laneWidth), (y + buttonBuffer), buttonSize, buttonSize, lane);
+                drawIntersectionLaneButton(gc, (centerX - cutoff - stopLaneHeight - laneWidth), (y + buttonBuffer), buttonSize, buttonSize, buttonSize, lane);
             }
         }
     }
@@ -324,7 +344,67 @@ public class GeneratorController {
         stopLines.add(stopLine);
     }
 
-    boolean isIntersectionLaneButtonShown = false;
+    // Funkcja wykrywająca kliknięcie w przycisk
+    private void mouseClickHandler() {
+        genCanvas.setOnMouseClicked(event -> {
+            double clickX = event.getX() / genCanvas.getScaleX();
+            double clickY = event.getY() / genCanvas.getScaleY();
+            listActiveEntryButtons.clear();
+            listActiveExitButtons.clear();
+
+            for (IntersectionLaneButton iLButton : intersectionLaneButtons) {
+                if (iLButton.contains(clickX, clickY)) {
+                    if (iLButton.getType() == IntersectionLane.Type.ENTRY && activeExitButton == null) {
+                        if (iLButton.isActive()) {      // Jeśli jakiś przycisk typu Entry jest aktywny, wyłączamy go
+                            iLButton.toggle();
+                            activeEntryButton = null;
+                            // Wyłączenie włączonych Exitów dla danego Entry
+                            for (IntersectionLaneButton b : intersectionLaneButtons) {
+                                if (b.getType() == IntersectionLane.Type.EXIT && b.isActive()) {
+                                    b.toggle();
+                                }
+                            }
+                        } else {
+                            // Jeśli kliknięto jakiś przycisk typu Entry, to ustawiamy go jako aktywny
+                            if (activeEntryButton == null) {
+                                iLButton.toggle();
+                                activeEntryButton = iLButton;   // Zapamiętujemy jaki przycisk Entry jest aktywny
+                            }
+                            // Kliknięcie innego przycisku Entry nie powoduje żadnej akcji, są zablokowane
+                        }
+                    } else if (iLButton.getType() == IntersectionLane.Type.EXIT && activeEntryButton != null) {
+                        iLButton.toggle(); // Przyciski typu Exit nie są zablokowane
+                    }
+
+                    if (iLButton.getType() == IntersectionLane.Type.EXIT && activeEntryButton == null) {
+                        if (iLButton.isActive()) {      // Jeśli jakiś przycisk typu Exit jest aktywny, wyłączamy go
+                            iLButton.toggle();
+                            activeExitButton = null;
+                            // Wyłączenie włączonych Entrów dla danego Exit
+                            for (IntersectionLaneButton b : intersectionLaneButtons) {
+                                if (b.getType() == IntersectionLane.Type.ENTRY && b.isActive()) {
+                                    b.toggle();
+                                }
+                            }
+                        } else {
+                            // Jeśli kliknięto jakiś przycisk typu Exit, to ustawiamy go jako aktywny
+                            if (activeExitButton == null) {
+                                iLButton.toggle();
+                                activeExitButton = iLButton;   // Zapamiętujemy jaki przycisk Exit jest aktywny
+                            }
+                            // Kliknięcie innego przycisku Exit nie powoduje żadnej akcji, są zablokowane
+                        }
+                    } else if (iLButton.getType() == IntersectionLane.Type.ENTRY && activeExitButton != null) {
+                        iLButton.toggle(); // Przyciski typu Entry nie są zablokowane
+                        listActiveEntryButtons.add(iLButton);
+                    }
+
+                    drawCanvas();
+                    break;
+                }
+            }
+        });
+    }
 
     @FXML   // Pokazanie przycisków na pasach ruchu
     private void showIntersectionLaneButton() {
@@ -333,38 +413,68 @@ public class GeneratorController {
     }
 
     // Funkcja rysująca przycisk i dodająca obiekt do klasy IntersectionLaneButton
-    private void drawIntersectionLaneButton(GraphicsContext gc, double x1, double y1, double x2, double y2, IntersectionLane lane) {
-
-        if (isIntersectionLaneButtonShown)
-            if (lane.getType() == IntersectionLane.Type.ENTRY) {
-                gc.setFill(Color.RED);
-                gc.fillRect(x1, y1, x2, y2);
-//                Button button = new Button();
-//                button.setPrefSize(15, 15);
-//                button.setLayoutX(x1);
-//                button.setLayoutY(y1);
-//
-//                // Obsługa kliknięcia – zmiana koloru
-//                button.setOnAction(event -> {
-//                    String currentStyle = button.getStyle();
-//                    if (currentStyle.contains("red")) {
-//                        button.setStyle("-fx-background-color: yellow;");
-//                    } else {
-//                        button.setStyle("-fx-background-color: red;");
-//                    }
-//                });
-//
-//                genCanvasContainer.getChildren().add(button); // <--- TO jest kluczowe!
-            }
-            else {
-                gc.setFill(Color.BLUE);
-                gc.fillRect(x1, y1, x2, y2);
+    private void drawIntersectionLaneButton(GraphicsContext gc, double x1, double y1, double x2, double y2, double buttonSize, IntersectionLane lane) {
+        if (isIntersectionLaneButtonShown) {
+            // Sprawdzenie, czy istnieje już przycisk na danym pasie ruchu
+            IntersectionLaneButton existingButton = intersectionLaneButtons.stream()
+                    .filter(b -> b.getLocalization() == lane.getLocalization() &&
+                            b.getType() == lane.getType() &&
+                            b.getIndex() == lane.getIndex())
+                    .findFirst()
+                    .orElse(null);
+            // Tworzenie nowego przycisku w przypadku jego braku
+            if (existingButton == null) {
+                IntersectionLaneButton button = new IntersectionLaneButton(
+                        lane.getLocalization(), lane.getType(), lane.getIndex(),
+                        (x1 + x2) / 2, (y1 + y2) / 2, x1, y1, buttonSize
+                );
+                intersectionLaneButtons.add(button);
+                existingButton = button;
             }
 
-        double centerX = (x1+x2)/2;
-        double centerY = (y1+y2)/2;
+            // Wybierz kolor na podstawie stanu przycisku
+            Color buttonColor = null;
 
-        IntersectionLaneButton intersectionLaneButton = new IntersectionLaneButton(lane.getLocalization(), lane.getType(), lane.getIndex(), centerX, centerY);
-        intersectionLaneButtons.add(intersectionLaneButton);
+            if (lane.getType() == IntersectionLaneButton.Type.ENTRY && activeExitButton == null) {
+                if (existingButton == activeEntryButton) {
+                    buttonColor = Color.LIME;
+                } else if (activeEntryButton != null) {
+                    buttonColor = Color.BLACK;
+                } else {
+                    buttonColor = Color.YELLOW;
+                }
+            } else if (lane.getType() == IntersectionLaneButton.Type.EXIT && activeExitButton == null) {
+                if (existingButton.isActive()) {
+                    buttonColor = Color.GREEN;
+                } else if (activeEntryButton != null) {
+                    buttonColor = Color.RED;
+                } else {
+                    buttonColor = Color.YELLOW;
+                }
+            }
+
+            if (lane.getType() == IntersectionLaneButton.Type.EXIT && activeEntryButton == null) {
+                if (existingButton == activeExitButton) {
+                    buttonColor = Color.LIME;
+                } else if (activeExitButton != null) {
+                    buttonColor = Color.BLACK;
+                } else {
+                    buttonColor = Color.YELLOW;
+                }
+            } else if (lane.getType() == IntersectionLaneButton.Type.ENTRY && activeEntryButton == null) {
+                if (existingButton.isActive()) {
+                    buttonColor = Color.GREEN;
+                } else if (activeExitButton != null) {
+                    buttonColor = Color.RED;
+                } else {
+                    buttonColor = Color.YELLOW;
+                }
+            }
+
+            gc.setFill(buttonColor);
+            gc.fillRect(x1, y1, x2, y2);
+        }
+
     }
+
 }

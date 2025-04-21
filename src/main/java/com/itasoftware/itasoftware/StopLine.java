@@ -5,14 +5,14 @@ public class StopLine extends IntersectionLane {
     private Localization localization;
     private Type type;
     private int index;
-    private double positionX;
-    private double positionY;
+    private double positionCenterX;
+    private double positionCenterY;
 
     // Klasa StopLine dziedziczy po IntersectionLane
-    public StopLine(Localization localization, Type type, int index, double positionX, double positionY) {
+    public StopLine(Localization localization, Type type, int index, double positionCenterX, double positionCenterY) {
         super(localization, type, index);
-        this.positionX = positionX;
-        this.positionY = positionY;
+        this.positionCenterX = positionCenterX;
+        this.positionCenterY = positionCenterY;
     }
 
     public Localization getLocalization() {
@@ -27,11 +27,11 @@ public class StopLine extends IntersectionLane {
         return index;
     }
 
-    public double getPositionX() {
-        return positionX;
+    public double getPositionCenterX() {
+        return positionCenterX;
     }
 
-    public double getPositionY() {
-        return positionY;
+    public double getPositionCenterY() {
+        return positionCenterY;
     }
 }
