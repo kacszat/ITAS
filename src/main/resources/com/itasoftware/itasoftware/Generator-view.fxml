@@ -102,7 +102,14 @@
         <right>
             <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
                 <Label text="Panel prawy" styleClass="menu-label"/>
-                <Button text="Wyznacz trajektorie ruchu" styleClass="generator-button" onAction="#showIntersectionLaneButton"/>
+                <Button text="Wyznacz relacje ruchu" styleClass="generator-button" onAction="#showIntersectionLaneButton"/>
+                <Button text="Pokaż wszystkie relacje ruchu" styleClass="generator-button" onAction="#showMovementRelations"/>
+                <Button text="Ukryj wszystkie relacje ruchu" styleClass="generator-button" onAction="#hideMovementRelations"/>
+                <Button text="Pokaż north" styleClass="generator-button" onAction="#showMovementRelationsNorth"/>
+                <Button text="Pokaż south" styleClass="generator-button" onAction="#showMovementRelationsSouth"/>
+                <Button text="Pokaż east" styleClass="generator-button" onAction="#showMovementRelationsEast"/>
+                <Button text="Pokaż west" styleClass="generator-button" onAction="#showMovementRelationsWest"/>
+                <Button text="Usuń relacje ruchu" styleClass="generator-button" onAction="#clearMovementRelations"/>
             </VBox>
         </right>
 

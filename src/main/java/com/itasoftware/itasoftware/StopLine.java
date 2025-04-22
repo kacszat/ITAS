@@ -2,9 +2,6 @@ package com.itasoftware.itasoftware;
 
 public class StopLine extends IntersectionLane {
 
-    private Localization localization;
-    private Type type;
-    private int index;
     private double positionCenterX;
     private double positionCenterY;
 
@@ -13,18 +10,6 @@ public class StopLine extends IntersectionLane {
         super(localization, type, index);
         this.positionCenterX = positionCenterX;
         this.positionCenterY = positionCenterY;
-    }
-
-    public Localization getLocalization() {
-        return localization;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public int getIndex() {
-        return index;
     }
 
     public double getPositionCenterX() {
