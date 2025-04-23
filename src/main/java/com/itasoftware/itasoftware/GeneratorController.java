@@ -27,6 +27,7 @@ public class GeneratorController {
     boolean isMRNorthShown, isMRSouthShown, isMREastShown, isMRWestShown = false;
     private IntersectionLaneButton activeEntryButton = null;
     private IntersectionLaneButton activeExitButton = null;
+    private IntersectionLaneButton buttonInRelation = null;
     List<IntersectionLaneButton> listActiveEntryButtons = new ArrayList<>();
     List<IntersectionLaneButton> listActiveExitButtons = new ArrayList<>();
     private MovementRelations movementRelations = new MovementRelations(null, null); // Inicjalziacja relacji
@@ -455,9 +456,9 @@ public class GeneratorController {
                     if (existingButton == activeEntryButton) {
                         buttonColor = Color.LIME;
                     } else if (activeEntryButton != null) {
-                        buttonColor = Color.BLACK;
+                        buttonColor = Color.rgb(40, 40, 40, 1.0);
                     } else {
-                        buttonColor = Color.YELLOW;
+                        buttonColor = Color.rgb(200, 200, 0, 1.0);
                     }
                 } else if (existingButton.getType() == IntersectionLaneButton.Type.EXIT && activeExitButton == null) {
                     if (existingButton.isActive()) {
@@ -465,7 +466,7 @@ public class GeneratorController {
                     } else if (activeEntryButton != null) {
                         buttonColor = Color.RED;
                     } else {
-                        buttonColor = Color.YELLOW;
+                        buttonColor = Color.rgb(200, 200, 0, 1.0);
                     }
                 }
 
@@ -473,9 +474,9 @@ public class GeneratorController {
                     if (existingButton == activeExitButton) {
                         buttonColor = Color.LIME;
                     } else if (activeExitButton != null) {
-                        buttonColor = Color.BLACK;
+                        buttonColor = Color.rgb(40, 40, 40, 1.0);
                     } else {
-                        buttonColor = Color.YELLOW;
+                        buttonColor = Color.rgb(200, 200, 0, 1.0);
                     }
                 } else if (existingButton.getType() == IntersectionLaneButton.Type.ENTRY && activeEntryButton == null) {
                     if (existingButton.isActive()) {
@@ -483,7 +484,7 @@ public class GeneratorController {
                     } else if (activeExitButton != null) {
                         buttonColor = Color.RED;
                     } else {
-                        buttonColor = Color.YELLOW;
+                        buttonColor = Color.rgb(200, 200, 0, 1.0);
                     }
                 }
 
@@ -582,8 +583,9 @@ public class GeneratorController {
         double control_Offset_Right = laneWidth * 0.5 * ((double) indexB / indexA);
         double control_Offset_Back = laneWidth * ((double) indexB / indexA);
         boolean drawCurve = false;
+        //gc.setStroke(Color.rgb(50, 255, 50, 1.0));
         gc.setStroke(Color.RED);
-        gc.setLineWidth(2);
+        gc.setLineWidth(3);
 
         // Zdefiniowanie bazowych współrzędnych punktów kontrolnych
         control_X1 = A_X;

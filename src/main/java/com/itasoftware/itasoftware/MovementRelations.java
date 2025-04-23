@@ -73,4 +73,20 @@ public class MovementRelations {
         return objectB_Y;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MovementRelations that = (MovementRelations) o;
+
+        return (objectA.equals(that.objectA) && objectB.equals(that.objectB)) ||
+                (objectA.equals(that.objectB) && objectB.equals(that.objectA));
+    }
+
+    @Override
+    public int hashCode() {
+        return objectA.hashCode() + objectB.hashCode(); // symetryczne
+    }
+
 }

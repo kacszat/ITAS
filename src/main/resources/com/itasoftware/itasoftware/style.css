@@ -97,6 +97,10 @@
     -fx-pref-width: 3em;
 }
 
+.generator-region2 {
+    -fx-pref-width: 2.2em;
+}
+
 .generator-combobox {
     -fx-min-width: 20em;
     -fx-border-color: #ffffff;
@@ -130,6 +134,32 @@
 }
 
 .generator-button:hover {
+    -fx-background-color: #4a4d50;
+}
+
+.generator-button-small {
+    -fx-pref-width: 10em;
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 1em;
+    -fx-border-color: #ffffff;
+    -fx-padding: 0.5em;
+}
+
+.generator-button-small:hover {
+    -fx-background-color: #4a4d50;
+}
+
+.generator-button-big {
+    -fx-pref-width: 17em;
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 1em;
+    -fx-border-color: #ffffff;
+    -fx-padding: 0.5em;
+}
+
+.generator-button-big:hover {
     -fx-background-color: #4a4d50;
 }
 

@@ -39,4 +39,25 @@ public class IntersectionLaneButton extends IntersectionLane {
     public boolean isActive() {
         return isActive;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof IntersectionLaneButton)) return false;
+
+        IntersectionLaneButton that = (IntersectionLaneButton) o;
+
+        return this.getIndex() == that.getIndex()
+                && this.getLocalization() == that.getLocalization()
+                && this.getType() == that.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getIndex();
+        result = 31 * result + (getLocalization() != null ? getLocalization().hashCode() : 0);
+        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        return result;
+    }
+
 }
