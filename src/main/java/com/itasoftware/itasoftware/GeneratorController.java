@@ -2,13 +2,20 @@ package com.itasoftware.itasoftware;
 
 import javafx.fxml.FXML;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.StackPane;
 import javafx.event.ActionEvent;
+import javafx.stage.FileChooser;
+
+import java.io.BufferedReader;
+import java.io.File;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
+import javafx.stage.Window;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
@@ -27,7 +34,6 @@ public class GeneratorController {
     boolean isMRNorthShown, isMRSouthShown, isMREastShown, isMRWestShown = false;
     private IntersectionLaneButton activeEntryButton = null;
     private IntersectionLaneButton activeExitButton = null;
-    private IntersectionLaneButton buttonInRelation = null;
     List<IntersectionLaneButton> listActiveEntryButtons = new ArrayList<>();
     List<IntersectionLaneButton> listActiveExitButtons = new ArrayList<>();
     private MovementRelations movementRelations = new MovementRelations(null, null); // Inicjalziacja relacji
@@ -42,6 +48,162 @@ public class GeneratorController {
             e.printStackTrace();
         }
 
+    }
+
+    // Zapisanie skrzyżowania
+    @FXML
+    public void saveIntersection(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz plik");
+
+        // Filtr rozszerzeń
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Plik skrzyżowania ITAS (*.itaint)", "*.itaint")
+        );
+
+        // Okno zapisu
+        Window window = ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
+        File file = fileChooser.showSaveDialog(window);
+
+        if (file != null) {
+            SaveLoadIntersection.saveIntersectionLane(file.getAbsolutePath(), intersectionLanes);
+            SaveLoadIntersection.saveStopLine(file.getAbsolutePath(), stopLines);
+            SaveLoadIntersection.saveIntersectionLaneButton(file.getAbsolutePath(), intersectionLaneButtons);
+            SaveLoadIntersection.saveMovementRelations(file.getAbsolutePath(), MovementRelations.movementRelations);
+        }
+    }
+
+    // Wczytanie skrzyżowania
+    @FXML
+    public void loadIntersection(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Wczytaj plik");
+
+        // Filtr rozszerzeń
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Pliki ITAINT (*.itaint)", "*.itaint");
+        fileChooser.getExtensionFilters().add(filter);
+
+        // Okno wyboru pliku
+        Window window = ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
+        File file = fileChooser.showOpenDialog(window);
+
+        if (file != null) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                intersectionLanes.clear();
+                intersectionLaneButtons.clear();
+                stopLines.clear();
+                MovementRelations.clearMovementRelations();
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+
+                    if (line.startsWith("ila,")) {
+                        String[] tokens = line.split(",");
+                        if (tokens.length == 4) {
+                            IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
+                            IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
+                            int index = Integer.parseInt(tokens[3]);
+                            intersectionLanes.add(new IntersectionLane(localization, type, index));
+
+                            // Ustawienie sliderów na bazie danych z wczytanego skrzyżowania
+                            if (localization == IntersectionLane.Localization.NORTH && type == IntersectionLane.Type.ENTRY) {
+                                sliderNorthEntry.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.NORTH && type == IntersectionLane.Type.EXIT) {
+                                sliderNorthExit.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.SOUTH && type == IntersectionLane.Type.ENTRY) {
+                                sliderSouthEntry.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.SOUTH && type == IntersectionLane.Type.EXIT) {
+                                sliderSouthExit.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.EAST && type == IntersectionLane.Type.ENTRY) {
+                                sliderEastEntry.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.EAST && type == IntersectionLane.Type.EXIT) {
+                                sliderEastExit.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.WEST && type == IntersectionLane.Type.ENTRY) {
+                                sliderWestEntry.setValue(index + 1);
+                            } else if (localization == IntersectionLane.Localization.WEST && type == IntersectionLane.Type.EXIT) {
+                                sliderWestExit.setValue(index + 1);
+                            }
+                        }
+                    }
+
+                    if (line.startsWith("sl,")) {
+                        String[] tokens = line.split(",");
+                        if (tokens.length == 6) {
+                            IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
+                            IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
+                            int index = Integer.parseInt(tokens[3]);
+                            double x = Double.parseDouble(tokens[4]);
+                            double y = Double.parseDouble(tokens[5]);
+                            stopLines.add(new StopLine(localization, type, index, x, y));
+                        }
+                    }
+
+                    if (line.startsWith("ilb,")) {
+                        String[] tokens = line.split(",");
+                        if (tokens.length == 7) {
+                            IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
+                            IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
+                            int index = Integer.parseInt(tokens[3]);
+                            double x = Double.parseDouble(tokens[4]);
+                            double y = Double.parseDouble(tokens[5]);
+                            double size = Double.parseDouble(tokens[6]);
+                            intersectionLaneButtons.add(new IntersectionLaneButton(localization, type, index, x, y, size));
+                        }
+                    }
+
+                    if (line.startsWith("mr,")) {
+                        String[] tokens = line.split(",");
+                        if (tokens.length == 13) {
+                            // Pierwszy przycisk
+                            IntersectionLane.Localization locA = IntersectionLane.Localization.valueOf(tokens[1]);
+                            IntersectionLane.Type typeA = IntersectionLane.Type.valueOf(tokens[2]);
+                            int indexA = Integer.parseInt(tokens[3]);
+                            double xA = Double.parseDouble(tokens[4]);
+                            double yA = Double.parseDouble(tokens[5]);
+                            double sizeA = Double.parseDouble(tokens[6]);
+
+                            // Drugi przycisk
+                            IntersectionLane.Localization locB = IntersectionLane.Localization.valueOf(tokens[7]);
+                            IntersectionLane.Type typeB = IntersectionLane.Type.valueOf(tokens[8]);
+                            int indexB = Integer.parseInt(tokens[9]);
+                            double xB = Double.parseDouble(tokens[10]);
+                            double yB = Double.parseDouble(tokens[11]);
+                            double sizeB = Double.parseDouble(tokens[12]);
+
+                            // Szukamy pasujących przycisków z listy
+                            IntersectionLaneButton a = findIntersectionLaneButton(intersectionLaneButtons, locA, typeA, indexA, xA, yA, sizeA);
+                            IntersectionLaneButton b = findIntersectionLaneButton(intersectionLaneButtons, locB, typeB, indexB, xB, yB, sizeB);
+
+                            if (a != null && b != null) {
+                                movementRelations.getMovementRelations().add(new MovementRelations(a, b));
+                            }
+                        }
+                    }
+
+                }
+
+                drawCanvas();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Funkcja pomocnicza poszukująca danego intersectionLaneButton
+    private IntersectionLaneButton findIntersectionLaneButton(List<IntersectionLaneButton> buttons,
+                        IntersectionLane.Localization loc, IntersectionLane.Type type, int index, double x, double y, double size) {
+        for (IntersectionLaneButton button : buttons) {
+            if (button.getLocalization() == loc &&
+                    button.getType() == type &&
+                    button.getIndex() == index &&
+                    button.getX() == x &&
+                    button.getY() == y &&
+                    button.getSize() == size) {
+                return button;
+            }
+        }
+        return null;
     }
 
     @FXML
@@ -184,6 +346,7 @@ public class GeneratorController {
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
+        MovementRelations.clearMovementRelations();
     }
 
     @FXML
@@ -195,6 +358,7 @@ public class GeneratorController {
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
+        MovementRelations.clearMovementRelations();
     }
 
     // Rysowanie pasów ruchu skrzyżowania
@@ -350,8 +514,19 @@ public class GeneratorController {
         double centerX = x1+(x2/2);
         double centerY = y1+(y2/2);
 
-        StopLine stopLine = new StopLine(lane.getLocalization(), lane.getType(), lane.getIndex(), centerX, centerY);
-        stopLines.add(stopLine);
+        // Sprawdzenie, czy istnieje już linia stopu na danym pasie ruchu
+        StopLine existingSL = stopLines.stream()
+                .filter(sl -> sl.getLocalization() == lane.getLocalization() &&
+                        sl.getType() == lane.getType() &&
+                        sl.getIndex() == lane.getIndex())
+                .findFirst()
+                .orElse(null);
+
+        // Tworzenie nowej linii stopu w przypadku jej braku
+        if (existingSL == null) {
+            StopLine stopLine = new StopLine(lane.getLocalization(), lane.getType(), lane.getIndex(), centerX, centerY);
+            stopLines.add(stopLine);
+        }
     }
 
     // Funkcja wykrywająca kliknięcie w przycisk

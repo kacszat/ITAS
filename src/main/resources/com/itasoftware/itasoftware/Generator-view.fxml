@@ -16,6 +16,8 @@
     <MenuBar>
         <Menu text="Plik">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>
+            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>
         </Menu>
         <Menu text="Test">
             <MenuItem text="Test"/>

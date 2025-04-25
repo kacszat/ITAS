@@ -60,4 +60,12 @@ public class IntersectionLaneButton extends IntersectionLane {
         return result;
     }
 
+    public String getInfo() {
+        return this.getLocalization() + "," + this.getType() + "," + this.getIndex() + "," + x + "," + y + "," + size;
+    }
+
+    public String toInfoString() {
+        return getInfo(); // <- tak możesz nadpisać
+    }
+
 }

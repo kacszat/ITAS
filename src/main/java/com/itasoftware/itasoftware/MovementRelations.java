@@ -8,7 +8,7 @@ public class MovementRelations {
     private double objectA_X, objectA_Y, objectB_X, objectB_Y;
     private IntersectionLaneButton objectA;
     private IntersectionLaneButton objectB;
-    private static final List<MovementRelations> movementRelations = new ArrayList<>();
+    public static final List<MovementRelations> movementRelations = new ArrayList<>();
 
     public MovementRelations(IntersectionLaneButton objectA, IntersectionLaneButton objectB) {
         this.objectA = objectA;
