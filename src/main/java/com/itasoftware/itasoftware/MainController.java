@@ -2,20 +2,10 @@ package com.itasoftware.itasoftware;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 
 public class MainController {
-    @FXML
-    private Label welcomeText;
-
-    @FXML
-    private Pane rootPane;  // Korzystamy z Pane, by zamienić zawartość
-
     @FXML
     protected void onGeneratorButtonClick() throws IOException {
         loadNewView("Generator-view.fxml");

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.itasoftware.itasoftware.AlertPopUp"
+            stylesheets="@style.css"
+            styleClass="alert-popup">
+
+<VBox styleClass="alert-popup-vbox">
+    <Label fx:id="alertLabel" text="Czy na pewno chcesz zamknąć program?" styleClass="alert-popup-label"/>
+    <Label text="Wszystkie niezapisane zmiany zostaną utracone." styleClass="alert-popup-label"/>
+    <HBox styleClass="alert-popup-hbox">
+        <Button text="Tak" styleClass="alert-popup-bt-yes" onAction="#clickYes"/>
+        <Button text="Nie" styleClass="alert-popup-bt-no" onAction="#clickNo"/>
+    </HBox>
+</VBox>
+
+</AnchorPane>

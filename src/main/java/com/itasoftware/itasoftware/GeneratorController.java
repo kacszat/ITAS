@@ -42,31 +42,40 @@ public class GeneratorController {
     // Powrót do głównego menu
     @FXML
     public void backToMainMenu() throws IOException  {
-        MainApplication mainApp = new MainApplication();
-        MainApplication.updateViewSize();
-        mainApp.loadView("Main-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        if (AlertPopUp.showAlertPopUp("Change Screen")) {
+            MainApplication mainApp = new MainApplication();
+            MainApplication.updateViewSize();
+            mainApp.loadView("Main-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        }
     }
 
     // Przejście do okna symulacji
     @FXML
     public void goToSimulation() throws IOException  {
-        MainApplication mainApp = new MainApplication();
-        MainApplication.updateViewSize();
-        mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        if (AlertPopUp.showAlertPopUp("Change Screen")) {
+            MainApplication mainApp = new MainApplication();
+            MainApplication.updateViewSize();
+            mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        }
+
     }
 
     // Przejście do ustawień
     @FXML
     public void goToSettings() throws IOException  {
-        MainApplication mainApp = new MainApplication();
-        MainApplication.updateViewSize();
-        mainApp.loadView("Settings-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        if (AlertPopUp.showAlertPopUp("Change Screen")) {
+            MainApplication mainApp = new MainApplication();
+            MainApplication.updateViewSize();
+            mainApp.loadView("Settings-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        }
     }
 
     // Przejście do ustawień
     @FXML
     public void exitITAS() throws IOException  {
-        Platform.exit();
+        if (AlertPopUp.showAlertPopUp("Save")) {
+            Platform.exit();
+        }
     }
 
     // Zapisanie skrzyżowania
@@ -354,6 +363,13 @@ public class GeneratorController {
 
         // Ponowne wygenerowanie grafiki
         drawCanvas();
+    }
+
+    @FXML
+    private void defaultIntersectionMenuBar() {
+        if (AlertPopUp.showAlertPopUp("New")) {
+            defaultIntersection();
+        }
     }
 
     @FXML
