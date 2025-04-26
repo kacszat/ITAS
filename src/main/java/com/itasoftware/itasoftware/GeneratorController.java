@@ -1,5 +1,6 @@
 package com.itasoftware.itasoftware;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
@@ -40,14 +41,32 @@ public class GeneratorController {
 
     // Powrót do głównego menu
     @FXML
-    public void backToMainMenu(ActionEvent event) {
-        try {
-            MainApplication mainApp = new MainApplication();
-            mainApp.loadMainView(); // Wywołanie metody instancyjnej w MainApplication
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void backToMainMenu() throws IOException  {
+        MainApplication mainApp = new MainApplication();
+        MainApplication.updateViewSize();
+        mainApp.loadView("Main-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+    }
 
+    // Przejście do okna symulacji
+    @FXML
+    public void goToSimulation() throws IOException  {
+        MainApplication mainApp = new MainApplication();
+        MainApplication.updateViewSize();
+        mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+    }
+
+    // Przejście do ustawień
+    @FXML
+    public void goToSettings() throws IOException  {
+        MainApplication mainApp = new MainApplication();
+        MainApplication.updateViewSize();
+        mainApp.loadView("Settings-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+    }
+
+    // Przejście do ustawień
+    @FXML
+    public void exitITAS() throws IOException  {
+        Platform.exit();
     }
 
     // Zapisanie skrzyżowania

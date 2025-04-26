@@ -17,17 +17,17 @@ public class MainController {
     private Pane rootPane;  // Korzystamy z Pane, by zamienić zawartość
 
     @FXML
-    protected void onGeneratorButtonClick() {
+    protected void onGeneratorButtonClick() throws IOException {
         loadNewView("Generator-view.fxml");
     }
 
     @FXML
-    protected void onSimulationButtonClick() {
+    protected void onSimulationButtonClick() throws IOException {
         loadNewView("Simulation-view.fxml");
     }
 
     @FXML
-    protected void onSettingsButtonClick() {
+    protected void onSettingsButtonClick() throws IOException {
         loadNewView("Settings-view.fxml");
     }
 
@@ -37,50 +37,9 @@ public class MainController {
     }
 
     @FXML
-    protected void loadNewView(String viewName) {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(viewName));
-            Pane newRoot = fxmlLoader.load();  // Ładowanie nowej sceny
-
-            // Ustawienie ciemnego tła
-            newRoot.getStyleClass().clear();
-            newRoot.getStyleClass().add("root-gray");
-
-            // Zastosowanie skalowania
-            double scale = ViewScale.getScale();
-            newRoot.setScaleX(scale);
-            newRoot.setScaleY(scale);
-
-            // Ustawienie fontu dla całej sceny
-            newRoot.setStyle(ViewScale.getFontStyle());
-
-            // Pobranie aktualnego rozmiaru
-            MainApplication.updateViewSize();
-
-//            // Przełączenie na nową scenę
-//            Scene newScene;
-//            if (SettingsController.isViewMaximized) {
-//                // Nie ustawiamy rozmiarów sceny - system sam to zrobi
-//                newScene = new Scene(newRoot);
-//                MainApplication.primaryStage.setScene(newScene);
-//                MainApplication.primaryStage.setMaximized(true);
-//            } else {
-//                MainApplication.updateViewSize(); // Aktualizacja rozmiarów
-//                newScene = new Scene(newRoot, MainApplication.actualWidth, MainApplication.actualHeight);
-//                MainApplication.primaryStage.setScene(newScene);
-//                MainApplication.primaryStage.setMaximized(false);
-//            }
-//            System.out.println("Scene size: " + MainApplication.primaryStage.getScene().getWidth() + "x" + MainApplication.primaryStage.getScene().getHeight());
-//            System.out.println("Maximized: " + MainApplication.primaryStage.isMaximized());
-//            MainApplication.primaryStage.show();
-
-            // Przełączenie na nową scenę
-            Scene newScene = new Scene(newRoot, MainApplication.actualWidth, MainApplication.actualHeight);
-            MainApplication.primaryStage.setScene(newScene);  // Zmiana sceny na nową
-            MainApplication.primaryStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    protected void loadNewView(String viewName) throws IOException {
+        MainApplication mainApp = new MainApplication();
+        MainApplication.updateViewSize();
+        mainApp.loadView(viewName, mainApp.actualWidth, mainApp.actualHeight);
     }
 }

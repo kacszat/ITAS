@@ -3,6 +3,7 @@ package com.itasoftware.itasoftware;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -12,6 +13,7 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 public class MainApplication extends Application {
 
@@ -34,18 +36,15 @@ public class MainApplication extends Application {
     static double startHeight = 720.0; // Startowa wysokość okna
     static double actualWidth;  // Aktualna szerokość okna
     static double actualHeight; // Aktualna wysokość okna
-    static double lastWidth;  // Ostatnia szerokość okna
-    static double lastHeight; // Ostatnia wysokość okna
 
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;  // Zapamiętanie głównego Stage
-        loadMainView();
+        loadView("Main-view.fxml", startWidth, startHeight);
     }
 
-    // Ładowanie Main-view.fxml
-    public void loadMainView() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("Main-view.fxml"));
+    void loadView(String viewName, double width, double height) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(viewName));
         Pane root = fxmlLoader.load();
 
         // Skalowanie korzenia UI
@@ -58,26 +57,15 @@ public class MainApplication extends Application {
         root.setStyle(baseFontStyle);
 
         // Dopasowanie sceny do skalowanego UI
-        Scene scene = new Scene(root, startWidth * scale, startHeight * scale);
-
-//        // Dopasowanie sceny do skalowanego UI
-//        Scene scene;
-//        if (SettingsController.isViewMaximized) {
-//            scene = new Scene(root); // bez rozmiaru
-//            primaryStage.setScene(scene);
-//            primaryStage.setMaximized(true);
-//        } else {
-//            scene = new Scene(root, startWidth * scale, startHeight * scale);
-//            primaryStage.setScene(scene);
-//            primaryStage.setMaximized(false);
-//        }
-//        System.out.println("Scene size: " + MainApplication.primaryStage.getScene().getWidth() + "x" + MainApplication.primaryStage.getScene().getHeight());
-//        System.out.println("Maximized: " + MainApplication.primaryStage.isMaximized());
+        Scene scene = new Scene(root, width * scale, height * scale);
 
         primaryStage.setTitle("ITAS");
         primaryStage.setScene(scene);
         primaryStage.show();
-        startBackgroundRotation(root);
+
+        if (Objects.equals(viewName, "Main-view.fxml")) {
+            startBackgroundRotation(root);
+        }
     }
 
     // Zmiana obrazu tła co 10 sekund

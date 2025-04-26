@@ -8,13 +8,9 @@ public class SimulationController {
 
     // Powrót do głównego menu
     @FXML
-    public void backToMainMenu(ActionEvent event) {
-        try {
-            MainApplication mainApp = new MainApplication();
-            mainApp.loadMainView(); // Wywołanie metody instancyjnej w MainApplication
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    public void backToMainMenu() throws IOException  {
+        MainApplication mainApp = new MainApplication();
+        MainApplication.updateViewSize();
+        mainApp.loadView("Main-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
     }
 }
