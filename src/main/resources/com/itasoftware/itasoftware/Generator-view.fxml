@@ -36,10 +36,10 @@
 
             <!-- Lewy panel -->
             <left>
-                <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
+                <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
                     <Region style="-fx-padding: 0 0 1em 0"/>
-                    <Label text="Wybór typu skrzyżowania:" styleClass="generator-text"/>
-                    <ComboBox styleClass="generator-combobox" value="Skrzyżowanie klasyczne">
+                    <Label text="Wybór typu skrzyżowania:" styleClass="obj-text"/>
+                    <ComboBox styleClass="obj-combobox" value="Skrzyżowanie klasyczne">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="Skrzyżowanie klasyczne"/>
@@ -50,88 +50,90 @@
                     </ComboBox>
                     <Region style="-fx-padding: 0 0 2em 0"/>
 
-                    <Label text="Jezdnia północna:" styleClass="generator-text"/>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wlot:  " styleClass="generator-text"/>
-                        <Slider fx:id="sliderNorthEntry" styleClass="generator-slider"/>
+                    <Label text="Jezdnia północna:" styleClass="obj-text"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wlot:  " styleClass="obj-text"/>
+                        <Slider fx:id="sliderNorthEntry" styleClass="obj-slider"/>
                     </HBox>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wylot:" styleClass="generator-text"/>
-                        <Slider fx:id="sliderNorthExit" styleClass="generator-slider"/>
-                    </HBox>
-
-                    <Label text="Jezdnia południowa:" styleClass="generator-text"/>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wlot:  " styleClass="generator-text"/>
-                        <Slider fx:id="sliderSouthEntry" styleClass="generator-slider"/>
-                    </HBox>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wylot:" styleClass="generator-text"/>
-                        <Slider fx:id="sliderSouthExit" styleClass="generator-slider"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wylot:" styleClass="obj-text"/>
+                        <Slider fx:id="sliderNorthExit" styleClass="obj-slider"/>
                     </HBox>
 
-                    <Label text="Jezdnia zachodnia:" styleClass="generator-text"/>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wlot:  " styleClass="generator-text"/>
-                        <Slider fx:id="sliderWestEntry" styleClass="generator-slider"/>
+                    <Label text="Jezdnia południowa:" styleClass="obj-text"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wlot:  " styleClass="obj-text"/>
+                        <Slider fx:id="sliderSouthEntry" styleClass="obj-slider"/>
                     </HBox>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wylot:" styleClass="generator-text"/>
-                        <Slider fx:id="sliderWestExit" styleClass="generator-slider"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wylot:" styleClass="obj-text"/>
+                        <Slider fx:id="sliderSouthExit" styleClass="obj-slider"/>
                     </HBox>
 
-                    <Label text="Jezdnia wschodnia:" styleClass="generator-text"/>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wlot:  " styleClass="generator-text"/>
-                        <Slider fx:id="sliderEastEntry" styleClass="generator-slider"/>
+                    <Label text="Jezdnia zachodnia:" styleClass="obj-text"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wlot:  " styleClass="obj-text"/>
+                        <Slider fx:id="sliderWestEntry" styleClass="obj-slider"/>
                     </HBox>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region1"/>
-                        <Label text="Wylot:" styleClass="generator-text"/>
-                        <Slider fx:id="sliderEastExit" styleClass="generator-slider"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wylot:" styleClass="obj-text"/>
+                        <Slider fx:id="sliderWestExit" styleClass="obj-slider"/>
+                    </HBox>
+
+                    <Label text="Jezdnia wschodnia:" styleClass="obj-text"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wlot:  " styleClass="obj-text"/>
+                        <Slider fx:id="sliderEastEntry" styleClass="obj-slider"/>
+                    </HBox>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Label text="Wylot:" styleClass="obj-text"/>
+                        <Slider fx:id="sliderEastExit" styleClass="obj-slider"/>
                     </HBox>
 
                     <Region style="-fx-padding: 0 0 2em 0"/>
-                    <Button text="Domyślne skrzyżowanie" styleClass="generator-button" onAction="#defaultIntersection"/>
-                    <Button text="Wyczyść skrzyżowanie" styleClass="generator-button" onAction="#clearIntersection"/>
+                    <Button text="Domyślne skrzyżowanie" styleClass="obj-button" onAction="#defaultIntersection"/>
+                    <Button text="Wyczyść skrzyżowanie" styleClass="obj-button" onAction="#clearIntersection"/>
                 </VBox>
             </left>
 
             <!-- Prawy panel -->
             <right>
-                <VBox styleClass="generator-vbox" style="-fx-pref-width: 30em;">
+                <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
                     <Region style="-fx-padding: 0 0 1em 0"/>
-                    <Button text="Wyznacz relacje ruchu" styleClass="generator-button-big" onAction="#showIntersectionLaneButton"/>
+                    <Button text="Wyznacz relacje ruchu" styleClass="obj-button-big" onAction="#showIntersectionLaneButton"/>
                     <Region style="-fx-padding: 0 0 1em 0"/>
-                    <Button text="Pokaż wszystkie relacje ruchu" styleClass="generator-button-big" onAction="#showMovementRelations"/>
-                    <Button text="Ukryj wszystkie relacje ruchu" styleClass="generator-button-big" onAction="#hideMovementRelations"/>
+                    <Button text="Pokaż wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#showMovementRelations"/>
+                    <Button text="Ukryj wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#hideMovementRelations"/>
                     <Region style="-fx-padding: 0 0 1em 0"/>
-                    <Label text="Pokaż/Ukryj relacje ruchu dla wlotu:" styleClass="generator-text"/>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region2"/>
-                        <Button text="Północnego" styleClass="generator-button-small" onAction="#showMovementRelationsNorth"/>
-                        <Button text="Południowego" styleClass="generator-button-small" onAction="#showMovementRelationsSouth"/>
+                    <Label text="Pokaż/Ukryj relacje ruchu dla wlotu:" styleClass="obj-text"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region2"/>
+                        <Button text="Północnego" styleClass="obj-button-small" onAction="#showMovementRelationsNorth"/>
+                        <Button text="Południowego" styleClass="obj-button-small" onAction="#showMovementRelationsSouth"/>
                     </HBox>
-                    <HBox styleClass="generator-hbox">
-                        <Region styleClass="generator-region2"/>
-                        <Button text="Wschodniego" styleClass="generator-button-small" onAction="#showMovementRelationsEast"/>
-                        <Button text="Zachodniego" styleClass="generator-button-small" onAction="#showMovementRelationsWest"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region2"/>
+                        <Button text="Wschodniego" styleClass="obj-button-small" onAction="#showMovementRelationsEast"/>
+                        <Button text="Zachodniego" styleClass="obj-button-small" onAction="#showMovementRelationsWest"/>
                     </HBox>
                     <Region style="-fx-padding: 0 0 2em 0"/>
-                    <Button text="Usuń wszystkie relacje ruchu" styleClass="generator-button-big" onAction="#clearMovementRelations"/>
+                    <Button text="Usuń wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#clearMovementRelations"/>
+                    <Region style="-fx-padding: 0 0 23.5em 0"/>
+                    <Button text="Przejdź do symulacji ruchu" styleClass="obj-button-big" onAction="#goToSimulationBottomButton"/>
                 </VBox>
             </right>
 
             <!-- Środkowy panel (dynamiczna szerokość) -->
             <center>
-                <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 55em" VBox.vgrow="ALWAYS">
+                <VBox styleClass="obj-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 55em" VBox.vgrow="ALWAYS">
                     <Label text="Wizualizacja tworzonego skrzyżowania" styleClass="menu-label"/>
 
                     <BorderPane.margin>

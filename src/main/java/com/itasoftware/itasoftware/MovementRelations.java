@@ -9,6 +9,8 @@ public class MovementRelations {
     private IntersectionLaneButton objectA;
     private IntersectionLaneButton objectB;
     public static final List<MovementRelations> movementRelations = new ArrayList<>();
+    public enum Direction { LEFT, STRAIGHT, RIGHT, BACK }
+    private Direction direction;
 
     public MovementRelations(IntersectionLaneButton objectA, IntersectionLaneButton objectB) {
         this.objectA = objectA;
@@ -39,38 +41,6 @@ public class MovementRelations {
 
     public static void clearMovementRelations() {
         movementRelations.clear();
-    }
-
-    private void setObjectA_X(double x) {
-        this.objectA_X = x;
-    }
-
-    private void setObjectA_Y(double y) {
-        this.objectA_Y = y;
-    }
-
-    private void setObjectB_X(double x) {
-        this.objectB_X = x;
-    }
-
-    private void setObjectB_Y(double y) {
-        this.objectB_Y = y;
-    }
-
-    private double getObjectA_X() {
-        return objectA_X;
-    }
-
-    private double getObjectA_Y() {
-        return objectA_Y;
-    }
-
-    private double getObjectB_X() {
-        return objectB_X;
-    }
-
-    private double getObjectB_Y() {
-        return objectB_Y;
     }
 
     @Override

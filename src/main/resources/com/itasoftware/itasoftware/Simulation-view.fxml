@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.canvas.Canvas?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.itasoftware.itasoftware.SimulationController"
@@ -11,43 +12,189 @@
       styleClass="root-gray">
 
     <MenuBar>
-        <Menu text="Plik">
+        <Menu text="Okno">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+            <MenuItem text="Przejście do generatora" onAction="#goToGenerator"/>
+            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>
+            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
         </Menu>
-        <Menu text="Test">
-            <MenuItem text="Test"/>
+        <Menu text="Plik">
+<!--            <MenuItem text="Nowe skrzyżowanie" onAction="#defaultIntersectionMenuBar"/>-->
+<!--            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>-->
+<!--            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>-->
         </Menu>
     </MenuBar>
 
-    <BorderPane>
-        <!-- Ustawienie marginesów dla całego układu -->
-        <padding>
-            <Insets top="30" right="30" bottom="30" left="30"/>
-        </padding>
+    <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" prefWidth="1920" prefHeight="1080">
+        <BorderPane>
+            <!-- Ustawienie marginesów dla całego układu -->
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
 
-        <!-- Lewy panel -->
-        <left>
-            <VBox styleClass="generator-vbox" style="-fx-pref-width: 16em;">
-                <Label text="Panel lewy" styleClass="menu-label"/>
-            </VBox>
-        </left>
+            <!-- Lewy panel -->
+            <left>
+                <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
+                    <Label text="Liczba pojazdów na danej relacji:" styleClass="obj-text2"/>
+                    <HBox styleClass="obj-hbox2">
+                        <VBox>
+                            <Label text="Wlot północny:" styleClass="obj-text2"/>
+                            <HBox>
+                                <Label text="Jazda w lewo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfNorthLeft" styleClass="obj-textfield">
 
-        <!-- Prawy panel -->
-        <right>
-            <VBox styleClass="generator-vbox" style="-fx-pref-width: 16em;">
-                <Label text="Panel prawy" styleClass="menu-label"/>
-            </VBox>
-        </right>
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda prosto:" styleClass="obj-label"/>
+                                <TextField fx:id="tfNorthStraight" styleClass="obj-textfield">
 
-        <!-- Środkowy panel (dynamiczna szerokość) -->
-        <center>
-            <VBox styleClass="generator-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em">
-                <BorderPane.margin>
-                    <Insets left="30" right="30"/>
-                </BorderPane.margin>
-                <Label text="Panel środkowy symulacji" styleClass="menu-label"/>
-            </VBox>
-        </center>
-    </BorderPane>
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda w prawo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfNorthRight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Zawrócenie:" styleClass="obj-label"/>
+                                <TextField fx:id="tfNorthBack" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                        </VBox>
+                        <VBox>
+                            <Label text="Wlot południowy:" styleClass="obj-text2"/>
+                            <HBox>
+                                <Label text="Jazda w lewo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfSouthLeft" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda prosto:" styleClass="obj-label"/>
+                                <TextField fx:id="tfSouthStraight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda w prawo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfSouthRight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Zawrócenie:" styleClass="obj-label"/>
+                                <TextField fx:id="tfSouthBack" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                    <HBox styleClass="obj-hbox2">
+                        <VBox>
+                            <Label text="Wlot zachodni:" styleClass="obj-text2"/>
+                            <HBox>
+                                <Label text="Jazda w lewo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfWestLeft" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda prosto:" styleClass="obj-label"/>
+                                <TextField fx:id="tfWestStraight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda w prawo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfWestRight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Zawrócenie:" styleClass="obj-label"/>
+                                <TextField fx:id="tfWestBack" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                        </VBox>
+                        <VBox>
+                            <Label text="Wlot wschodni:" styleClass="obj-text2"/>
+                            <HBox>
+                                <Label text="Jazda w lewo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfEastLeft" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda prosto:" styleClass="obj-label"/>
+                                <TextField fx:id="tfEastStraight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Jazda w prawo:" styleClass="obj-label"/>
+                                <TextField fx:id="tfEastRight" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                            <HBox>
+                                <Label text="Zawrócenie:" styleClass="obj-label"/>
+                                <TextField fx:id="tfEastBack" styleClass="obj-textfield">
+
+                                </TextField>
+                            </HBox>
+                        </VBox>
+                    </HBox>>-->
+                </VBox>
+            </left>
+
+            <!-- Prawy panel -->
+            <right>
+                <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Button text="Wyznacz relacje ruchu" styleClass="obj-button-big" onAction="#showIntersectionLaneButton"/>-->
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Button text="Pokaż wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#showMovementRelations"/>-->
+<!--                    <Button text="Ukryj wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#hideMovementRelations"/>-->
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Label text="Pokaż/Ukryj relacje ruchu dla wlotu:" styleClass="obj-text"/>-->
+<!--                    <HBox styleClass="obj-hbox">-->
+<!--                        <Region styleClass="obj-region2"/>-->
+<!--                        <Button text="Północnego" styleClass="obj-button-small" onAction="#showMovementRelationsNorth"/>-->
+<!--                        <Button text="Południowego" styleClass="obj-button-small" onAction="#showMovementRelationsSouth"/>-->
+<!--                    </HBox>-->
+<!--                    <HBox styleClass="obj-hbox">-->
+<!--                        <Region styleClass="obj-region2"/>-->
+<!--                        <Button text="Wschodniego" styleClass="obj-button-small" onAction="#showMovementRelationsEast"/>-->
+<!--                        <Button text="Zachodniego" styleClass="obj-button-small" onAction="#showMovementRelationsWest"/>-->
+<!--                    </HBox>-->
+<!--                    <Region style="-fx-padding: 0 0 2em 0"/>-->
+<!--                    <Button text="Usuń wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#clearMovementRelations"/>-->
+                </VBox>
+            </right>
+
+            <!-- Środkowy panel (dynamiczna szerokość) -->
+            <center>
+                <VBox styleClass="obj-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 55em" VBox.vgrow="ALWAYS">
+                    <Label text="Symulacja ruchu na skrzyżowaniu" styleClass="menu-label"/>
+
+                    <BorderPane.margin>
+                        <Insets left="30" right="30"/>
+                    </BorderPane.margin>
+
+                    <StackPane fx:id="simCanvasContainer" VBox.vgrow="ALWAYS">
+                        <Canvas fx:id="simCanvas" width="800" height="800"/>
+                        <Label fx:id="simInfoLabel" styleClass="obj-info-label"/>
+                    </StackPane>
+
+                    <Pane style="-fx-background-color: #474747; -fx-min-height: 1em; -fx-pref-height: 1em" />
+
+                </VBox>
+            </center>
+        </BorderPane>
+    </ScrollPane>
 
 </VBox>

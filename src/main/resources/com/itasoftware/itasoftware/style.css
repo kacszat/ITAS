@@ -65,7 +65,7 @@
     -fx-background-color: #2b2b2b;
 }
 
-.generator-vbox {
+.obj-vbox {
     -fx-background-color: #474747;
     -fx-padding: 1.4em;
     -fx-alignment: top-center;
@@ -75,56 +75,67 @@
     -fx-pref-height: Infinity;
 }
 
-.generator-hbox {
+.obj-hbox {
     -fx-spacing: 1em;
 }
 
-.generator-text {
+.obj-hbox2 {
+    -fx-spacing: 2em;
+}
+
+.obj-text {
     -fx-font-size: 1em;
     -fx-text-fill: #ffffff;
 }
 
-.generator-slider {
+.obj-text2 {
+    -fx-font-size: 1em;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 0.7em 0 0.7em 0;
+    -fx-font-weight: bold;
+}
+
+.obj-slider {
     -fx-min-width: 15em;
 }
 
-.generator-slider .axis {
+.obj-slider .axis {
     -fx-tick-label-fill: #ffffff;  /* Kolor tekstu legendy */
     -fx-tick-mark-fill: #ffffff;   /* Kolor kresek */
 }
 
-.generator-region1 {
+.obj-region1 {
     -fx-pref-width: 3em;
 }
 
-.generator-region2 {
+.obj-region2 {
     -fx-pref-width: 2.2em;
 }
 
-.generator-combobox {
+.obj-combobox {
     -fx-min-width: 20em;
     -fx-border-color: #ffffff;
     -fx-background-color: #3c3f41;
 }
 
-.generator-combobox{
+.obj-combobox{
     -fx-min-width: 20em;
     -fx-border-color: #ffffff;
     -fx-background-color: #3c3f41;
     -fx-padding: 0.2em;
 }
 
-.generator-combobox .list-cell{
+.obj-combobox .list-cell{
     -fx-background-color: #3c3f41;
     -fx-text-fill: #ffffff;
 }
 
-.generator-combobox .list-cell:hover{
+.obj-combobox .list-cell:hover{
     -fx-background-color: #ffffff;
     -fx-text-fill: #3c3f41;
 }
 
-.generator-button {
+.obj-button {
     -fx-pref-width: 15em;
     -fx-background-color: #3c3f41;
     -fx-text-fill: #ffffff;
@@ -133,11 +144,11 @@
     -fx-padding: 0.5em;
 }
 
-.generator-button:hover {
+.obj-button:hover {
     -fx-background-color: #4a4d50;
 }
 
-.generator-button-small {
+.obj-button-small {
     -fx-pref-width: 10em;
     -fx-background-color: #3c3f41;
     -fx-text-fill: #ffffff;
@@ -146,11 +157,11 @@
     -fx-padding: 0.5em;
 }
 
-.generator-button-small:hover {
+.obj-button-small:hover {
     -fx-background-color: #4a4d50;
 }
 
-.generator-button-big {
+.obj-button-big {
     -fx-pref-width: 17em;
     -fx-background-color: #3c3f41;
     -fx-text-fill: #ffffff;
@@ -159,8 +170,29 @@
     -fx-padding: 0.5em;
 }
 
-.generator-button-big:hover {
+.obj-button-big:hover {
     -fx-background-color: #4a4d50;
+}
+
+.obj-info-label {
+    -fx-text-fill: #ff2222;
+    -fx-font-size: 2em;
+    -fx-font-weight: bold;
+}
+
+.obj-label {
+    -fx-pref-width: 8em;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 1em;
+    -fx-padding: 0.7em 0 0.7em 0;
+}
+
+.obj-textfield {
+    -fx-pref-width: 5em;
+    -fx-pref-height: 1.5em;
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #ffffff;
 }
 
 

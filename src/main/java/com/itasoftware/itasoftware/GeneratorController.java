@@ -32,7 +32,7 @@ public class GeneratorController {
     double laneWidth = 25;      // Szerokość pasa ruchu
     double laneHeight = 400;    // Długość pasa ruchu
     boolean isIntersectionLaneButtonShown = false;
-    boolean isMRNorthShown, isMRSouthShown, isMREastShown, isMRWestShown = false;
+    boolean isMRNorthShown, isMRSouthShown, isMREastShown, isMRWestShown;
     private IntersectionLaneButton activeEntryButton = null;
     private IntersectionLaneButton activeExitButton = null;
     List<IntersectionLaneButton> listActiveEntryButtons = new ArrayList<>();
@@ -42,7 +42,7 @@ public class GeneratorController {
     // Powrót do głównego menu
     @FXML
     public void backToMainMenu() throws IOException  {
-        if (AlertPopUp.showAlertPopUp("Change Screen")) {
+        if (AlertPopUp.showAlertPopUp("Quit Generator")) {
             MainApplication mainApp = new MainApplication();
             MainApplication.updateViewSize();
             mainApp.loadView("Main-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
@@ -52,7 +52,7 @@ public class GeneratorController {
     // Przejście do okna symulacji
     @FXML
     public void goToSimulation() throws IOException  {
-        if (AlertPopUp.showAlertPopUp("Change Screen")) {
+        if (AlertPopUp.showAlertPopUp("Quit Generator")) {
             MainApplication mainApp = new MainApplication();
             MainApplication.updateViewSize();
             mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
@@ -63,7 +63,7 @@ public class GeneratorController {
     // Przejście do ustawień
     @FXML
     public void goToSettings() throws IOException  {
-        if (AlertPopUp.showAlertPopUp("Change Screen")) {
+        if (AlertPopUp.showAlertPopUp("Quit Generator")) {
             MainApplication mainApp = new MainApplication();
             MainApplication.updateViewSize();
             mainApp.loadView("Settings-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
@@ -76,6 +76,23 @@ public class GeneratorController {
         if (AlertPopUp.showAlertPopUp("Save")) {
             Platform.exit();
         }
+    }
+
+    // Przejście do okna symulacji (dolny przycisk)
+    @FXML
+    public void goToSimulationBottomButton() throws IOException  {
+        if (MovementRelations.movementRelations.isEmpty()) {
+            if (AlertPopUp.showAlertPopUp("Lack Relations")) {
+                MainApplication mainApp = new MainApplication();
+                MainApplication.updateViewSize();
+                mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+            }
+        } else {
+            MainApplication mainApp = new MainApplication();
+            MainApplication.updateViewSize();
+            mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        }
+
     }
 
     // Zapisanie skrzyżowania
@@ -210,7 +227,7 @@ public class GeneratorController {
 
                 }
 
-                drawCanvas();
+                drawCanvas(genCanvas);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -238,7 +255,7 @@ public class GeneratorController {
     public void initialize() {
         // Reakcja na zmianę rozmiaru kontenera
         genCanvasContainer.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
-            scaleCanvas();
+            scaleCanvas(genCanvasContainer, genCanvas);
         });
 
         // Wczytanie sliderów i pasów ruchu
@@ -251,7 +268,10 @@ public class GeneratorController {
         intersectionLaneButtons.clear();
 
         // Rysowanie
-        drawCanvas();
+        drawCanvas(genCanvas);
+
+        // Pokazywanie relacji (od początku, jeśli nie zakomentowane)
+        showMovementRelations();
     }
 
     // Funkcja wczytująca slidery
@@ -300,12 +320,12 @@ public class GeneratorController {
     }
 
     // Skalowanie genCanvas
-    private void scaleCanvas() {
+    void scaleCanvas(StackPane canvasContainer, Canvas canvas) {
         double baseWidth = 800;
         double baseHeight = 800;
 
-        double availableWidth = genCanvasContainer.getWidth();
-        double availableHeight = genCanvasContainer.getHeight();
+        double availableWidth = canvasContainer.getWidth();
+        double availableHeight = canvasContainer.getHeight();
 
         if (availableWidth == 0 || availableHeight == 0) return;
 
@@ -314,20 +334,20 @@ public class GeneratorController {
 
         double scale = Math.min(scaleX, scaleY); // zachowujemy proporcje
 
-        genCanvas.setScaleX(scale);
-        genCanvas.setScaleY(scale);
+        canvas.setScaleX(scale);
+        canvas.setScaleY(scale);
     }
 
     // Rysowanie genCanvas
-    private void drawCanvas() {
-        GraphicsContext gc = genCanvas.getGraphicsContext2D();
+    void drawCanvas(Canvas canvas) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
 
         // Tło
-        drawBackground(gc);
+        drawBackground(gc, canvas);
 
         // Pasy ruchu
         for (IntersectionLane lane : intersectionLanes) {
-            drawLanes(gc, lane);
+            drawLanes(gc, lane, canvas);
         }
 
         // Rysowanie relacji ruchu
@@ -343,9 +363,9 @@ public class GeneratorController {
         //gc.strokeLine(0, genCanvas.getHeight()/2, genCanvas.getWidth(), genCanvas.getHeight()/2);
     }
 
-    private void drawBackground(GraphicsContext gc) {
+    private void drawBackground(GraphicsContext gc, Canvas canvas) {
         gc.setFill(Color.rgb(71,71,71)); // Ten sam co #474747
-        gc.fillRect(0, 0, genCanvas.getWidth(), genCanvas.getHeight());
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
     private void updateIntersectionLanes(SliderLane.Localization slider_localization, SliderLane.Type slider_type, int count) {
@@ -362,12 +382,12 @@ public class GeneratorController {
         }
 
         // Ponowne wygenerowanie grafiki
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML
     private void defaultIntersectionMenuBar() {
-        if (AlertPopUp.showAlertPopUp("New")) {
+        if (AlertPopUp.showAlertPopUp("New Generator")) {
             defaultIntersection();
         }
     }
@@ -381,6 +401,7 @@ public class GeneratorController {
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
+        clearMovementRelations();
         MovementRelations.clearMovementRelations();
     }
 
@@ -393,13 +414,14 @@ public class GeneratorController {
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
+        clearMovementRelations();
         MovementRelations.clearMovementRelations();
     }
 
     // Rysowanie pasów ruchu skrzyżowania
-    private void drawLanes(GraphicsContext gc, IntersectionLane lane) {
-        double centerX = genCanvas.getWidth() / 2;
-        double centerY = genCanvas.getHeight() / 2;
+    private void drawLanes(GraphicsContext gc, IntersectionLane lane, Canvas canvas) {
+        double centerX = canvas.getWidth() / 2;
+        double centerY = canvas.getHeight() / 2;
 
         double x = 0, y = 0, w = 0, h = 0;
         int offset = lane.getIndex();
@@ -621,7 +643,7 @@ public class GeneratorController {
                         listActiveEntryButtons.add(iLButton);
                     }
 
-                    drawCanvas();
+                    drawCanvas(genCanvas);
                     break;
                 }
             }
@@ -635,7 +657,7 @@ public class GeneratorController {
         activeEntryButton = null;
         activeExitButton = null;
         isIntersectionLaneButtonShown = !isIntersectionLaneButtonShown;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     // Funkcja dodająca obiekt do klasy IntersectionLaneButton
@@ -711,7 +733,7 @@ public class GeneratorController {
         isMRSouthShown = true;
         isMREastShown = true;
         isMRWestShown = true;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML   // Ukrycie wszystkich relacji ruchu
@@ -720,37 +742,37 @@ public class GeneratorController {
         isMRSouthShown = false;
         isMREastShown = false;
         isMRWestShown = false;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML   // Pokazanie relacji ruchu z północy
     private void showMovementRelationsNorth() {
         isMRNorthShown = !isMRNorthShown;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML   // Pokazanie relacji ruchu z południa
     private void showMovementRelationsSouth() {
         isMRSouthShown = !isMRSouthShown;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML   // Pokazanie relacji ruchu ze wschodu
     private void showMovementRelationsEast() {
         isMREastShown = !isMREastShown;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML   // Pokazanie relacji ruchu z zachodu
     private void showMovementRelationsWest() {
         isMRWestShown = !isMRWestShown;
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     @FXML   // Pokazanie relacji ruchu
     private void clearMovementRelations() {
         MovementRelations.clearMovementRelations();
-        drawCanvas();
+        drawCanvas(genCanvas);
     }
 
     // Funkcja rysująca relację ruchu

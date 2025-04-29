@@ -11,7 +11,7 @@
 
 <VBox styleClass="alert-popup-vbox">
     <Label fx:id="alertLabel" text="Czy na pewno chcesz zamknąć program?" styleClass="alert-popup-label"/>
-    <Label text="Wszystkie niezapisane zmiany zostaną utracone." styleClass="alert-popup-label"/>
+    <Label fx:id="alertLabel2" text="Wszystkie niezapisane zmiany zostaną utracone." styleClass="alert-popup-label"/>
     <HBox styleClass="alert-popup-hbox">
         <Button text="Tak" styleClass="alert-popup-bt-yes" onAction="#clickYes"/>
         <Button text="Nie" styleClass="alert-popup-bt-no" onAction="#clickNo"/>

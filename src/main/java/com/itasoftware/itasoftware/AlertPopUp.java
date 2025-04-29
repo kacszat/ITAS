@@ -14,7 +14,7 @@ public class AlertPopUp {
     private Stage window; // Stage dla okna PopUp Alert
 
     @FXML
-    private Label alertLabel;
+    private Label alertLabel, alertLabel2;
 
     public static boolean showAlertPopUp(String type) {
         try {
@@ -26,8 +26,11 @@ public class AlertPopUp {
             // Ustawienie tekstu na podstawie typu alertu
             switch (type) {
                 case "Save" -> controller.alertLabel.setText("Czy na pewno chcesz zamknąć program?");
-                case "Change Screen" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z generatora skrzyżowań?");
-                case "New" -> controller.alertLabel.setText("Czy na pewno chcesz utworzyć nowe skrzyżowanie?");
+                case "Quit Generator" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z generatora skrzyżowań?");
+                case "New Generator" -> controller.alertLabel.setText("Czy na pewno chcesz utworzyć nowe skrzyżowanie?");
+                case "Quit Simulation" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z symulacji ruchu?");
+                case "Lack Relations" -> {controller.alertLabel.setText("Czy na pewno chcesz przejść do okna symulacji ruchu?");
+                                            controller.alertLabel2.setText("Na skrzyżowaniu nie ma wyznaczonych żadnych relacji ruchu.");}
                 default -> controller.alertLabel.setText("Czy na pewno chcesz wykonać tę akcję?");
             }
 
