@@ -6,6 +6,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.TextFormatter;
+import java.util.function.UnaryOperator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,7 +19,7 @@ public class SimulationController {
     @FXML private Canvas simCanvas;
     @FXML private StackPane simCanvasContainer;
 
-    private final Map<TextField, TextFieldCarNumber> textfieldMap = new HashMap<>();
+    private final Map<TextField, TextFieldCarsNumber> textfieldMap = new HashMap<>();
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
 
@@ -64,6 +66,16 @@ public class SimulationController {
     public void initialize() {
         GeneratorController genContrl = new GeneratorController();
 
+        loadCanvasOrInfo(genContrl);
+
+        loadTextField();
+
+        updateTextFieldActivityAndDefaultValue();
+
+    }
+
+    // Załadowanie Canvas lub informacji, w przypadku jego braku
+    private void loadCanvasOrInfo(GeneratorController genContrl) {
         if (!MovementRelations.movementRelations.isEmpty()) {
             // Reakcja na zmianę rozmiaru kontenera
             simCanvasContainer.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
@@ -80,37 +92,43 @@ public class SimulationController {
             simCanvas.setVisible(false);
             simInfoLabel.setVisible(true);
         }
-
-        loadTextField();
-        updateTextFieldActivity();
-
     }
 
     // Załadowanie TextFieldów (sam textfield, potem obiekt klasy tfCarNumber z lokalizacją startową, typem lokalizacji startowej i lokalizacją końcową)
     private void loadTextField() {
-        textfieldMap.put(tfNorthLeft, new TextFieldCarNumber(TextFieldCarNumber.Localization.NORTH, TextFieldCarNumber.Type.ENTRY, IntersectionLane.Localization.EAST));
-        textfieldMap.put(tfNorthStraight, new TextFieldCarNumber(TextFieldCarNumber.Localization.NORTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.SOUTH));
-        textfieldMap.put(tfNorthRight, new TextFieldCarNumber(TextFieldCarNumber.Localization.NORTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.WEST));
-        textfieldMap.put(tfNorthBack, new TextFieldCarNumber(TextFieldCarNumber.Localization.NORTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.NORTH));
-        textfieldMap.put(tfSouthLeft, new TextFieldCarNumber(TextFieldCarNumber.Localization.SOUTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.WEST));
-        textfieldMap.put(tfSouthStraight, new TextFieldCarNumber(TextFieldCarNumber.Localization.SOUTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.NORTH));
-        textfieldMap.put(tfSouthRight, new TextFieldCarNumber(TextFieldCarNumber.Localization.SOUTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.EAST));
-        textfieldMap.put(tfSouthBack, new TextFieldCarNumber(TextFieldCarNumber.Localization.SOUTH, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.SOUTH));
-        textfieldMap.put(tfWestLeft, new TextFieldCarNumber(TextFieldCarNumber.Localization.WEST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.NORTH));
-        textfieldMap.put(tfWestStraight, new TextFieldCarNumber(TextFieldCarNumber.Localization.WEST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.EAST));
-        textfieldMap.put(tfWestRight, new TextFieldCarNumber(TextFieldCarNumber.Localization.WEST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.SOUTH));
-        textfieldMap.put(tfWestBack, new TextFieldCarNumber(TextFieldCarNumber.Localization.WEST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.WEST));
-        textfieldMap.put(tfEastLeft, new TextFieldCarNumber(TextFieldCarNumber.Localization.EAST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.SOUTH));
-        textfieldMap.put(tfEastStraight, new TextFieldCarNumber(TextFieldCarNumber.Localization.EAST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.WEST));
-        textfieldMap.put(tfEastRight, new TextFieldCarNumber(TextFieldCarNumber.Localization.EAST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.NORTH));
-        textfieldMap.put(tfEastBack, new TextFieldCarNumber(TextFieldCarNumber.Localization.EAST, TextFieldCarNumber.Type.ENTRY, TextFieldCarNumber.Localization.EAST));
+        textfieldMap.put(tfNorthLeft, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.NORTH, TextFieldCarsNumber.Type.ENTRY, IntersectionLane.Localization.EAST));
+        textfieldMap.put(tfNorthStraight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.NORTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.SOUTH));
+        textfieldMap.put(tfNorthRight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.NORTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.WEST));
+        textfieldMap.put(tfNorthBack, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.NORTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.NORTH));
+        textfieldMap.put(tfSouthLeft, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.SOUTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.WEST));
+        textfieldMap.put(tfSouthStraight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.SOUTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.NORTH));
+        textfieldMap.put(tfSouthRight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.SOUTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.EAST));
+        textfieldMap.put(tfSouthBack, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.SOUTH, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.SOUTH));
+        textfieldMap.put(tfWestLeft, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.WEST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.NORTH));
+        textfieldMap.put(tfWestStraight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.WEST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.EAST));
+        textfieldMap.put(tfWestRight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.WEST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.SOUTH));
+        textfieldMap.put(tfWestBack, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.WEST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.WEST));
+        textfieldMap.put(tfEastLeft, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.EAST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.SOUTH));
+        textfieldMap.put(tfEastStraight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.EAST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.WEST));
+        textfieldMap.put(tfEastRight, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.EAST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.NORTH));
+        textfieldMap.put(tfEastBack, new TextFieldCarsNumber(TextFieldCarsNumber.Localization.EAST, TextFieldCarsNumber.Type.ENTRY, TextFieldCarsNumber.Localization.EAST));
     }
 
     // Sprawdzenie stanu textfieldów
-    public void updateTextFieldActivity() {
-        for (Map.Entry<TextField, TextFieldCarNumber> entry : textfieldMap.entrySet()) {
+    public void updateTextFieldActivityAndDefaultValue() {
+        // Filtr znaków (dopuszczalne tylko cyfry)
+        UnaryOperator<TextFormatter.Change> digitFilter = change -> {
+            String newText = change.getControlNewText();
+            return (newText.matches("\\d*")) ? change : null;
+        };
+
+        for (Map.Entry<TextField, TextFieldCarsNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
-            TextFieldCarNumber tfCarNum = entry.getValue();
+            TextFieldCarsNumber tfCarNum = entry.getValue();
+
+            tf.setTextFormatter(new TextFormatter<>(digitFilter)); // Dodanie filtra do TF
+            tf.setText("0"); // Ustawienie domyślnej wartości
+            tfCarNum.setCarsNumber(0); // Ustawienie liczby samochodów równej zero na każdym tfCarNum
 
             boolean textFieldAndRelationMatch = false;
 
@@ -127,5 +145,26 @@ public class SimulationController {
             tf.setDisable(!textFieldAndRelationMatch); // Tylko pasujące TF będą aktywne
         }
     }
-    
+
+    // Załadowanie wprowadzonych liczb pojazdów na różnych relacjach
+    @FXML
+    public void loadCarsNumbers() {
+        for (Map.Entry<TextField, TextFieldCarsNumber> entry : textfieldMap.entrySet()) {
+            TextField tf = entry.getKey();
+            TextFieldCarsNumber tfCarNum = entry.getValue();
+            tfCarNum.setCarsNumber(Double.parseDouble(tf.getText()));
+        }
+    }
+
+    // Wyzerowanie wprowadzonych liczb pojazdów na różnych relacjach
+    @FXML
+    public void clearCarsNumbers() {
+        for (Map.Entry<TextField, TextFieldCarsNumber> entry : textfieldMap.entrySet()) {
+            TextField tf = entry.getKey();
+            TextFieldCarsNumber tfCarNum = entry.getValue();
+            tf.setText("0");
+            tfCarNum.setCarsNumber(0);
+        }
+    }
+
 }

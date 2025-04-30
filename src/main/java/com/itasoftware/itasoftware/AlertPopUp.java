@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -15,6 +16,9 @@ public class AlertPopUp {
 
     @FXML
     private Label alertLabel, alertLabel2;
+
+    @FXML
+    private Button alertButtonYes, alertButtonNo;
 
     public static boolean showAlertPopUp(String type) {
         try {
@@ -31,6 +35,10 @@ public class AlertPopUp {
                 case "Quit Simulation" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z symulacji ruchu?");
                 case "Lack Relations" -> {controller.alertLabel.setText("Czy na pewno chcesz przejść do okna symulacji ruchu?");
                                             controller.alertLabel2.setText("Na skrzyżowaniu nie ma wyznaczonych żadnych relacji ruchu.");}
+//                case "Bad CarsNumber" -> {controller.alertLabel.setText("Wprowadzono niewłaściwe dane dotyczące liczby pojazdów.");
+//                                            controller.alertLabel2.setText("Liczba pojazdów musi być liczbą.");
+//                                            controller.alertButtonYes.setVisible(false);
+//                                            controller.alertButtonNo.setText("OK");}
                 default -> controller.alertLabel.setText("Czy na pewno chcesz wykonać tę akcję?");
             }
 

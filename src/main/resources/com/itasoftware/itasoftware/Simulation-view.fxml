@@ -147,7 +147,10 @@
                                 </TextField>
                             </HBox>
                         </VBox>
-                    </HBox>>-->
+                    </HBox>
+                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Button text="Załaduj liczbę pojazdów" styleClass="obj-button" onAction="#loadCarsNumbers"/>
+                    <Button text="Wyczyść liczbę pojazdów" styleClass="obj-button" onAction="#clearCarsNumbers"/>
                 </VBox>
             </left>
 
