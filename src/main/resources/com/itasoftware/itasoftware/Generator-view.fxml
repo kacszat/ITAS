@@ -14,16 +14,16 @@
       styleClass="root-gray">
 
     <MenuBar>
+        <Menu text="Plik">
+            <MenuItem text="Nowe skrzyżowanie" onAction="#defaultIntersectionMenuBar"/>
+            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>
+            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>
+        </Menu>
         <Menu text="Okno">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
             <MenuItem text="Przejście do symulacji" onAction="#goToSimulation"/>
             <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>
             <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
-        </Menu>
-        <Menu text="Plik">
-            <MenuItem text="Nowe skrzyżowanie" onAction="#defaultIntersectionMenuBar"/>
-            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>
-            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>
         </Menu>
     </MenuBar>
 

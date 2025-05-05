@@ -12,16 +12,16 @@
       styleClass="root-gray">
 
     <MenuBar>
+        <Menu text="Plik">
+            <!--            <MenuItem text="Nowe skrzyżowanie" onAction="#defaultIntersectionMenuBar"/>-->
+            <!--            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>-->
+            <!--            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>-->
+        </Menu>
         <Menu text="Okno">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
             <MenuItem text="Przejście do generatora" onAction="#goToGenerator"/>
             <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>
             <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
-        </Menu>
-        <Menu text="Plik">
-<!--            <MenuItem text="Nowe skrzyżowanie" onAction="#defaultIntersectionMenuBar"/>-->
-<!--            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>-->
-<!--            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>-->
         </Menu>
     </MenuBar>
 
@@ -157,6 +157,8 @@
             <!-- Prawy panel -->
             <right>
                 <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
+                    <Button text="Start symulacji" styleClass="obj-button" onAction="#startSimulation"/>
+                    <Button text="Stop symulacji" styleClass="obj-button" onAction="#stopSimulation"/>
 <!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
 <!--                    <Button text="Wyznacz relacje ruchu" styleClass="obj-button-big" onAction="#showIntersectionLaneButton"/>-->
 <!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
