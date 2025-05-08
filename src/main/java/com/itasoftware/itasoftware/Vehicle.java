@@ -1,37 +1,66 @@
 package com.itasoftware.itasoftware;
 
+import javafx.geometry.Point2D;
+
 public class Vehicle {
 
     double speed;
     double x1, y1, x2, y2;  // Współrzędne dwóch punktów
-    double dx, dy;  // Wektor ruchu
-    int vehicleWidth = 15, vehicleHeight = 30;
+    static int vehicleWidth = 15, vehicleHeight = 30;
+    private MovementTrajectory trajectory;
+    private double distanceTraveled;
 
-    public Vehicle(double x1, double y1, double x2, double y2, double speed, double dx, double dy) {
-        this.x1 = x1; this.y1 = y1;
-        this.x2 = x2; this.y2 = y2;
-        this.speed = speed;
-        this.dx = dx; this.dy = dy;
+    public Vehicle(MovementTrajectory trajectory) {
+        this.trajectory = trajectory;
+        this.speed = 2.0;
+        this.distanceTraveled = 0;
     }
 
     public void updateVehiclePosition() {
-        x1 += dx * speed;
-        y1 += dy * speed;
-        x2 += dx * speed;
-        y2 += dy * speed;
+        double centerDistance = distanceTraveled;
+        double epsilon = 0.01; // Mała wartość do wyznaczenia tangensa
+
+        // Pozycja środka pojazdu na trajektorii
+        Point2D center = trajectory.getPosition(centerDistance);
+        Point2D ahead = trajectory.getPosition(centerDistance + epsilon);
+
+        // Kierunek jazdy (wektor tangensa trajektorii)
+        double dx = ahead.getX() - center.getX();
+        double dy = ahead.getY() - center.getY();
+        double length = Math.hypot(dx, dy);
+        if (length == 0) return; // zapobiegamy dzieleniu przez 0
+
+        // Współrzędne wektora jednostkowego
+        double ux = dx / length;
+        double uy = dy / length;
+
+        // Wyznaczenie punktów tyłu i przodu względem środka
+        double halfLength = vehicleHeight / 2.0;
+
+        // Tył (środek tylnej krawędzi)
+        x1 = center.getX() - ux * halfLength;
+        y1 = center.getY() - uy * halfLength;
+
+        // Przód (środek przedniej krawędzi)
+        x2 = center.getX() + ux * halfLength;
+        y2 = center.getY() + uy * halfLength;
+
+        // Przemieszczenie
+        distanceTraveled += speed;
+
+        System.out.printf("centerDistance = %.2f, center = (%.2f, %.2f)%n", centerDistance, center.getX(), center.getY());
+        System.out.println("Distance traveled: " + distanceTraveled);
     }
 
-    // Sprawdzenie, czy współrzędne drugiego punktu są poza obszarem rysowania
-    public boolean isVehicleOutOfBounds() {
-        return (x2 < 0 || x2 > 800 || y2 < 0 || y2 > 800);
+    public boolean isFinished() {
+        return distanceTraveled >= trajectory.getTotalLength();
     }
 
-    private int getVehicleWidth() {
+    public static int getVehicleWidth() {
         return vehicleWidth;
     }
 
-    private int getVehicleHeight() {
+    public static int getVehicleHeight() {
         return vehicleHeight;
     }
-
 }

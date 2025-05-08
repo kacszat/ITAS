@@ -149,8 +149,8 @@
                         </VBox>
                     </HBox>
                     <Region style="-fx-padding: 0 0 2em 0"/>
-                    <Button text="Załaduj liczbę pojazdów" styleClass="obj-button" onAction="#loadCarsNumbers"/>
-                    <Button text="Wyczyść liczbę pojazdów" styleClass="obj-button" onAction="#clearCarsNumbers"/>
+                    <Button text="Załaduj liczbę pojazdów" styleClass="obj-button" onAction="#loadVehicleNumbers"/>
+                    <Button text="Wyczyść liczbę pojazdów" styleClass="obj-button" onAction="#clearVehicleNumbers"/>
                 </VBox>
             </left>
 
@@ -159,6 +159,7 @@
                 <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
                     <Button text="Start symulacji" styleClass="obj-button" onAction="#startSimulation"/>
                     <Button text="Stop symulacji" styleClass="obj-button" onAction="#stopSimulation"/>
+                    <Button text="Reset symulacji" styleClass="obj-button" onAction="#resetSimulation"/>
 <!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
 <!--                    <Button text="Wyznacz relacje ruchu" styleClass="obj-button-big" onAction="#showIntersectionLaneButton"/>-->
 <!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->

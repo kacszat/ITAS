@@ -145,7 +145,7 @@ public class CanvasDrawer {
                 }
                 drawStopLine(gc, x, (centerY - cutoff - stopLaneHeight), laneWidth, stopLaneHeight, lane);
                 genContrl.addIntersectionLaneButton((x + buttonBuffer), (centerY - cutoff - stopLaneHeight - laneWidth), buttonSize, lane);
-                genContrl.addBorderLine(x, position_zero, laneWidth, stopLaneHeight, lane);
+                genContrl.addBorderLine(x, (position_zero - Vehicle.getVehicleHeight()), laneWidth, stopLaneHeight, lane);
             }
             case SOUTH -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -155,7 +155,7 @@ public class CanvasDrawer {
                 }
                 drawStopLine(gc, x, (centerY + cutoff), laneWidth, stopLaneHeight, lane);
                 genContrl.addIntersectionLaneButton((x + buttonBuffer), (centerY + cutoff + laneWidth - buttonSize), buttonSize, lane);
-                genContrl.addBorderLine(x, position_max, laneWidth, stopLaneHeight, lane);
+                genContrl.addBorderLine(x, (position_max + Vehicle.getVehicleHeight()), laneWidth, stopLaneHeight, lane);
             }
             case EAST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -165,7 +165,7 @@ public class CanvasDrawer {
                 }
                 drawStopLine(gc, (centerX + cutoff), y, stopLaneHeight, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((centerX + cutoff + laneWidth - buttonSize), (y + buttonBuffer), buttonSize, lane);
-                genContrl.addBorderLine(position_max, y, stopLaneHeight, laneWidth, lane);
+                genContrl.addBorderLine((position_max + Vehicle.getVehicleHeight()), y, stopLaneHeight, laneWidth, lane);
             }
             case WEST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -175,7 +175,7 @@ public class CanvasDrawer {
                 }
                 drawStopLine(gc, (centerX - cutoff - stopLaneHeight), y, stopLaneHeight, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((centerX - cutoff - stopLaneHeight - laneWidth), (y + buttonBuffer), buttonSize, lane);
-                genContrl.addBorderLine(position_zero, y, stopLaneHeight, laneWidth, lane);
+                genContrl.addBorderLine((position_zero - Vehicle.getVehicleHeight()), y, stopLaneHeight, laneWidth, lane);
             }
         }
     }
@@ -450,7 +450,6 @@ public class CanvasDrawer {
             throw new IllegalArgumentException("Vehicle List nie może być null!");
         } else {
             for (Vehicle v : vehicles) {
-                System.out.println("Pojazd:" + v);
                 double dx = v.x2 - v.x1;
                 double dy = v.y2 - v.y1;
                 double length = Math.hypot(dx, dy);
@@ -479,9 +478,7 @@ public class CanvasDrawer {
                         new double[]{y1_left, y2_left, y2_right, y1_right},
                         4
                 );
-                System.out.println("Print z pętli");
             }
-            System.out.println("Print za pętlą");
         }
     }
 

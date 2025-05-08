@@ -2,12 +2,15 @@ package com.itasoftware.itasoftware;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.TextFormatter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.UnaryOperator;
 
 import java.io.IOException;
@@ -26,8 +29,13 @@ public class SimulationController {
     VehicleManager vehicleManager = new VehicleManager();
 
     private final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
+    private List<TextFieldVehicleNumber> tfVNInput = new ArrayList<>();
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
+    boolean isSimulationActive = false;
+
+    MovementTrajectory movTraj;     // Trajektoria ruchu
+    Map<MovementRelations, MovementTrajectory> movementMap = new HashMap<>();   // Hash mapa z powiązanymi relacjami i trajektoriami ruchu
 
     // Powrót do głównego menu
     @FXML
@@ -74,6 +82,7 @@ public class SimulationController {
         loadTextField();
         updateTextFieldActivityAndDefaultValue();
 
+        // Utworzenie pętli symulacji
         simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager); // Tworzenie obiektu, gdy `simCanvas` nie jest już `null`
     }
 
@@ -84,6 +93,9 @@ public class SimulationController {
             simCanvasContainer.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
                 drawer.scaleCanvas(simCanvasContainer, simCanvas);
             });
+
+            // Ukrycie przycisków wyznaczania relacji
+            GeneratorController.isIntersectionLaneButtonShown = false;
 
             // Rysowanie
             drawer.drawCanvas(simCanvas);
@@ -115,6 +127,7 @@ public class SimulationController {
         textfieldMap.put(tfEastStraight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.EAST, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.WEST));
         textfieldMap.put(tfEastRight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.EAST, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.NORTH));
         textfieldMap.put(tfEastBack, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.EAST, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.EAST));
+        tfVNInput = new ArrayList<>(textfieldMap.values());
     }
 
     // Sprawdzenie stanu textfieldów
@@ -149,19 +162,57 @@ public class SimulationController {
         }
     }
 
+    // Utworzenie trajektorii ruchu
+    public void addMovementTrajectory() {
+        double X1 = 0, X2 = 0, X3 = 0, X4 = 0, Y1 = 0, Y2 = 0, Y3 = 0, Y4 = 0;
+
+        for (MovementRelations mr : MovementRelations.movementRelations) {
+            for (BorderLine bl : GeneratorController.borderLines) {
+                for (StopLine sl : GeneratorController.stopLines) {
+                    if (mr.getObjectA().getLocalization() == bl.getLocalization() && mr.getObjectA().getType() == bl.getType() &&
+                            mr.getObjectA().getLocalization() == sl.getLocalization() && mr.getObjectA().getType() == sl.getType()) {
+                        X1 = bl.getPositionCenterX();
+                        Y1 = bl.getPositionCenterY();
+                        X2 = sl.getPositionCenterX();
+                        Y2 = sl.getPositionCenterY();
+                    }
+                    if (mr.getObjectB().getLocalization() == bl.getLocalization() && mr.getObjectB().getType() == bl.getType() &&
+                            mr.getObjectB().getLocalization() == sl.getLocalization() && mr.getObjectB().getType() == sl.getType()) {
+                        X3 = sl.getPositionCenterX();
+                        Y3 = sl.getPositionCenterY();
+                        X4 = bl.getPositionCenterX();
+                        Y4 = bl.getPositionCenterY();
+                    }
+                }
+            }
+
+            List<Point2D> trajectoryPoints = List.of(
+                    new Point2D(X1, Y1),
+                    new Point2D(X2, Y2),
+                    new Point2D(X3, Y3),
+                    new Point2D(X4, Y4)
+//                    new Point2D(700, 310),
+//                    new Point2D(800, 310)
+            );
+            movTraj = new MovementTrajectory(trajectoryPoints);
+            movementMap.put(mr, movTraj);   // Dodanie do mapy danej relacji i trajektorii ruchu
+        }
+    }
+
     // Załadowanie wprowadzonych liczb pojazdów na różnych relacjach
     @FXML
-    public void loadCarsNumbers() {
+    public void loadVehicleNumbers() {
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
             tfVehNum.setCarsNumber(Double.parseDouble(tf.getText()));
         }
+        addMovementTrajectory();
     }
 
     // Wyzerowanie wprowadzonych liczb pojazdów na różnych relacjach
     @FXML
-    public void clearCarsNumbers() {
+    public void clearVehicleNumbers() {
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
@@ -173,21 +224,29 @@ public class SimulationController {
     // Uruchomienie symulacji
     @FXML
     public void startSimulation() {
-        // Jeśli relacje są załadowane – start symulacji
         if (!MovementRelations.movementRelations.isEmpty()) {
             simLoop.run();
-            simLoop.spawn();
-            System.out.println("Button start");
+            if (!isSimulationActive) {
+                isSimulationActive = true;
+                simLoop.spawn(tfVNInput, movementMap);
+            }
         }
     }
 
     // Zatrzymanie symulacji
     @FXML
     public void stopSimulation() {
-        // Jeśli relacje są załadowane – start symulacji
         if (!MovementRelations.movementRelations.isEmpty()) {
             simLoop.stop();
-            System.out.println("Button stop");
+        }
+    }
+
+    // Zresetowanie symulacji
+    @FXML
+    public void resetSimulation() {
+        if (!MovementRelations.movementRelations.isEmpty()) {
+            isSimulationActive = false;
+            simLoop.reset();
         }
     }
 

@@ -5,10 +5,13 @@ import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.util.Duration;
 
+import java.util.List;
+import java.util.Map;
+
 public class SimulationLoop {
 
     Timeline timelineSim;
-    double runTimerInterval = 100; // Interwał dla timeline w milisekundach
+    double runTimerInterval = 10; // Interwał dla timeline w milisekundach
     private final VehicleManager vehicleManager;
     private final CanvasDrawer canvasDrawer;
     private final Canvas simCanvas;
@@ -34,14 +37,19 @@ public class SimulationLoop {
         timelineSim.stop();
     }
 
-    public void spawn() {
-        vehicleManager.spawnVehicle();
-        System.out.println("spawn");
+    public void spawn(List<TextFieldVehicleNumber> tfVNInput, Map<MovementRelations, MovementTrajectory> movementMap) {
+        vehicleManager.spawnVehicle(tfVNInput, movementMap);
     }
 
     public void update() {
         vehicleManager.updateVehicles();
         canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
+    }
+
+    public void reset() {
+        stop();
+        vehicleManager.clearVehicles();
+        canvasDrawer.drawCanvas(simCanvas);
     }
 
 }
