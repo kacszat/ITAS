@@ -149,7 +149,7 @@
                         </VBox>
                     </HBox>
                     <Region style="-fx-padding: 0 0 2em 0"/>
-                    <Button text="Załaduj liczbę pojazdów" styleClass="obj-button" onAction="#loadVehicleNumbers"/>
+                    <Button text="Załaduj liczbę pojazdów" styleClass="obj-button" onAction="#loadVehicleNumbersDedicatedButton"/>
                     <Button text="Wyczyść liczbę pojazdów" styleClass="obj-button" onAction="#clearVehicleNumbers"/>
                 </VBox>
             </left>
@@ -157,9 +157,20 @@
             <!-- Prawy panel -->
             <right>
                 <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
-                    <Button text="Start symulacji" styleClass="obj-button" onAction="#startSimulation"/>
-                    <Button text="Stop symulacji" styleClass="obj-button" onAction="#stopSimulation"/>
-                    <Button text="Reset symulacji" styleClass="obj-button" onAction="#resetSimulation"/>
+                    <Label text="Sterowanie przebiegiem symulacji:" styleClass="obj-text2"/>
+
+                    <Region style="-fx-padding: 0 0 1em 0"/>
+                    <Label text="Prędkość symulacji:" styleClass="obj-text"/>
+                    <HBox>
+                        <Region styleClass="obj-region1"/>
+                        <Region styleClass="obj-region1"/>
+                        <Slider fx:id="sliderTimeSpeed" styleClass="obj-slider"/>
+                    </HBox>
+
+                    <Region style="-fx-padding: 0 0 1em 0"/>
+                    <Button text="Uruchom symulację" styleClass="obj-button" onAction="#startSimulation"/>
+                    <Button text="Zatrzymaj symulację" styleClass="obj-button" onAction="#stopSimulation"/>
+                    <Button text="Zresetuj symulację" styleClass="obj-button" onAction="#resetSimulation"/>
 <!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
 <!--                    <Button text="Wyznacz relacje ruchu" styleClass="obj-button-big" onAction="#showIntersectionLaneButton"/>-->
 <!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->

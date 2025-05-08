@@ -3,6 +3,7 @@ package com.itasoftware.itasoftware;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.util.Duration;
 
 import java.util.List;
@@ -15,8 +16,10 @@ public class SimulationLoop {
     private final VehicleManager vehicleManager;
     private final CanvasDrawer canvasDrawer;
     private final Canvas simCanvas;
+    private double timeSpeed;
+    private boolean isSimStopped = true;
 
-    public SimulationLoop(Canvas simCanvas, CanvasDrawer canvasDrawer, VehicleManager vehicleManager) {
+    public SimulationLoop(Canvas simCanvas, CanvasDrawer canvasDrawer, VehicleManager vehicleManager, double timeSpeed) {
         if (simCanvas == null) {
             throw new IllegalArgumentException("Canvas nie może być null!");
         }
@@ -24,6 +27,7 @@ public class SimulationLoop {
         this.vehicleManager = vehicleManager;
         this.canvasDrawer = canvasDrawer;
         this.simCanvas = simCanvas;
+        this.timeSpeed = timeSpeed;
 
         timelineSim = new Timeline(new KeyFrame(Duration.millis(runTimerInterval), e -> update()));
         timelineSim.setCycleCount(Timeline.INDEFINITE);
@@ -31,10 +35,12 @@ public class SimulationLoop {
 
     public void run() {
         timelineSim.play();
+        isSimStopped = false;
     }
 
     public void stop() {
         timelineSim.stop();
+        isSimStopped = true;
     }
 
     public void spawn(List<TextFieldVehicleNumber> tfVNInput, Map<MovementRelations, MovementTrajectory> movementMap) {
@@ -50,6 +56,16 @@ public class SimulationLoop {
         stop();
         vehicleManager.clearVehicles();
         canvasDrawer.drawCanvas(simCanvas);
+    }
+
+    // Usatwienie prędkości symulacji
+    public void setTimeSpeed(double timeSpeed) {
+        timelineSim.stop();
+        timelineSim.getKeyFrames().clear();
+        timelineSim.getKeyFrames().add(new KeyFrame(Duration.millis(runTimerInterval / timeSpeed), e -> update()));
+        if (!isSimStopped) {
+            timelineSim.play();
+        }
     }
 
 }

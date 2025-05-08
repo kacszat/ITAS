@@ -3,6 +3,7 @@ package com.itasoftware.itasoftware;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
@@ -32,7 +33,10 @@ public class SimulationController {
     private List<TextFieldVehicleNumber> tfVNInput = new ArrayList<>();
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
+    @FXML Slider sliderTimeSpeed;
+    static double timeSpeed = 1.0;
     boolean isSimulationActive = false;
+
 
     MovementTrajectory movTraj;     // Trajektoria ruchu
     Map<MovementRelations, MovementTrajectory> movementMap = new HashMap<>();   // Hash mapa z powiązanymi relacjami i trajektoriami ruchu
@@ -80,10 +84,11 @@ public class SimulationController {
     public void initialize() {
         loadCanvasOrInfo(canvasDrawer);
         loadTextField();
+        configureTimeSpeedSlider();
         updateTextFieldActivityAndDefaultValue();
 
         // Utworzenie pętli symulacji
-        simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager); // Tworzenie obiektu, gdy `simCanvas` nie jest już `null`
+        simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, timeSpeed);
     }
 
     // Załadowanie Canvas lub informacji, w przypadku jego braku
@@ -107,6 +112,24 @@ public class SimulationController {
             simCanvas.setVisible(false);
             simInfoLabel.setVisible(true);
         }
+    }
+
+    private void configureTimeSpeedSlider() {
+        sliderTimeSpeed.setMin(1);
+        sliderTimeSpeed.setMax(10);
+        sliderTimeSpeed.setValue(1);
+        sliderTimeSpeed.setBlockIncrement(1);
+        sliderTimeSpeed.setMajorTickUnit(1);
+        sliderTimeSpeed.setMinorTickCount(0);
+        sliderTimeSpeed.setSnapToTicks(true);
+        sliderTimeSpeed.setShowTickMarks(true);
+        sliderTimeSpeed.setShowTickLabels(true);
+
+        // Pobranie aktualnie ustawionej wartości na sliderze
+        sliderTimeSpeed.valueProperty().addListener((obs, oldVal, newVal) -> {
+            timeSpeed = newVal.doubleValue();
+            simLoop.setTimeSpeed(timeSpeed);
+        });
     }
 
     // Załadowanie TextFieldów (sam textfield, potem obiekt klasy tfCarNumber z lokalizacją startową, typem lokalizacji startowej i lokalizacją końcową)
@@ -200,7 +223,6 @@ public class SimulationController {
     }
 
     // Załadowanie wprowadzonych liczb pojazdów na różnych relacjach
-    @FXML
     public void loadVehicleNumbers() {
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
@@ -208,6 +230,12 @@ public class SimulationController {
             tfVehNum.setCarsNumber(Double.parseDouble(tf.getText()));
         }
         addMovementTrajectory();
+    }
+
+    @FXML
+    public void loadVehicleNumbersDedicatedButton() {
+        loadVehicleNumbers();
+        resetSimulation();
     }
 
     // Wyzerowanie wprowadzonych liczb pojazdów na różnych relacjach
@@ -227,6 +255,7 @@ public class SimulationController {
         if (!MovementRelations.movementRelations.isEmpty()) {
             simLoop.run();
             if (!isSimulationActive) {
+                loadVehicleNumbers();
                 isSimulationActive = true;
                 simLoop.spawn(tfVNInput, movementMap);
             }
