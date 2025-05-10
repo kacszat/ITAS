@@ -35,10 +35,16 @@ public class AlertPopUp {
                 case "Quit Simulation" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z symulacji ruchu?");
                 case "Lack Relations" -> {controller.alertLabel.setText("Czy na pewno chcesz przejść do okna symulacji ruchu?");
                                             controller.alertLabel2.setText("Na skrzyżowaniu nie ma wyznaczonych żadnych relacji ruchu.");}
-//                case "Bad CarsNumber" -> {controller.alertLabel.setText("Wprowadzono niewłaściwe dane dotyczące liczby pojazdów.");
-//                                            controller.alertLabel2.setText("Liczba pojazdów musi być liczbą.");
-//                                            controller.alertButtonYes.setVisible(false);
-//                                            controller.alertButtonNo.setText("OK");}
+                case "Bad VehicleNumber" -> {controller.alertLabel.setText("Wprowadzono niewłaściwe dane dotyczące liczby pojazdów.");
+                                            controller.alertLabel2.setText("Całkowita liczba pojazdów musi być większa niż zero.");
+                                            controller.alertButtonYes.setVisible(false);
+                                            controller.alertButtonYes.setManaged(false);
+                                            controller.alertButtonNo.setText("OK");}
+                case "Bad SimTime" -> {controller.alertLabel.setText("Wprowadzono niewłaściwą wartość czasu trwania symulacji.");
+                                            controller.alertLabel2.setText("Minimalny czas trwania symulacji to jedna minuta.");
+                                            controller.alertButtonYes.setVisible(false);
+                                            controller.alertButtonYes.setManaged(false);
+                                            controller.alertButtonNo.setText("OK");}
                 default -> controller.alertLabel.setText("Czy na pewno chcesz wykonać tę akcję?");
             }
 

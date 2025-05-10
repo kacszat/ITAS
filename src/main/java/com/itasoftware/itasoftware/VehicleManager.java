@@ -24,9 +24,10 @@ public class VehicleManager {
 
     }
 
-    public void updateVehicles() {
+    public void updateVehicles(double simSpeed) {
         for (Vehicle v : vehiclesList) {
             v.updateVehiclePosition();
+            v.setSimSpeed(simSpeed);
         }
         vehiclesList.removeIf(Vehicle::isFinished);     // Pojazd zostaje usunięty, jeśli dotarł do końca trasy
     }

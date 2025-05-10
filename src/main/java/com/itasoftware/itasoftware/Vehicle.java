@@ -4,7 +4,7 @@ import javafx.geometry.Point2D;
 
 public class Vehicle {
 
-    double speed;
+    double speed, simSpeed;
     double x1, y1, x2, y2;  // Współrzędne dwóch punktów
     static int vehicleWidth = 15, vehicleHeight = 30;
     private MovementTrajectory trajectory;
@@ -13,6 +13,7 @@ public class Vehicle {
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
         this.speed = 2.0;
+        this.simSpeed = 1.0;
         this.distanceTraveled = 0;
     }
 
@@ -46,7 +47,7 @@ public class Vehicle {
         y2 = center.getY() + uy * halfLength;
 
         // Przemieszczenie
-        distanceTraveled += speed;
+        distanceTraveled += (speed * simSpeed);
 
         System.out.printf("centerDistance = %.2f, center = (%.2f, %.2f)%n", centerDistance, center.getX(), center.getY());
         System.out.println("Distance traveled: " + distanceTraveled);
@@ -62,5 +63,10 @@ public class Vehicle {
 
     public static int getVehicleHeight() {
         return vehicleHeight;
+    }
+
+    // Prędkość działania symulacji
+    public void setSimSpeed(double simSpeed) {
+        this.simSpeed = simSpeed;
     }
 }

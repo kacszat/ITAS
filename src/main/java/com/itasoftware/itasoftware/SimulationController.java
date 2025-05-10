@@ -3,12 +3,9 @@ package com.itasoftware.itasoftware;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.control.TextFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +31,11 @@ public class SimulationController {
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
     @FXML Slider sliderTimeSpeed;
-    static double timeSpeed = 1.0;
+    @FXML Spinner<Integer> spinnerTimeHours, spinnerTimeMinutes;
+    @FXML Label labelTime;
+    @FXML Button buttonStart;
+    static double simSpeed = 1.0, tfVehicleSum = 0;
+    Integer simTimeLength = 0;
     boolean isSimulationActive = false;
 
 
@@ -85,10 +86,11 @@ public class SimulationController {
         loadCanvasOrInfo(canvasDrawer);
         loadTextField();
         configureTimeSpeedSlider();
+        configureTimeSpinners();
         updateTextFieldActivityAndDefaultValue();
 
         // Utworzenie pętli symulacji
-        simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, timeSpeed);
+        simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, simSpeed, this);
     }
 
     // Załadowanie Canvas lub informacji, w przypadku jego braku
@@ -127,9 +129,22 @@ public class SimulationController {
 
         // Pobranie aktualnie ustawionej wartości na sliderze
         sliderTimeSpeed.valueProperty().addListener((obs, oldVal, newVal) -> {
-            timeSpeed = newVal.doubleValue();
-            simLoop.setTimeSpeed(timeSpeed);
+            simSpeed = newVal.doubleValue();
+            simLoop.setSimSpeed(simSpeed);
         });
+    }
+
+    private void configureTimeSpinners() {
+        spinnerTimeHours.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
+        spinnerTimeMinutes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
+    }
+
+    // Funkcja pobierajaca wartości ze spinnerów
+    private void loadSimTimeLength() {
+        int hours = spinnerTimeHours.getValue();
+        int minutes = spinnerTimeMinutes.getValue();
+        simTimeLength = hours * 60 + minutes;
+        simLoop.setSimTimeLength(simTimeLength);
     }
 
     // Załadowanie TextFieldów (sam textfield, potem obiekt klasy tfCarNumber z lokalizacją startową, typem lokalizacji startowej i lokalizacją końcową)
@@ -228,6 +243,11 @@ public class SimulationController {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
             tfVehNum.setCarsNumber(Double.parseDouble(tf.getText()));
+
+            tfVehicleSum = textfieldMap.values()
+                    .stream()
+                    .mapToDouble(TextFieldVehicleNumber::getCarsNumber)
+                    .sum();
         }
         addMovementTrajectory();
     }
@@ -253,11 +273,15 @@ public class SimulationController {
     @FXML
     public void startSimulation() {
         if (!MovementRelations.movementRelations.isEmpty()) {
-            simLoop.run();
+            loadSimTimeLength();
+            loadVehicleNumbers();
             if (!isSimulationActive) {
-                loadVehicleNumbers();
                 isSimulationActive = true;
                 simLoop.spawn(tfVNInput, movementMap);
+            }
+            if (checkSimParameters()) {
+                simLoop.run();
+                changeButtonsText();
             }
         }
     }
@@ -268,6 +292,7 @@ public class SimulationController {
         if (!MovementRelations.movementRelations.isEmpty()) {
             simLoop.stop();
         }
+        changeButtonsText();
     }
 
     // Zresetowanie symulacji
@@ -277,6 +302,47 @@ public class SimulationController {
             isSimulationActive = false;
             simLoop.reset();
         }
+        setLabelTime("00:00:00");
+        changeButtonsText();
+    }
+
+    // Zresetowanie parametrów czasu symulacji
+    @FXML
+    public void resetSimTime() {
+        if (!isSimulationActive) {
+            sliderTimeSpeed.setValue(1);
+            simSpeed = 0;
+            configureTimeSpinners();
+            simTimeLength = 0;
+        }
+    }
+
+    @FXML
+    public void setLabelTime(String string) {
+        labelTime.setText(string);
+    }
+
+    private void changeButtonsText() {
+        if (!isSimulationActive) {
+            buttonStart.setText("Uruchom symulację");
+        } else {
+            buttonStart.setText("Wznów symulację");
+        }
+    }
+
+    // Sprawdzenie, czy wprowadzono wymagane parametry symulacji
+    private boolean checkSimParameters() {
+        System.out.println(tfVehicleSum);
+        if (tfVehicleSum == 0) {
+            AlertPopUp.showAlertPopUp("Bad VehicleNumber");
+            resetSimulation();
+            return false;
+        } else if (simTimeLength == 0) {
+            AlertPopUp.showAlertPopUp("Bad SimTime");
+            resetSimulation();
+            return false;
+        }
+        return true;
     }
 
 }

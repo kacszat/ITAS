@@ -157,7 +157,25 @@
             <!-- Prawy panel -->
             <right>
                 <VBox styleClass="obj-vbox" style="-fx-pref-width: 30em;">
-                    <Label text="Sterowanie przebiegiem symulacji:" styleClass="obj-text2"/>
+                    <Label text="Czas symulacji:" styleClass="obj-text2"/>
+                    <VBox styleClass="obj-vbox-timer">
+                        <Label fx:id="labelTime" text="00:00:00" styleClass="obj-text-timer"/>
+                    </VBox>
+
+                    <Region style="-fx-padding: 0 0 1em 0"/>
+                    <Label text="Ustawienie czasu trwania symulacji:" styleClass="obj-text"/>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Region styleClass="obj-region1"/>
+                        <Spinner fx:id="spinnerTimeHours" styleClass="obj-spinner"/>
+                        <Label text="Liczba godzin" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                    </HBox>
+                    <HBox styleClass="obj-hbox">
+                        <Region styleClass="obj-region1"/>
+                        <Region styleClass="obj-region1"/>
+                        <Spinner fx:id="spinnerTimeMinutes" styleClass="obj-spinner"/>
+                        <Label text="Liczba minut" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                    </HBox>
 
                     <Region style="-fx-padding: 0 0 1em 0"/>
                     <Label text="Prędkość symulacji:" styleClass="obj-text"/>
@@ -168,28 +186,12 @@
                     </HBox>
 
                     <Region style="-fx-padding: 0 0 1em 0"/>
-                    <Button text="Uruchom symulację" styleClass="obj-button" onAction="#startSimulation"/>
+                    <Button text="Zresetuj parametry czasu" styleClass="obj-button" onAction="#resetSimTime"/>
+
+                    <Region style="-fx-padding: 0 0 1em 0"/>
+                    <Button fx:id="buttonStart" text="Uruchom symulację" styleClass="obj-button" onAction="#startSimulation"/>
                     <Button text="Zatrzymaj symulację" styleClass="obj-button" onAction="#stopSimulation"/>
                     <Button text="Zresetuj symulację" styleClass="obj-button" onAction="#resetSimulation"/>
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Button text="Wyznacz relacje ruchu" styleClass="obj-button-big" onAction="#showIntersectionLaneButton"/>-->
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Button text="Pokaż wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#showMovementRelations"/>-->
-<!--                    <Button text="Ukryj wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#hideMovementRelations"/>-->
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Label text="Pokaż/Ukryj relacje ruchu dla wlotu:" styleClass="obj-text"/>-->
-<!--                    <HBox styleClass="obj-hbox">-->
-<!--                        <Region styleClass="obj-region2"/>-->
-<!--                        <Button text="Północnego" styleClass="obj-button-small" onAction="#showMovementRelationsNorth"/>-->
-<!--                        <Button text="Południowego" styleClass="obj-button-small" onAction="#showMovementRelationsSouth"/>-->
-<!--                    </HBox>-->
-<!--                    <HBox styleClass="obj-hbox">-->
-<!--                        <Region styleClass="obj-region2"/>-->
-<!--                        <Button text="Wschodniego" styleClass="obj-button-small" onAction="#showMovementRelationsEast"/>-->
-<!--                        <Button text="Zachodniego" styleClass="obj-button-small" onAction="#showMovementRelationsWest"/>-->
-<!--                    </HBox>-->
-<!--                    <Region style="-fx-padding: 0 0 2em 0"/>-->
-<!--                    <Button text="Usuń wszystkie relacje ruchu" styleClass="obj-button-big" onAction="#clearMovementRelations"/>-->
                 </VBox>
             </right>
 
