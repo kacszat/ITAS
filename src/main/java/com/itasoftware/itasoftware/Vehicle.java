@@ -49,8 +49,8 @@ public class Vehicle {
         // Przemieszczenie
         distanceTraveled += (speed * simSpeed);
 
-        System.out.printf("centerDistance = %.2f, center = (%.2f, %.2f)%n", centerDistance, center.getX(), center.getY());
-        System.out.println("Distance traveled: " + distanceTraveled);
+//        System.out.printf("centerDistance = %.2f, center = (%.2f, %.2f)%n", centerDistance, center.getX(), center.getY());
+//        System.out.println("Distance traveled: " + distanceTraveled);
     }
 
     public boolean isFinished() {

@@ -27,7 +27,7 @@ public class SimulationController {
     VehicleManager vehicleManager = new VehicleManager();
 
     private final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
-    private List<TextFieldVehicleNumber> tfVNInput = new ArrayList<>();
+    private List<TextFieldVehicleNumber> tfVehNumInputs = new ArrayList<>();    // Lista liczby pojazdów z danych textfieldów
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
     @FXML Slider sliderTimeSpeed;
@@ -37,7 +37,6 @@ public class SimulationController {
     static double simSpeed = 1.0, tfVehicleSum = 0;
     Integer simTimeLength = 0;
     boolean isSimulationActive = false;
-
 
     MovementTrajectory movTraj;     // Trajektoria ruchu
     Map<MovementRelations, MovementTrajectory> movementMap = new HashMap<>();   // Hash mapa z powiązanymi relacjami i trajektoriami ruchu
@@ -88,6 +87,10 @@ public class SimulationController {
         configureTimeSpeedSlider();
         configureTimeSpinners();
         updateTextFieldActivityAndDefaultValue();
+
+        simSpeed = 1.0;
+        tfVehicleSum = 0;
+        simTimeLength = 0;
 
         // Utworzenie pętli symulacji
         simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, simSpeed, this);
@@ -165,7 +168,7 @@ public class SimulationController {
         textfieldMap.put(tfEastStraight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.EAST, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.WEST));
         textfieldMap.put(tfEastRight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.EAST, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.NORTH));
         textfieldMap.put(tfEastBack, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.EAST, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.EAST));
-        tfVNInput = new ArrayList<>(textfieldMap.values());
+        tfVehNumInputs = new ArrayList<>(textfieldMap.values());
     }
 
     // Sprawdzenie stanu textfieldów
@@ -182,7 +185,7 @@ public class SimulationController {
 
             tf.setTextFormatter(new TextFormatter<>(digitFilter)); // Dodanie filtra do TF
             tf.setText("0"); // Ustawienie domyślnej wartości
-            tfCarNum.setCarsNumber(0); // Ustawienie liczby samochodów równej zero na każdym tfCarNum
+            tfCarNum.setVehiclesNumber(0); // Ustawienie liczby samochodów równej zero na każdym tfCarNum
 
             boolean textFieldAndRelationMatch = false;
 
@@ -207,15 +210,15 @@ public class SimulationController {
         for (MovementRelations mr : MovementRelations.movementRelations) {
             for (BorderLine bl : GeneratorController.borderLines) {
                 for (StopLine sl : GeneratorController.stopLines) {
-                    if (mr.getObjectA().getLocalization() == bl.getLocalization() && mr.getObjectA().getType() == bl.getType() &&
-                            mr.getObjectA().getLocalization() == sl.getLocalization() && mr.getObjectA().getType() == sl.getType()) {
+                    if (mr.getObjectA().getLocalization() == bl.getLocalization() && mr.getObjectA().getType() == bl.getType() && mr.getObjectA().getIndex() == bl.getIndex() &&
+                            mr.getObjectA().getLocalization() == sl.getLocalization() && mr.getObjectA().getType() == sl.getType() && mr.getObjectA().getIndex() == sl.getIndex()) {
                         X1 = bl.getPositionCenterX();
                         Y1 = bl.getPositionCenterY();
                         X2 = sl.getPositionCenterX();
                         Y2 = sl.getPositionCenterY();
                     }
-                    if (mr.getObjectB().getLocalization() == bl.getLocalization() && mr.getObjectB().getType() == bl.getType() &&
-                            mr.getObjectB().getLocalization() == sl.getLocalization() && mr.getObjectB().getType() == sl.getType()) {
+                    if (mr.getObjectB().getLocalization() == bl.getLocalization() && mr.getObjectB().getType() == bl.getType() && mr.getObjectB().getIndex() == bl.getIndex() &&
+                            mr.getObjectB().getLocalization() == sl.getLocalization() && mr.getObjectB().getType() == sl.getType() && mr.getObjectB().getIndex() == sl.getIndex()) {
                         X3 = sl.getPositionCenterX();
                         Y3 = sl.getPositionCenterY();
                         X4 = bl.getPositionCenterX();
@@ -242,11 +245,11 @@ public class SimulationController {
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
-            tfVehNum.setCarsNumber(Double.parseDouble(tf.getText()));
+            tfVehNum.setVehiclesNumber(Double.parseDouble(tf.getText()));
 
             tfVehicleSum = textfieldMap.values()
                     .stream()
-                    .mapToDouble(TextFieldVehicleNumber::getCarsNumber)
+                    .mapToDouble(TextFieldVehicleNumber::getVehiclesNumber)
                     .sum();
         }
         addMovementTrajectory();
@@ -265,7 +268,7 @@ public class SimulationController {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
             tf.setText("0");
-            tfVehNum.setCarsNumber(0);
+            tfVehNum.setVehiclesNumber(0);
         }
     }
 
@@ -277,7 +280,7 @@ public class SimulationController {
             loadVehicleNumbers();
             if (!isSimulationActive) {
                 isSimulationActive = true;
-                simLoop.spawn(tfVNInput, movementMap);
+                simLoop.spawn(tfVehNumInputs, movementMap);
             }
             if (checkSimParameters()) {
                 simLoop.run();
@@ -332,7 +335,6 @@ public class SimulationController {
 
     // Sprawdzenie, czy wprowadzono wymagane parametry symulacji
     private boolean checkSimParameters() {
-        System.out.println(tfVehicleSum);
         if (tfVehicleSum == 0) {
             AlertPopUp.showAlertPopUp("Bad VehicleNumber");
             resetSimulation();

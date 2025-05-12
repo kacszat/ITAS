@@ -4,9 +4,9 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.util.Duration;
+import javafx.util.Pair;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SimulationLoop {
 
@@ -19,6 +19,8 @@ public class SimulationLoop {
     long simTimeLength, elapsedTime = 0;
     private boolean isSimStopped = true;
     private SimulationController simController;
+    private final List<VehicleSpawnSchedule> spawnSchedule = new ArrayList<>();     // Harmonogram spawnu pojazdów
+    private final Map<Pair<IntersectionLane.Localization, IntersectionLane.Localization>, List<MovementTrajectory>> groupedTrajectories = new HashMap<>();
 
     public SimulationLoop(Canvas simCanvas, CanvasDrawer canvasDrawer, VehicleManager vehicleManager, double simSpeed, SimulationController simController) {
         if (simCanvas == null) {
@@ -45,14 +47,41 @@ public class SimulationLoop {
         isSimStopped = true;
     }
 
-    public void spawn(List<TextFieldVehicleNumber> tfVNInput, Map<MovementRelations, MovementTrajectory> movementMap) {
-        vehicleManager.spawnVehicle(tfVNInput, movementMap);
+    public void spawn(List<TextFieldVehicleNumber> tfVehNumInputs, Map<MovementRelations, MovementTrajectory> movementMap) {
+        spawnSchedule.clear();  // Czyszczenie poprzedniego harmonogramu spawn-ów
+
+        // Grupowanie trajektorii według klucza lokalizacja A - lokalizacja B
+        for (MovementRelations mr : MovementRelations.movementRelations) {
+            var key = new Pair<>(mr.getObjectA().getLocalization(), mr.getObjectB().getLocalization()); // Utworzenie klucza
+            MovementTrajectory traj = movementMap.get(mr);
+            if (traj != null) {
+                groupedTrajectories.computeIfAbsent(key, k -> new ArrayList<>()).add(traj); // Sprawdzenie istnienia klucza i dodanie trajektorii do listy
+            }   // W efekcie, wszystkie trajektorie związane z tą samą parą lokalizacja A - lokalizacja B są przechowywane razem w groupedTrajectories
+        }
+
+        for (TextFieldVehicleNumber tfVehNum : tfVehNumInputs) {
+            var key = new Pair<>(tfVehNum.getLocalization(), tfVehNum.getDestination());    // Utworzenie klucza lokalizacja-destynacja
+            List<MovementTrajectory> trajGroup = groupedTrajectories.get(key);  // Pobranie grupy trajektorii dla danego klucza
+            if (trajGroup != null && !trajGroup.isEmpty()) {
+                int numVehicles = tfVehNum.getVehiclesNumber().intValue();  // Liczba pojazdów z danego textfield
+                spawnSchedule.add(new VehicleSpawnSchedule(trajGroup, numVehicles, simTimeLength));
+            }
+        }
     }
+
 
     public void update() {
         vehicleManager.updateVehicles(simSpeed);
         canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
         updateTime();
+
+        // Pętla sprawdzająca, czy w danym momencie powinien zostać zespawnowany spojazd
+        for (VehicleSpawnSchedule vss : spawnSchedule) {
+            if (vss.shouldSpawn(elapsedTime)) {
+                vehicleManager.spawnVehicle(vss.getRandomTrajectory());
+                vss.markSpawned();
+            }
+        }
     }
 
     public void reset() {
@@ -78,8 +107,6 @@ public class SimulationLoop {
     // Funkcja aktualizująca czas
     private void updateTime() {
         elapsedTime += (long) (runTimerInterval * simSpeed);
-        System.out.println("et: " + elapsedTime);
-        System.out.println("simtime: " + simTimeLength);
         updateTimer();
         if (elapsedTime >= simTimeLength) {
             stop();
@@ -89,7 +116,6 @@ public class SimulationLoop {
     // Wyświetlanie czasu jako timer
     private void updateTimer() {
         long timeToEnd = (simTimeLength - elapsedTime) / 1000;  // Czas w sekundach
-        System.out.println("time to end: " + timeToEnd);
 
         long hours = timeToEnd / 3600;
         long minutes = (timeToEnd % 3600) / 60;

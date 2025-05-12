@@ -3,7 +3,7 @@ package com.itasoftware.itasoftware;
 public class TextFieldVehicleNumber extends IntersectionLane {
 
     private Localization destination;
-    private Double CarsNumber;
+    private Double VehiclesNumber;
 
     public TextFieldVehicleNumber(Localization localization, Type type, Localization destination) {
         super(localization, type, 0);
@@ -14,12 +14,12 @@ public class TextFieldVehicleNumber extends IntersectionLane {
         return destination;
     }
 
-    public void setCarsNumber(double carsNumber) {
-        this.CarsNumber = carsNumber;
+    public void setVehiclesNumber(double vehiclesNumber) {
+        this.VehiclesNumber = vehiclesNumber;
     }
 
-    public Double getCarsNumber() {
-        return CarsNumber;
+    public Double getVehiclesNumber() {
+        return VehiclesNumber;
     }
 
 }
