@@ -38,9 +38,6 @@ public class SimulationController {
     Integer simTimeLength = 0;
     boolean isSimulationActive = false;
 
-    MovementTrajectory movTraj;     // Trajektoria ruchu
-    Map<MovementRelations, MovementTrajectory> movementMap = new HashMap<>();   // Hash mapa z powiązanymi relacjami i trajektoriami ruchu
-
     // Powrót do głównego menu
     @FXML
     public void backToMainMenu() throws IOException  {
@@ -203,43 +200,6 @@ public class SimulationController {
         }
     }
 
-    // Utworzenie trajektorii ruchu
-    public void addMovementTrajectory() {
-        double X1 = 0, X2 = 0, X3 = 0, X4 = 0, Y1 = 0, Y2 = 0, Y3 = 0, Y4 = 0;
-
-        for (MovementRelations mr : MovementRelations.movementRelations) {
-            for (BorderLine bl : GeneratorController.borderLines) {
-                for (StopLine sl : GeneratorController.stopLines) {
-                    if (mr.getObjectA().getLocalization() == bl.getLocalization() && mr.getObjectA().getType() == bl.getType() && mr.getObjectA().getIndex() == bl.getIndex() &&
-                            mr.getObjectA().getLocalization() == sl.getLocalization() && mr.getObjectA().getType() == sl.getType() && mr.getObjectA().getIndex() == sl.getIndex()) {
-                        X1 = bl.getPositionCenterX();
-                        Y1 = bl.getPositionCenterY();
-                        X2 = sl.getPositionCenterX();
-                        Y2 = sl.getPositionCenterY();
-                    }
-                    if (mr.getObjectB().getLocalization() == bl.getLocalization() && mr.getObjectB().getType() == bl.getType() && mr.getObjectB().getIndex() == bl.getIndex() &&
-                            mr.getObjectB().getLocalization() == sl.getLocalization() && mr.getObjectB().getType() == sl.getType() && mr.getObjectB().getIndex() == sl.getIndex()) {
-                        X3 = sl.getPositionCenterX();
-                        Y3 = sl.getPositionCenterY();
-                        X4 = bl.getPositionCenterX();
-                        Y4 = bl.getPositionCenterY();
-                    }
-                }
-            }
-
-            List<Point2D> trajectoryPoints = List.of(
-                    new Point2D(X1, Y1),
-                    new Point2D(X2, Y2),
-                    new Point2D(X3, Y3),
-                    new Point2D(X4, Y4)
-//                    new Point2D(700, 310),
-//                    new Point2D(800, 310)
-            );
-            movTraj = new MovementTrajectory(trajectoryPoints);
-            movementMap.put(mr, movTraj);   // Dodanie do mapy danej relacji i trajektorii ruchu
-        }
-    }
-
     // Załadowanie wprowadzonych liczb pojazdów na różnych relacjach
     public void loadVehicleNumbers() {
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
@@ -252,7 +212,6 @@ public class SimulationController {
                     .mapToDouble(TextFieldVehicleNumber::getVehiclesNumber)
                     .sum();
         }
-        addMovementTrajectory();
     }
 
     @FXML
@@ -280,7 +239,7 @@ public class SimulationController {
             loadVehicleNumbers();
             if (!isSimulationActive) {
                 isSimulationActive = true;
-                simLoop.spawn(tfVehNumInputs, movementMap);
+                simLoop.spawn(tfVehNumInputs, MovementTrajectory.movementMap);
             }
             if (checkSimParameters()) {
                 simLoop.run();

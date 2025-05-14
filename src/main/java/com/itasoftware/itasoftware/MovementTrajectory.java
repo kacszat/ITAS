@@ -3,13 +3,16 @@ package com.itasoftware.itasoftware;
 import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MovementTrajectory {
 
     private final List<Point2D> points;
     private final List<Double> segmentLengths = new ArrayList<>();  // Lista długości segmentów trasy
     private final double totalLength;   // Całkowita długość trasy
+    public static Map<MovementRelations, MovementTrajectory> movementMap = new HashMap<>();   // Hash mapa z powiązanymi relacjami i trajektoriami ruchu
 
     // Zmiana wartości przebytej całkowitej drogi
     public MovementTrajectory(List<Point2D> points) {
@@ -53,6 +56,54 @@ public class MovementTrajectory {
         return points.get(points.size() - 1); // Awaryjnie zwracany ostatni punkt
     }
 
+    // Funkcja tworząca trajektorię ruchu
+    public static void createTrajectory(MovementRelations mr, List<Point2D> trajectoryPoints) {
+        Point2D p1 = trajectoryPoints.get(0);
+        Point2D p2 = trajectoryPoints.get(1);
+        Point2D p3 = trajectoryPoints.get(2);
+        Point2D p4 = trajectoryPoints.get(3);
+        Point2D p5 = trajectoryPoints.get(4);
+        Point2D p6 = trajectoryPoints.get(5);
+
+        // Generowanie odcinka do skrzyżowania
+        List<Point2D> fullTraj = new ArrayList<>();
+        fullTraj.add(p1);
+
+        // Krzywa Béziera
+        List<Point2D> bezier = generateBezierPoints(p2, p3, p4, p5, 50);
+        fullTraj.addAll(bezier);
+
+        // Odcinek od skrzyżowania
+        fullTraj.add(p6);
+
+        // Utwórz trajektorię
+        MovementTrajectory MovTraj = new MovementTrajectory(fullTraj);
+        MovementTrajectory.movementMap.put(mr, MovTraj);   // Dodanie do mapy danej relacji i trajektorii ruchu
+    }
+
+    // Funkcja generująca dokładną trajektorię po krzywej Beziera
+    public static List<Point2D> generateBezierPoints(Point2D p0, Point2D p1, Point2D p2, Point2D p3, int numSteps) {
+        List<Point2D> bezierPoints = new ArrayList<>();
+
+        for (int i = 0; i <= numSteps; i++) {
+            double t = i / (double) numSteps;
+
+            double x = Math.pow(1 - t, 3) * p0.getX()
+                    + 3 * Math.pow(1 - t, 2) * t * p1.getX()
+                    + 3 * (1 - t) * Math.pow(t, 2) * p2.getX()
+                    + Math.pow(t, 3) * p3.getX();
+
+            double y = Math.pow(1 - t, 3) * p0.getY()
+                    + 3 * Math.pow(1 - t, 2) * t * p1.getY()
+                    + 3 * (1 - t) * Math.pow(t, 2) * p2.getY()
+                    + Math.pow(t, 3) * p3.getY();
+
+            bezierPoints.add(new Point2D(x, y));
+        }
+
+        return bezierPoints;
+    }
+
     public double getTotalLength() {
         return totalLength;
     }
@@ -60,6 +111,5 @@ public class MovementTrajectory {
     public List<Point2D> getPoints() {
         return points;
     }
-
 
 }

@@ -1,5 +1,7 @@
 package com.itasoftware.itasoftware;
 
+import javafx.geometry.Point2D;
+import java.util.ArrayList;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
@@ -44,8 +46,8 @@ public class CanvasDrawer {
             drawLanes(gc, lane, canvas);
         }
 
-        // Rysowanie relacji ruchu
-        drawMovementRelations(gc);
+        // Rysowanie relacji ruchu i dodanie trajektorii
+        drawRelationsAndAddTrajectory(gc);
 
         // Rysowanie przycisków
         drawIntersectionLaneButton(gc);
@@ -64,7 +66,7 @@ public class CanvasDrawer {
         for (IntersectionLane lane : GeneratorController.intersectionLanes) {   // Pasy ruchu
             drawLanes(gc, lane, canvas);
         }
-        drawMovementRelations(gc);      // Rysowanie relacji ruchu
+        drawRelationsAndAddTrajectory(gc);      // Rysowanie relacji ruchu i dodanie trajektorii
         drawIntersectionLaneButton(gc);     // Rysowanie przycisków
 
         // Rysowanie pojazdów
@@ -246,6 +248,9 @@ public class CanvasDrawer {
         if (existingSL == null) {
             StopLine stopLine = new StopLine(lane.getLocalization(), lane.getType(), lane.getIndex(), centerX, centerY);
             GeneratorController.stopLines.add(stopLine);
+        } else {
+            existingSL.setPositionCenterX(centerX);
+            existingSL.setPositionCenterY(centerY);
         }
     }
 
@@ -298,150 +303,155 @@ public class CanvasDrawer {
 
     }
 
-    // Funkcja rysująca relację ruchu
-    private void drawMovementRelations(GraphicsContext gc) {
-        if (GeneratorController.isMRNorthShown || GeneratorController.isMRSouthShown || GeneratorController.isMREastShown || GeneratorController.isMRWestShown) {
-            double A_X = 0, A_Y = 0, B_X = 0, B_Y = 0;
+    // Inicjalizacja parametrów punktów
+    double X1 = 0, X2 = 0, X3 = 0, X4 = 0, X5 = 0, X6 = 0, Y1 = 0, Y2 = 0, Y3 = 0, Y4 = 0, Y5 = 0, Y6 = 0;
+    boolean isCurve = true;
 
-            for (MovementRelations relation : genContrl.movementRelations.getMovementRelations()) {
-                IntersectionLaneButton objectA = relation.getObjectA();
-                IntersectionLaneButton objectB = relation.getObjectB();
+    // Utworzenie trajektorii ruchu i rysowanie relacji ruchu
+    public void drawRelationsAndAddTrajectory(GraphicsContext gc) {
 
-                for (StopLine stopline : GeneratorController.stopLines) {
-                    if (objectA.getLocalization().equals(stopline.getLocalization()) &&
-                            objectA.getType().equals(stopline.getType()) &&
-                            objectA.getIndex() == stopline.getIndex()) {
-                        A_X = stopline.getPositionCenterX();
-                        A_Y = stopline.getPositionCenterY();
+        // Przypisanie punktów początkowych i końcowych prostych (pasy ruchu od i do skrzyżowania)
+        for (MovementRelations mr : genContrl.movementRelations.getMovementRelations()) {
+            IntersectionLaneButton objA = mr.getObjectA();
+            IntersectionLaneButton objB = mr.getObjectB();
+            for (BorderLine bl : GeneratorController.borderLines) {
+                for (StopLine sl : GeneratorController.stopLines) {
+                    if (mr.getObjectA().getLocalization() == bl.getLocalization() && mr.getObjectA().getType() == bl.getType() && mr.getObjectA().getIndex() == bl.getIndex() &&
+                            mr.getObjectA().getLocalization() == sl.getLocalization() && mr.getObjectA().getType() == sl.getType() && mr.getObjectA().getIndex() == sl.getIndex()) {
+                        X1 = bl.getPositionCenterX();
+                        Y1 = bl.getPositionCenterY();
+                        X2 = sl.getPositionCenterX();
+                        Y2 = sl.getPositionCenterY();
                     }
-                    if (objectB.getLocalization().equals(stopline.getLocalization()) &&
-                            objectB.getType().equals(stopline.getType()) &&
-                            objectB.getIndex() == stopline.getIndex()) {
-                        B_X = stopline.getPositionCenterX();
-                        B_Y = stopline.getPositionCenterY();
+                    if (mr.getObjectB().getLocalization() == bl.getLocalization() && mr.getObjectB().getType() == bl.getType() && mr.getObjectB().getIndex() == bl.getIndex() &&
+                            mr.getObjectB().getLocalization() == sl.getLocalization() && mr.getObjectB().getType() == sl.getType() && mr.getObjectB().getIndex() == sl.getIndex()) {
+                        X5 = sl.getPositionCenterX();
+                        Y5 = sl.getPositionCenterY();
+                        X6 = bl.getPositionCenterX();
+                        Y6 = bl.getPositionCenterY();
                     }
                 }
-                drawMovementRelationsLines(gc, A_X, A_Y, B_X, B_Y, objectA, objectB);
-
             }
+
+            // Obliczenie współrzędnych punktów krzywej Beziera
+            calculateControlPoints(X2, Y2, X5, Y5, objA, objB);
+
+            // Pomijanie relacji nieaktywnej według flagi
+            if ((objA.getLocalization() == IntersectionLaneButton.Localization.NORTH && !GeneratorController.isMRNorthShown) ||
+                    (objA.getLocalization() == IntersectionLaneButton.Localization.SOUTH && !GeneratorController.isMRSouthShown) ||
+                    (objA.getLocalization() == IntersectionLaneButton.Localization.EAST && !GeneratorController.isMREastShown) ||
+                    (objA.getLocalization() == IntersectionLaneButton.Localization.WEST && !GeneratorController.isMRWestShown)) {
+                continue;
+            }
+
+            gc.setStroke(Color.RED);
+            gc.setLineWidth(3);
+            // Rysowanie trajektorii ruchu
+            if (isCurve) {    // Skręt lub zawrócenie
+                drawCurve(gc, X2, Y2, X3, Y3, X4, Y4, X5, Y5);
+            } else {    // Jazda na wprost
+                gc.strokeLine(X2, Y2, X3, Y3);
+                gc.strokeLine(X3, Y3, X4, Y4);
+                gc.strokeLine(X4, Y4, X5, Y6);
+            }
+            // Rysowanie linii do i od skrzyżowania
+            gc.strokeLine(X1, Y1, X2, Y2);
+            gc.strokeLine(X5, Y5, X6, Y6);
+
+            // Utworzenie trajektorii
+            List<Point2D> trajectoryPoints = List.of(
+                new Point2D(X1, Y1),
+                new Point2D(X2, Y2),
+                new Point2D(X3, Y3),
+                new Point2D(X4, Y4),
+                new Point2D(X5, Y5),
+                new Point2D(X6, Y6)
+            );
+            MovementTrajectory.createTrajectory(mr, trajectoryPoints);
         }
     }
 
-    // Bezpośrednie rysowanie lini relacji
-    private void drawMovementRelationsLines(GraphicsContext gc, double A_X, double A_Y, double B_X, double B_Y,
-                                            IntersectionLaneButton btA, IntersectionLaneButton btB) {
+    // Funkcja rysująca krzywą Beziera
+    private void drawCurve(GraphicsContext gc, double X2, double Y2, double X3, double Y3, double X4, double Y4, double X5, double Y5) {
+        gc.beginPath();
+        gc.moveTo(X2, Y2); // Ustawienie początkowego punktu paraboli
+        gc.bezierCurveTo(X3, Y3, X4, Y4, X5, Y5); // Ustawienie punktów kontrolnych i końcowego paraboli
+        gc.stroke();
+    }
 
-        // Parametry linii relacji ruchu
-        double control_X1 = 0, control_X2 = 0, control_Y1 = 0, control_Y2 = 0;
-        int indexA = btA.getIndex() + 1, indexB = btB.getIndex() + 1;
-        double control_Offset_Left = laneWidth * 1.5 * ((double) indexB / indexA);
-        double control_Offset_Right = laneWidth * 0.5 * ((double) indexB / indexA);
-        double control_Offset_Back = laneWidth * ((double) indexB / indexA);
-        boolean drawCurve = false;
-        //gc.setStroke(Color.rgb(50, 255, 50, 1.0));
-        gc.setStroke(Color.RED);
-        gc.setLineWidth(3);
+    // Funkcja obliczająca współrzędne punktów krzywej Beziera
+    private void calculateControlPoints(double X2, double Y2, double X5, double Y5, IntersectionLaneButton objA, IntersectionLaneButton objB) {
 
-        // Zdefiniowanie bazowych współrzędnych punktów kontrolnych
-        control_X1 = A_X;
-        control_Y1 = A_Y;
-        control_X2 = B_X;
-        control_Y2 = B_Y;
+        // Różnica odległości pomiędzy punktami StopLine
+        double dx = Math.abs(X2 - X5);
+        double dy = Math.abs(Y2 - Y5);
+
+        // Wyliczenie wartości offset-ów
+        double offset_X = dx * 0.7;
+        double offset_Y = dy * 0.7;
+        double offset_Back = laneWidth;
+
+        // Ustawienie bazowych wartości parametrów
+        isCurve = true;
+        X3 = X2;
+        Y3 = Y2;
+        X4 = X5;
+        Y4 = Y5;
 
         // Wyznaczenie przebiegu linii w zależności od punktu początkowego i końcowego (modyfikacja punktów kontrolnych)
-        if (btA.getLocalization() == IntersectionLaneButton.Localization.NORTH && GeneratorController.isMRNorthShown) { // Jazda z północy
-            if (btB.getLocalization() == IntersectionLane.Localization.NORTH) { // Zawrócenie
-                control_Y1 = A_Y + control_Offset_Back;
-                control_Y2 = B_Y + control_Offset_Back;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, B_X,0);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.EAST) { // Skręt w lewo
-                control_Y1 = A_Y + control_Offset_Left;
-                control_X2 = B_X - control_Offset_Left;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, 2*laneHeight, B_Y);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.WEST) { // Skręt w prawo
-                control_Y1 = A_Y + control_Offset_Right;
-                control_X2 = B_X + control_Offset_Right;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, 0, B_Y);
-            } else {    // Jeśli kierunek jazdy to na wprost, rysujemy prostą linię
-                gc.strokeLine(A_X, A_Y, B_X, B_Y);
-                gc.strokeLine(B_X, B_Y, B_X,2*laneHeight);
+        if (objA.getLocalization() == IntersectionLaneButton.Localization.NORTH) { // Jazda z północy
+            if (objB.getLocalization() == IntersectionLane.Localization.NORTH) { // Zawrócenie
+                Y3 = Y2 + offset_Back;
+                Y4 = Y5 + offset_Back;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.EAST) { // Skręt w lewo
+                Y3 = Y2 + offset_Y;
+                X4 = X5 - offset_X;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.WEST) { // Skręt w prawo
+                Y3 = Y2 + offset_Y;
+                X4 = X5 + offset_X;
+            } else {
+                isCurve = false;
             }
-            gc.strokeLine(A_X, A_Y, A_X,0);
-        } else if (btA.getLocalization() == IntersectionLaneButton.Localization.SOUTH && GeneratorController.isMRSouthShown) { // Jazda z południa
-            if (btB.getLocalization() == IntersectionLane.Localization.SOUTH) { // Zawrócenie
-                control_Y1 = A_Y - control_Offset_Back;
-                control_Y2 = B_Y - control_Offset_Back;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, B_X,2*laneHeight);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.WEST) { // Skręt w lewo
-                control_Y1 = A_Y - control_Offset_Left;
-                control_X2 = B_X + control_Offset_Left;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, 0, B_Y);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.EAST) { // Skręt w prawo
-                control_Y1 = A_Y - control_Offset_Right;
-                control_X2 = B_X - control_Offset_Right;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, 2*laneHeight, B_Y);
-            } else {    // Jeśli kierunek jazdy to na wprost, rysujemy prostą linię
-                gc.strokeLine(A_X, A_Y, B_X, B_Y);
-                gc.strokeLine(B_X, B_Y, B_X,0);
+        } else if (objA.getLocalization() == IntersectionLaneButton.Localization.SOUTH) { // Jazda z południa
+            if (objB.getLocalization() == IntersectionLane.Localization.SOUTH) { // Zawrócenie
+                Y3 = Y2 - offset_Back;
+                Y4 = Y5 - offset_Back;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.WEST) { // Skręt w lewo
+                Y3 = Y2 - offset_Y;
+                X4 = X5 + offset_X;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.EAST) { // Skręt w prawo
+                Y3 = Y2 - offset_Y;
+                X4 = X5 - offset_X;
+            } else {
+                isCurve = false;
             }
-            gc.strokeLine(A_X, A_Y, A_X,2*laneHeight);
-        } else if (btA.getLocalization() == IntersectionLaneButton.Localization.EAST && GeneratorController.isMREastShown) { // Jazda ze wschodu
-            if (btB.getLocalization() == IntersectionLane.Localization.EAST) { // Zawrócenie
-                control_X1 = A_X - control_Offset_Back;
-                control_X2 = B_X - control_Offset_Back;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, 2*laneHeight,B_Y);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.SOUTH) { // Skręt w lewo
-                control_X1 = A_X - control_Offset_Left;
-                control_Y2 = B_Y - control_Offset_Left;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, B_X,2*laneHeight);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.NORTH) { // Skręt w prawo
-                control_X1 = A_X - control_Offset_Right;
-                control_Y2 = B_Y + control_Offset_Right;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, B_X,0);
-            } else {    // Jeśli kierunek jazdy to na wprost, rysujemy prostą linię
-                gc.strokeLine(A_X, A_Y, B_X, B_Y);
-                gc.strokeLine(B_X, B_Y, 0,B_Y);
+        } else if (objA.getLocalization() == IntersectionLaneButton.Localization.EAST) { // Jazda ze wschodu
+            if (objB.getLocalization() == IntersectionLane.Localization.EAST) { // Zawrócenie
+                X3 = X2 - offset_Back;
+                X4 = X5 - offset_Back;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.SOUTH) { // Skręt w lewo
+                X3 = X2 - offset_X;
+                Y4 = Y5 - offset_Y;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.NORTH) { // Skręt w prawo
+                X3 = X2 - offset_X;
+                Y4 = Y5 + offset_Y;
+            } else {
+                isCurve = false;
             }
-            gc.strokeLine(A_X, A_Y, 2*laneHeight, A_Y);
-        } else if (btA.getLocalization() == IntersectionLaneButton.Localization.WEST && GeneratorController.isMRWestShown) { // Jazda z zachodu
-            if (btB.getLocalization() == IntersectionLane.Localization.WEST) { // Zawrócenie
-                control_X1 = A_X + control_Offset_Back;
-                control_X2 = B_X + control_Offset_Back;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, 0,B_Y);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.NORTH) { // Skręt w lewo
-                control_X1 = A_X + control_Offset_Left;
-                control_Y2 = B_Y + control_Offset_Left;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, B_X,0);
-            } else if (btB.getLocalization() == IntersectionLane.Localization.SOUTH) { // Skręt w prawo
-                control_X1 = A_X + control_Offset_Right;
-                control_Y2 = B_Y - control_Offset_Right;
-                drawCurve = true;
-                gc.strokeLine(B_X, B_Y, B_X,2*laneHeight);
-            } else {    // Jeśli kierunek jazdy to na wprost, rysujemy prostą linię
-                gc.strokeLine(A_X, A_Y, B_X, B_Y);
-                gc.strokeLine(B_X, B_Y, 2*laneHeight,B_Y);
+        } else if (objA.getLocalization() == IntersectionLaneButton.Localization.WEST) { // Jazda z zachodu
+            if (objB.getLocalization() == IntersectionLane.Localization.WEST) { // Zawrócenie
+                X3 = X2 + offset_Back;
+                X4 = X5 + offset_Back;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.NORTH) { // Skręt w lewo
+                X3 = X2 + offset_X;
+                Y4 = Y5 + offset_Y;
+            } else if (objB.getLocalization() == IntersectionLane.Localization.SOUTH) { // Skręt w prawo
+                X3 = X2 + offset_X;
+                Y4 = Y5 - offset_Y;
+            } else {
+                isCurve = false;
             }
-            gc.strokeLine(A_X, A_Y, 0, A_Y);
         }
-
-        if (drawCurve) {
-            gc.beginPath();
-            gc.moveTo(A_X, A_Y); // Ustawienie początkowego punktu paraboli
-            gc.bezierCurveTo(control_X1, control_Y1, control_X2, control_Y2, B_X, B_Y); // Ustawienie punktów kontrolnych i końcowego paraboli
-            gc.stroke();
-        }
-
     }
 
     // Rysowanie pojazdu

@@ -19,4 +19,12 @@ public class StopLine extends IntersectionLane {
     public double getPositionCenterY() {
         return positionCenterY;
     }
+
+    public void setPositionCenterX(double positionCenterX) {
+        this.positionCenterX = positionCenterX;
+    }
+
+    public void setPositionCenterY(double positionCenterY) {
+        this.positionCenterY = positionCenterY;
+    }
 }
