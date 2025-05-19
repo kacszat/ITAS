@@ -7,14 +7,35 @@ public class Vehicle {
     double speed, simSpeed;
     double x1, y1, x2, y2;  // Współrzędne dwóch punktów
     static int vehicleWidth = 15, vehicleHeight = 30;
+    IntersectionLane.Localization vehicleOrigin, vehicleDestination;
     private MovementTrajectory trajectory;
     private double distanceTraveled;
+    private double fovX, fovY, fovRadius, fovSmallRadius, fovStartAngle, fovLength; // Parametry Field Of View
+    double angle;   // Kąt kierunku jazdy
+    Point2D[] squareFOVCorners, squareSmallFOVCorners;  // Lista czterech punktów prostokąta
 
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
         this.speed = 2.0;
         this.simSpeed = 1.0;
         this.distanceTraveled = 0;
+
+        setVehicleOriginAndDestination();
+    }
+
+    // Przypisanie pojazdowi kierunku pochodzenia (origin) i destynacji
+    private void setVehicleOriginAndDestination() {
+        Point2D firstPoint = trajectory.getPoints().getFirst();
+        Point2D lastPoint = trajectory.getPoints().getLast();
+
+        for (BorderLine bl : GeneratorController.borderLines) {
+            if (bl.getPositionCenterX() == firstPoint.getX() && bl.getPositionCenterY() == firstPoint.getY()) {
+                this.vehicleOrigin = bl.getLocalization();
+            }
+            if (bl.getPositionCenterX() == lastPoint.getX() && bl.getPositionCenterY() == lastPoint.getY()) {
+                this.vehicleDestination = bl.getLocalization();
+            }
+        }
     }
 
     public void updateVehiclePosition() {
@@ -49,8 +70,123 @@ public class Vehicle {
         // Przemieszczenie
         distanceTraveled += (speed * simSpeed);
 
-//        System.out.printf("centerDistance = %.2f, center = (%.2f, %.2f)%n", centerDistance, center.getX(), center.getY());
-//        System.out.println("Distance traveled: " + distanceTraveled);
+        angle = Math.toDegrees(Math.atan2(uy, ux)); // Kąt kierunku jazdy
+        setFOV(center, angle);
+        setSquareFOV(center, angle, false);
+        setSquareFOV(center, angle, true);
+    }
+
+    public void setFOV(Point2D center, double angleDegrees) {
+        this.fovX = center.getX();
+        this.fovY = center.getY();
+        this.fovRadius = 210;  // Promień pola widzenia
+        this.fovSmallRadius = 40;   // // Promień małego pola widzenia
+        this.fovLength = 180;  // Kąt pola widzenia
+        this.fovStartAngle = - angleDegrees - (fovLength / 2.0); // Ustawienie początku sektora FOV
+    }
+
+    public void setSquareFOV(Point2D center, double angleDegrees, Boolean smallFOV) {
+        double rectLength;                      // Długość FOV
+        double rectWidth = vehicleWidth * 1.4;  // Szerokość FOV
+        rectLength = !smallFOV ? 150 : 50;
+
+        // Wektor kierunku jazdy
+        double angleRad = Math.toRadians(angleDegrees);
+        double ux = Math.cos(angleRad);
+        double uy = Math.sin(angleRad);
+
+        // Wektor normalny (prostopadły)
+        double nx = -uy;
+        double ny = ux;
+
+        // Środek prostokąta przesunięty do przodu
+        double cx = center.getX() + ux * (rectLength / 2);
+        double cy = center.getY() + uy * (rectLength / 2);
+
+        // Rogi prostokąta
+        double dx = rectLength / 2.0;
+        double dy = rectWidth / 2.0;
+
+        Point2D frontLeft  = new Point2D(cx + ux * dx + nx * dy, cy + uy * dx + ny * dy);
+        Point2D frontRight = new Point2D(cx + ux * dx - nx * dy, cy + uy * dx - ny * dy);
+        Point2D backLeft   = new Point2D(cx - ux * dx + nx * dy, cy - uy * dx + ny * dy);
+        Point2D backRight  = new Point2D(cx - ux * dx - nx * dy, cy - uy * dx - ny * dy);
+
+        if (!smallFOV) {
+            squareFOVCorners = new Point2D[]{backLeft, frontLeft, frontRight, backRight};
+        } else {
+            squareSmallFOVCorners = new Point2D[]{backLeft, frontLeft, frontRight, backRight};
+        }
+
+    }
+
+    // Funkcja sprawdzająca, czy dane punkty znajdują się w FOV
+    public boolean isPointInFOV(double px, double py, boolean smallFOV) {
+        double dx = px - fovX;
+        double dy = py - fovY;
+        double distance = Math.hypot(dx, dy);
+        double radius;
+
+        radius = !smallFOV ? fovRadius : fovSmallRadius;    // Obecnie smallFOV nie jest używany
+
+        if (distance > radius) return false;
+
+        // Obliczenie kąta do punktu
+        double angleToPoint = Math.toDegrees(Math.atan2(dy, dx));   // Kąt w radianach
+        angleToPoint = (angleToPoint + 360) % 360;  // Kąt jest unormowany do zakresu od 0 do 360 stopni
+
+        double normalizedAngle = (angle + 360) % 360;   // Normalizacja kąta kierunku jazdy do zakresu 0–360 stopni
+        double fovStartAngle_Real = (normalizedAngle - fovLength / 2.0 + 360) % 360; // Obliczenie rzeczywistego kąta początkowego FOV
+                                                                                    // (dla części relacji położenie rzeczywistego FOV nie pokrywa się z rysowanym)
+
+        // Wyznaczenie zakresu FOV
+        double start = (fovStartAngle_Real + 360) % 360;
+        double end = (start + fovLength) % 360;
+
+        // Sprawdzenie, czy punkt mieści się w FOV
+        if (start < end) {
+            return angleToPoint >= start && angleToPoint <= end;
+        } else {
+            // zakres przechodzi przez 0°
+            return angleToPoint >= start || angleToPoint <= end;
+        }
+    }
+
+    public boolean isPointInSquareFOV(double px, double py, Boolean smallFOV) {
+        Point2D point = new Point2D(px, py);
+        Point2D[] polygon = !smallFOV ? squareFOVCorners : squareSmallFOVCorners;
+        return isPointInPolygon(point, polygon);
+    }
+
+    private boolean isPointInPolygon(Point2D point, Point2D[] polygon) {
+        boolean inside = false;
+        int j = polygon.length - 1;
+
+        for (int i = 0; i < polygon.length; i++) {
+            double xi = polygon[i].getX();
+            double yi = polygon[i].getY();
+            double xj = polygon[j].getX();
+            double yj = polygon[j].getY();
+
+            boolean intersect = ((yi > point.getY()) != (yj > point.getY())) &&
+                    (point.getX() < (xj - xi) * (point.getY() - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+
+            j = i;
+        }
+
+        return inside;
+    }
+
+    public boolean isOnIntersectionSegment() {
+        double sl1 = trajectory.getDistanceToApproximatePoint(MovementTrajectory.stopLine1);
+        double sl2 = trajectory.getDistanceToApproximatePoint(MovementTrajectory.stopLine2);
+
+        // Obsługa przypadku, gdy punkty są w odwrotnej kolejności
+        double fromSL = Math.min(sl1, sl2);
+        double toSL = Math.max(sl1, sl2);
+
+        return distanceTraveled >= fromSL && distanceTraveled <= toSL;
     }
 
     public boolean isFinished() {
@@ -65,8 +201,58 @@ public class Vehicle {
         return vehicleHeight;
     }
 
+    public MovementTrajectory getTrajectory() {
+        return trajectory;
+    }
+
+    public double getDistanceTraveled() {
+        return distanceTraveled;
+    }
+
     // Prędkość działania symulacji
     public void setSimSpeed(double simSpeed) {
         this.simSpeed = simSpeed;
     }
+
+    // Prędkość pojazdu
+    public void setSpeed(double simSpeed) {
+        this.speed = simSpeed;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public double getFovX() {
+        return fovX;
+    }
+
+    public double getFovY() {
+        return fovY;
+    }
+
+    public double getFovRadius() {
+        return fovRadius;
+    }
+
+    public double getFovSmallRadius() {
+        return fovSmallRadius;
+    }
+
+    public double getFovStartAngle() {
+        return fovStartAngle;
+    }
+
+    public double getFovLength() {
+        return fovLength;
+    }
+
+    public IntersectionLane.Localization getVehicleOrigin() {
+        return vehicleOrigin;
+    }
+
+    public IntersectionLane.Localization getVehicleDestination() {
+        return vehicleDestination;
+    }
+
 }

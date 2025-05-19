@@ -13,6 +13,7 @@ public class MovementTrajectory {
     private final List<Double> segmentLengths = new ArrayList<>();  // Lista długości segmentów trasy
     private final double totalLength;   // Całkowita długość trasy
     public static Map<MovementRelations, MovementTrajectory> movementMap = new HashMap<>();   // Hash mapa z powiązanymi relacjami i trajektoriami ruchu
+    static Point2D stopLine1, stopLine2;
 
     // Zmiana wartości przebytej całkowitej drogi
     public MovementTrajectory(List<Point2D> points) {
@@ -65,6 +66,9 @@ public class MovementTrajectory {
         Point2D p5 = trajectoryPoints.get(4);
         Point2D p6 = trajectoryPoints.get(5);
 
+        stopLine1 = trajectoryPoints.get(2);
+        stopLine2 = trajectoryPoints.get(3);
+
         // Generowanie odcinka do skrzyżowania
         List<Point2D> fullTraj = new ArrayList<>();
         fullTraj.add(p1);
@@ -102,6 +106,75 @@ public class MovementTrajectory {
         }
 
         return bezierPoints;
+    }
+
+    // Funkcja sprawdzająca, czy dane trajektorie ruchu się przecinają
+    public static boolean doTrajectoriesIntersect(MovementTrajectory traj1, MovementTrajectory traj2) {
+        // Pobranie listy punktów obu trajektorii dla dwóch różnych pojazdów
+        List<Point2D> points1 = traj1.getPoints();
+        List<Point2D> points2 = traj2.getPoints();
+
+        for (int i = 0; i < points1.size() - 1; i++) {
+            Point2D a1 = points1.get(i);
+            Point2D a2 = points1.get(i + 1);
+
+            for (int j = 0; j < points2.size() - 1; j++) {
+                Point2D b1 = points2.get(j);
+                Point2D b2 = points2.get(j + 1);
+
+                if (segmentsIntersect(a1, a2, b1, b2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Sprawdzenie przecięcia dwóch odcinków różnych trajektorii
+    private static boolean segmentsIntersect(Point2D p1, Point2D p2, Point2D q1, Point2D q2) {
+        return counterClockwise(p1, q1, q2) != counterClockwise(p2, q1, q2)   // Sprawdza, czy punkty q1 i q2 leżą po różnych stronach odcinka p1-p2
+                && counterClockwise(p1, p2, q1) != counterClockwise(p1, p2, q2);  // Sprawdza, czy punkty p1 i p2 leżą po różnych stronach odcinka q1-q2
+    }
+
+    // Orientacja trójkąta – pomocnicza funkcja dla przecięć (sprawdza, czy c znajduje się po lewej czy po prawej stronie odcinka a-b)
+    private static boolean counterClockwise(Point2D a, Point2D b, Point2D c) {
+        return (c.getY() - a.getY()) * (b.getX() - a.getX()) >
+                (b.getY() - a.getY()) * (c.getX() - a.getX());
+    }
+
+    // Długości trasy do wskazanego punktu
+    public double getDistanceToApproximatePoint(Point2D target) {
+        double traveled = 0.0;
+        double minDistance = Double.MAX_VALUE;
+        double closestTraveled = 0.0;
+
+        for (int i = 0; i < points.size() - 1; i++) {
+            Point2D p1 = points.get(i);
+            Point2D p2 = points.get(i + 1);
+            double segmentLength = p1.distance(p2);
+
+            // Oblicz punkt na odcinku najbliższy targetPoint
+            double l2 = segmentLength * segmentLength;
+            if (l2 == 0) continue;
+
+            double t = ((target.getX() - p1.getX()) * (p2.getX() - p1.getX()) +
+                    (target.getY() - p1.getY()) * (p2.getY() - p1.getY())) / l2;
+            t = Math.max(0, Math.min(1, t));
+
+            double projX = p1.getX() + t * (p2.getX() - p1.getX());
+            double projY = p1.getY() + t * (p2.getY() - p1.getY());
+
+            double dist = target.distance(projX, projY);
+
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestTraveled = traveled + segmentLength * t;
+            }
+
+            traveled += segmentLength;
+        }
+
+        return closestTraveled;
     }
 
     public double getTotalLength() {

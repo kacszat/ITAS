@@ -6,7 +6,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.ArcType;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class CanvasDrawer {
@@ -488,8 +491,52 @@ public class CanvasDrawer {
                         new double[]{y1_left, y2_left, y2_right, y1_right},
                         4
                 );
+
+                // Dodanie FOV-ów
+                setFOV(gc, v);
             }
         }
+    }
+
+    // Ustawienie parametrów do rysowania FOV
+    private void setFOV(GraphicsContext gc, Vehicle v) {
+        double fovX, fovY, fovRadius, fovSmallRadius, fovStartAngle, fovLength;
+
+        fovX = v.getFovX();
+        fovY = v.getFovY();
+        fovRadius = v.getFovRadius();
+        fovSmallRadius = v.getFovSmallRadius();
+        fovStartAngle = v.getFovStartAngle();
+        fovLength = v.getFovLength();
+
+        drawVehicleFOV(gc, Color.CYAN, fovX, fovY, fovRadius, fovStartAngle, fovLength);
+        //drawVehicleFOV(gc, Color.BLUE, fovX, fovY, fovSmallRadius, fovStartAngle, fovLength);
+        drawVehicleSquareFOV(gc, Color.BLUE, v, false);
+        drawVehicleSquareFOV(gc, Color.PURPLE, v, true);
+    }
+
+    // Rysowanie FOV
+    private void drawVehicleFOV(GraphicsContext gc, Color color, double fovX, double fovY, double fovRadius, double fovStartAngle, double fovLength) {
+        gc.setStroke(color);
+        gc.setLineWidth(2);
+        gc.strokeArc(
+                fovX - fovRadius, fovY - fovRadius,
+                fovRadius * 2, fovRadius * 2,
+                fovStartAngle, fovLength,
+                ArcType.CHORD
+        );
+    }
+
+    private void drawVehicleSquareFOV(GraphicsContext gc, Color color, Vehicle v, Boolean smallFOV) {
+        Point2D[] FOV = !smallFOV ? v.squareFOVCorners : v.squareSmallFOVCorners;
+        if (FOV == null) return;
+
+        double[] xPoints = Arrays.stream(FOV).mapToDouble(Point2D::getX).toArray();
+        double[] yPoints = Arrays.stream(FOV).mapToDouble(Point2D::getY).toArray();
+
+        gc.setStroke(color);
+        gc.setLineWidth(2);
+        gc.strokePolygon(xPoints, yPoints, 4);
     }
 
 }
