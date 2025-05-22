@@ -1,8 +1,8 @@
 package com.itasoftware.itasoftware;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
 import javafx.scene.control.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.StackPane;
@@ -18,16 +18,17 @@ import java.util.Map;
 public class SimulationController {
 
     @FXML private Label simInfoLabel;
-    @FXML private Canvas simCanvas;
+    @FXML Canvas simCanvas;
     @FXML private StackPane simCanvasContainer;
 
-    // Utworzenie nowych instancji klas CanvasDrawer, SimulationLoop i VehicleManager
+    // Utworzenie nowych instancji klas CanvasDrawer, SimulationLoop, VehicleManager i SaveLoadSimulation
     CanvasDrawer canvasDrawer = new CanvasDrawer();
     SimulationLoop simLoop;
     VehicleManager vehicleManager = new VehicleManager();
+    SaveLoadSimulation SLS = new SaveLoadSimulation(this);
 
-    private final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
-    private List<TextFieldVehicleNumber> tfVehNumInputs = new ArrayList<>();    // Lista liczby pojazdów z danych textfieldów
+    final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
+    List<TextFieldVehicleNumber> tfVehNumInputs = new ArrayList<>();    // Lista liczby pojazdów z danych textfieldów
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
     @FXML Slider sliderTimeSpeed;
@@ -35,8 +36,9 @@ public class SimulationController {
     @FXML Label labelTime;
     @FXML Button buttonStart;
     static double simSpeed = 1.0, tfVehicleSum = 0;
-    Integer simTimeLength = 0;
+    static Integer simTimeLength = 0;
     boolean isSimulationActive = false;
+    static boolean isFOVshown = false, areMRshown = false;;
 
     // Powrót do głównego menu
     @FXML
@@ -77,6 +79,67 @@ public class SimulationController {
         }
     }
 
+
+    // Załadowanie domyślnej symulacji
+    @FXML
+    public void defaultSimulation() {
+        if (AlertPopUp.showAlertPopUp("New Simulation")) {
+            resetSimulation();
+            resetSimTime();
+            clearVehicleNumbers();
+            //GeneratorController.clearIntersection();
+        }
+    }
+
+    // Zapisanie symulacji
+    @FXML
+    public void saveSimulation(ActionEvent event) {
+        if (MovementRelations.movementRelations.isEmpty()) {
+            AlertPopUp.showAlertPopUp("Can't Save Sim");
+        } else {
+            SLS.saveSimulation(event);
+        }
+    }
+
+    // Załadowanie symulacji
+    @FXML
+    public void loadSimulation(ActionEvent event) {
+        if (!MovementRelations.movementRelations.isEmpty()) {
+            if (AlertPopUp.showAlertPopUp("Load")) {
+                SLS.loadSimulation(event);
+                resetSimulation();
+            }
+        } else {
+            SLS.loadSimulation(event);
+            resetSimulation();
+        }
+    }
+
+    // Pokazanie relacji
+    @FXML
+    public void showMovementRelations() {
+        if (!areMRshown) {
+            GeneratorController.isMRNorthShown = true;
+            GeneratorController.isMRSouthShown = true;
+            GeneratorController.isMREastShown = true;
+            GeneratorController.isMRWestShown = true;
+            areMRshown = true;
+        } else {
+            GeneratorController.isMRNorthShown = false;
+            GeneratorController.isMRSouthShown = false;
+            GeneratorController.isMREastShown = false;
+            GeneratorController.isMRWestShown = false;
+            areMRshown = false;
+        }
+        simLoop.update();
+    }
+
+    // Pokazanie FOV-ów pojazdów
+    @FXML
+    public void showVehiclesFOVs() {
+        isFOVshown = (!isFOVshown);
+    }
+
     @FXML
     public void initialize() {
         loadCanvasOrInfo(canvasDrawer);
@@ -91,10 +154,11 @@ public class SimulationController {
 
         // Utworzenie pętli symulacji
         simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, simSpeed, this);
+        resetSimulation();
     }
 
     // Załadowanie Canvas lub informacji, w przypadku jego braku
-    private void loadCanvasOrInfo(CanvasDrawer drawer) {
+    public void loadCanvasOrInfo(CanvasDrawer drawer) {
         if (!MovementRelations.movementRelations.isEmpty()) {
             // Reakcja na zmianę rozmiaru kontenera
             simCanvasContainer.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
@@ -147,7 +211,7 @@ public class SimulationController {
         simLoop.setSimTimeLength(simTimeLength);
     }
 
-    // Załadowanie TextFieldów (sam textfield, potem obiekt klasy tfCarNumber z lokalizacją startową, typem lokalizacji startowej i lokalizacją końcową)
+    // Załadowanie TextFieldów (sam textfield, potem obiekt klasy tfVehNumber z lokalizacją startową, typem lokalizacji startowej i lokalizacją końcową)
     private void loadTextField() {
         textfieldMap.put(tfNorthLeft, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.NORTH, TextFieldVehicleNumber.Type.ENTRY, IntersectionLane.Localization.EAST));
         textfieldMap.put(tfNorthStraight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.NORTH, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.SOUTH));
@@ -178,18 +242,18 @@ public class SimulationController {
 
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
-            TextFieldVehicleNumber tfCarNum = entry.getValue();
+            TextFieldVehicleNumber tfVehNum = entry.getValue();
 
             tf.setTextFormatter(new TextFormatter<>(digitFilter)); // Dodanie filtra do TF
             tf.setText("0"); // Ustawienie domyślnej wartości
-            tfCarNum.setVehiclesNumber(0); // Ustawienie liczby samochodów równej zero na każdym tfCarNum
+            tfVehNum.setVehiclesNumber(0); // Ustawienie liczby samochodów równej zero na każdym tfCarNum
 
             boolean textFieldAndRelationMatch = false;
 
             for (MovementRelations relation : MovementRelations.movementRelations) {
-                if (relation.getObjectA().getLocalization().equals(tfCarNum.getLocalization()) &&
-                        relation.getObjectA().getType().equals(tfCarNum.getType()) &&
-                        relation.getObjectB().getLocalization().equals(tfCarNum.getDestination())) {
+                if (relation.getObjectA().getLocalization().equals(tfVehNum.getLocalization()) &&
+                        relation.getObjectA().getType().equals(tfVehNum.getType()) &&
+                        relation.getObjectB().getLocalization().equals(tfVehNum.getDestination())) {
 
                     textFieldAndRelationMatch = true;
                     break;

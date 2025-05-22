@@ -45,6 +45,7 @@ public class VehicleManager {
                     (isVehicleGoingStraight(other) || isVehicleTurningRight(other));
             boolean inSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), false);
             boolean inSmallSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), true);
+            boolean isVehicleGivingWayToRight = isOtherGoingFromRight(vehicle, other) && !vehicle.isOnIntersectionSegment();
 
             // Zasady ruchu drogowego
             if (inSmallSquareFOV) {
@@ -56,7 +57,7 @@ public class VehicleManager {
             } else if (inSquareFOV) {
                 shouldSlowDown = true;
             } else if (inBigFOV && areTrajectoriesIntersect) {
-                if (isOtherGoingFromRight(vehicle, other) || isVehicleGoingLeftAndGivingWay) {
+                if (isVehicleGivingWayToRight || isVehicleGoingLeftAndGivingWay) {
                     shouldSlowDown = true;
                 }
             }

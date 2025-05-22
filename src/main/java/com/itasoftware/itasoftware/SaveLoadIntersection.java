@@ -83,6 +83,97 @@ public class SaveLoadIntersection {
         }
     }
 
+    public void loadIntersectionLane(String line) {
+        if (line.startsWith("ila,")) {
+            String[] tokens = line.split(",");
+            if (tokens.length == 4) {
+                IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
+                IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
+                int index = Integer.parseInt(tokens[3]);
+                GeneratorController.intersectionLanes.add(new IntersectionLane(localization, type, index));
+
+                // Ustawienie sliderów na bazie danych z wczytanego skrzyżowania
+                if (localization == IntersectionLane.Localization.NORTH && type == IntersectionLane.Type.ENTRY) {
+                    genContrl.sliderNorthEntry.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.NORTH && type == IntersectionLane.Type.EXIT) {
+                    genContrl.sliderNorthExit.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.SOUTH && type == IntersectionLane.Type.ENTRY) {
+                    genContrl.sliderSouthEntry.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.SOUTH && type == IntersectionLane.Type.EXIT) {
+                    genContrl.sliderSouthExit.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.EAST && type == IntersectionLane.Type.ENTRY) {
+                    genContrl.sliderEastEntry.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.EAST && type == IntersectionLane.Type.EXIT) {
+                    genContrl.sliderEastExit.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.WEST && type == IntersectionLane.Type.ENTRY) {
+                    genContrl.sliderWestEntry.setValue(index + 1);
+                } else if (localization == IntersectionLane.Localization.WEST && type == IntersectionLane.Type.EXIT) {
+                    genContrl.sliderWestExit.setValue(index + 1);
+                }
+            }
+        }
+    }
+
+    public static void loadStopLine(String line) {
+        if (line.startsWith("sl,")) {
+            String[] tokens = line.split(",");
+            if (tokens.length == 6) {
+                IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
+                IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
+                int index = Integer.parseInt(tokens[3]);
+                double x = Double.parseDouble(tokens[4]);
+                double y = Double.parseDouble(tokens[5]);
+                GeneratorController.stopLines.add(new StopLine(localization, type, index, x, y));
+            }
+        }
+    }
+
+    public static void loadIntersectionLaneButton(String line) {
+        if (line.startsWith("ilb,")) {
+            String[] tokens = line.split(",");
+            if (tokens.length == 7) {
+                IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
+                IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
+                int index = Integer.parseInt(tokens[3]);
+                double x = Double.parseDouble(tokens[4]);
+                double y = Double.parseDouble(tokens[5]);
+                double size = Double.parseDouble(tokens[6]);
+                GeneratorController.intersectionLaneButtons.add(new IntersectionLaneButton(localization, type, index, x, y, size));
+            }
+        }
+    }
+
+    public static void loadMovementRelations(String line) {
+        if (line.startsWith("mr,")) {
+            String[] tokens = line.split(",");
+            if (tokens.length == 13) {
+                // Pierwszy przycisk
+                IntersectionLane.Localization locA = IntersectionLane.Localization.valueOf(tokens[1]);
+                IntersectionLane.Type typeA = IntersectionLane.Type.valueOf(tokens[2]);
+                int indexA = Integer.parseInt(tokens[3]);
+                double xA = Double.parseDouble(tokens[4]);
+                double yA = Double.parseDouble(tokens[5]);
+                double sizeA = Double.parseDouble(tokens[6]);
+
+                // Drugi przycisk
+                IntersectionLane.Localization locB = IntersectionLane.Localization.valueOf(tokens[7]);
+                IntersectionLane.Type typeB = IntersectionLane.Type.valueOf(tokens[8]);
+                int indexB = Integer.parseInt(tokens[9]);
+                double xB = Double.parseDouble(tokens[10]);
+                double yB = Double.parseDouble(tokens[11]);
+                double sizeB = Double.parseDouble(tokens[12]);
+
+                // Szukamy pasujących przycisków z listy
+                IntersectionLaneButton a = findIntersectionLaneButton(GeneratorController.intersectionLaneButtons, locA, typeA, indexA, xA, yA, sizeA);
+                IntersectionLaneButton b = findIntersectionLaneButton(GeneratorController.intersectionLaneButtons, locB, typeB, indexB, xB, yB, sizeB);
+
+                if (a != null && b != null) {
+                    MovementRelations.movementRelations.add(new MovementRelations(a, b));
+                }
+            }
+        }
+    }
+
     // Wczytanie skrzyżowania
     public void loadIntersection(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -105,90 +196,10 @@ public class SaveLoadIntersection {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-
-                    if (line.startsWith("ila,")) {
-                        String[] tokens = line.split(",");
-                        if (tokens.length == 4) {
-                            IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
-                            IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
-                            int index = Integer.parseInt(tokens[3]);
-                            GeneratorController.intersectionLanes.add(new IntersectionLane(localization, type, index));
-
-                            // Ustawienie sliderów na bazie danych z wczytanego skrzyżowania
-                            if (localization == IntersectionLane.Localization.NORTH && type == IntersectionLane.Type.ENTRY) {
-                                genContrl.sliderNorthEntry.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.NORTH && type == IntersectionLane.Type.EXIT) {
-                                genContrl.sliderNorthExit.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.SOUTH && type == IntersectionLane.Type.ENTRY) {
-                                genContrl.sliderSouthEntry.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.SOUTH && type == IntersectionLane.Type.EXIT) {
-                                genContrl.sliderSouthExit.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.EAST && type == IntersectionLane.Type.ENTRY) {
-                                genContrl.sliderEastEntry.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.EAST && type == IntersectionLane.Type.EXIT) {
-                                genContrl.sliderEastExit.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.WEST && type == IntersectionLane.Type.ENTRY) {
-                                genContrl.sliderWestEntry.setValue(index + 1);
-                            } else if (localization == IntersectionLane.Localization.WEST && type == IntersectionLane.Type.EXIT) {
-                                genContrl.sliderWestExit.setValue(index + 1);
-                            }
-                        }
-                    }
-
-                    if (line.startsWith("sl,")) {
-                        String[] tokens = line.split(",");
-                        if (tokens.length == 6) {
-                            IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
-                            IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
-                            int index = Integer.parseInt(tokens[3]);
-                            double x = Double.parseDouble(tokens[4]);
-                            double y = Double.parseDouble(tokens[5]);
-                            GeneratorController.stopLines.add(new StopLine(localization, type, index, x, y));
-                        }
-                    }
-
-                    if (line.startsWith("ilb,")) {
-                        String[] tokens = line.split(",");
-                        if (tokens.length == 7) {
-                            IntersectionLane.Localization localization = IntersectionLane.Localization.valueOf(tokens[1]);
-                            IntersectionLane.Type type = IntersectionLane.Type.valueOf(tokens[2]);
-                            int index = Integer.parseInt(tokens[3]);
-                            double x = Double.parseDouble(tokens[4]);
-                            double y = Double.parseDouble(tokens[5]);
-                            double size = Double.parseDouble(tokens[6]);
-                            GeneratorController.intersectionLaneButtons.add(new IntersectionLaneButton(localization, type, index, x, y, size));
-                        }
-                    }
-
-                    if (line.startsWith("mr,")) {
-                        String[] tokens = line.split(",");
-                        if (tokens.length == 13) {
-                            // Pierwszy przycisk
-                            IntersectionLane.Localization locA = IntersectionLane.Localization.valueOf(tokens[1]);
-                            IntersectionLane.Type typeA = IntersectionLane.Type.valueOf(tokens[2]);
-                            int indexA = Integer.parseInt(tokens[3]);
-                            double xA = Double.parseDouble(tokens[4]);
-                            double yA = Double.parseDouble(tokens[5]);
-                            double sizeA = Double.parseDouble(tokens[6]);
-
-                            // Drugi przycisk
-                            IntersectionLane.Localization locB = IntersectionLane.Localization.valueOf(tokens[7]);
-                            IntersectionLane.Type typeB = IntersectionLane.Type.valueOf(tokens[8]);
-                            int indexB = Integer.parseInt(tokens[9]);
-                            double xB = Double.parseDouble(tokens[10]);
-                            double yB = Double.parseDouble(tokens[11]);
-                            double sizeB = Double.parseDouble(tokens[12]);
-
-                            // Szukamy pasujących przycisków z listy
-                            IntersectionLaneButton a = findIntersectionLaneButton(GeneratorController.intersectionLaneButtons, locA, typeA, indexA, xA, yA, sizeA);
-                            IntersectionLaneButton b = findIntersectionLaneButton(GeneratorController.intersectionLaneButtons, locB, typeB, indexB, xB, yB, sizeB);
-
-                            if (a != null && b != null) {
-                                genContrl.movementRelations.getMovementRelations().add(new MovementRelations(a, b));
-                            }
-                        }
-                    }
-
+                    loadIntersectionLane(line);
+                    loadStopLine(line);
+                    loadIntersectionLaneButton(line);
+                    loadMovementRelations(line);
                 }
 
                 genContrl.drawCanvas(genContrl.genCanvas);
@@ -200,8 +211,8 @@ public class SaveLoadIntersection {
     }
 
     // Funkcja pomocnicza poszukująca danego intersectionLaneButton
-    private IntersectionLaneButton findIntersectionLaneButton(List<IntersectionLaneButton> buttons,
-                                                              IntersectionLane.Localization loc, IntersectionLane.Type type, int index, double x, double y, double size) {
+    private static IntersectionLaneButton findIntersectionLaneButton(List<IntersectionLaneButton> buttons,
+                                                                     IntersectionLane.Localization loc, IntersectionLane.Type type, int index, double x, double y, double size) {
         for (IntersectionLaneButton button : buttons) {
             if (button.getLocalization() == loc &&
                     button.getType() == type &&

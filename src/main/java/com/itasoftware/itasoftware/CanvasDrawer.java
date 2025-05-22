@@ -1,12 +1,10 @@
 package com.itasoftware.itasoftware;
 
 import javafx.geometry.Point2D;
-import java.util.ArrayList;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 
 import java.util.Arrays;
@@ -339,6 +337,17 @@ public class CanvasDrawer {
             // Obliczenie współrzędnych punktów krzywej Beziera
             calculateControlPoints(X2, Y2, X5, Y5, objA, objB);
 
+            // Utworzenie trajektorii
+            List<Point2D> trajectoryPoints = List.of(
+                    new Point2D(X1, Y1),
+                    new Point2D(X2, Y2),
+                    new Point2D(X3, Y3),
+                    new Point2D(X4, Y4),
+                    new Point2D(X5, Y5),
+                    new Point2D(X6, Y6)
+            );
+            MovementTrajectory.createTrajectory(mr, trajectoryPoints);
+
             // Pomijanie relacji nieaktywnej według flagi
             if ((objA.getLocalization() == IntersectionLaneButton.Localization.NORTH && !GeneratorController.isMRNorthShown) ||
                     (objA.getLocalization() == IntersectionLaneButton.Localization.SOUTH && !GeneratorController.isMRSouthShown) ||
@@ -361,16 +370,6 @@ public class CanvasDrawer {
             gc.strokeLine(X1, Y1, X2, Y2);
             gc.strokeLine(X5, Y5, X6, Y6);
 
-            // Utworzenie trajektorii
-            List<Point2D> trajectoryPoints = List.of(
-                new Point2D(X1, Y1),
-                new Point2D(X2, Y2),
-                new Point2D(X3, Y3),
-                new Point2D(X4, Y4),
-                new Point2D(X5, Y5),
-                new Point2D(X6, Y6)
-            );
-            MovementTrajectory.createTrajectory(mr, trajectoryPoints);
         }
     }
 
@@ -516,27 +515,32 @@ public class CanvasDrawer {
     }
 
     // Rysowanie FOV
+
     private void drawVehicleFOV(GraphicsContext gc, Color color, double fovX, double fovY, double fovRadius, double fovStartAngle, double fovLength) {
-        gc.setStroke(color);
-        gc.setLineWidth(2);
-        gc.strokeArc(
-                fovX - fovRadius, fovY - fovRadius,
-                fovRadius * 2, fovRadius * 2,
-                fovStartAngle, fovLength,
-                ArcType.CHORD
-        );
+        if (SimulationController.isFOVshown) {
+            gc.setStroke(color);
+            gc.setLineWidth(2);
+            gc.strokeArc(
+                    fovX - fovRadius, fovY - fovRadius,
+                    fovRadius * 2, fovRadius * 2,
+                    fovStartAngle, fovLength,
+                    ArcType.CHORD
+            );
+        }
     }
 
     private void drawVehicleSquareFOV(GraphicsContext gc, Color color, Vehicle v, Boolean smallFOV) {
-        Point2D[] FOV = !smallFOV ? v.squareFOVCorners : v.squareSmallFOVCorners;
-        if (FOV == null) return;
+        if (SimulationController.isFOVshown) {
+            Point2D[] FOV = !smallFOV ? v.squareFOVCorners : v.squareSmallFOVCorners;
+            if (FOV == null) return;
 
-        double[] xPoints = Arrays.stream(FOV).mapToDouble(Point2D::getX).toArray();
-        double[] yPoints = Arrays.stream(FOV).mapToDouble(Point2D::getY).toArray();
+            double[] xPoints = Arrays.stream(FOV).mapToDouble(Point2D::getX).toArray();
+            double[] yPoints = Arrays.stream(FOV).mapToDouble(Point2D::getY).toArray();
 
-        gc.setStroke(color);
-        gc.setLineWidth(2);
-        gc.strokePolygon(xPoints, yPoints, 4);
+            gc.setStroke(color);
+            gc.setLineWidth(2);
+            gc.strokePolygon(xPoints, yPoints, 4);
+        }
     }
 
 }

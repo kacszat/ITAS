@@ -30,11 +30,15 @@ public class AlertPopUp {
             // Ustawienie tekstu na podstawie typu alertu
             switch (type) {
                 case "Save" -> controller.alertLabel.setText("Czy na pewno chcesz zamknąć program?");
+                case "Load" -> controller.alertLabel.setText("Czy na pewno chcesz wczytać nowy plik?");
                 case "Quit Generator" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z generatora skrzyżowań?");
                 case "New Generator" -> controller.alertLabel.setText("Czy na pewno chcesz utworzyć nowe skrzyżowanie?");
                 case "Quit Simulation" -> controller.alertLabel.setText("Czy na pewno chcesz wyjść z symulacji ruchu?");
+                case "New Simulation" -> controller.alertLabel.setText("Czy na pewno chcesz utworzyć nową symulację?");
                 case "Lack Relations" -> {controller.alertLabel.setText("Czy na pewno chcesz przejść do okna symulacji ruchu?");
                                             controller.alertLabel2.setText("Na skrzyżowaniu nie ma wyznaczonych żadnych relacji ruchu.");}
+                case "Delete Relations" -> {controller.alertLabel.setText("Czy na pewno chcesz zmienić liczbę pasów ruchu?");
+                                            controller.alertLabel2.setText("Istniejące relacje ruchu zostaną usunięte.");}
                 case "Bad VehicleNumber" -> {controller.alertLabel.setText("Wprowadzono niewłaściwe dane dotyczące liczby pojazdów.");
                                             controller.alertLabel2.setText("Całkowita liczba pojazdów musi być większa niż zero.");
                                             controller.alertButtonYes.setVisible(false);
@@ -42,6 +46,11 @@ public class AlertPopUp {
                                             controller.alertButtonNo.setText("OK");}
                 case "Bad SimTime" -> {controller.alertLabel.setText("Wprowadzono niewłaściwą wartość czasu trwania symulacji.");
                                             controller.alertLabel2.setText("Minimalny czas trwania symulacji to jedna minuta.");
+                                            controller.alertButtonYes.setVisible(false);
+                                            controller.alertButtonYes.setManaged(false);
+                                            controller.alertButtonNo.setText("OK");}
+                case "Can't Save Sim" -> {controller.alertLabel.setText("Obecnie nie można zapisać symulacji.");
+                                            controller.alertLabel2.setText("Nie wczytano skrzyżowania, bądź na skrzyżowaniu nie ma relacji ruchu.");
                                             controller.alertButtonYes.setVisible(false);
                                             controller.alertButtonYes.setManaged(false);
                                             controller.alertButtonNo.setText("OK");}

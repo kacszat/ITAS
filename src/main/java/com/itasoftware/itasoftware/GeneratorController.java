@@ -95,7 +95,9 @@ public class GeneratorController {
     // Wczytanie skrzyżowania
     @FXML
     public void loadIntersection(ActionEvent event) {
-        SLI.loadIntersection(event);
+        if (AlertPopUp.showAlertPopUp("Load")) {
+            SLI.loadIntersection(event);
+        }
     }
 
     @FXML
@@ -114,6 +116,9 @@ public class GeneratorController {
 
         // Czyszczenie listy przycisków
         intersectionLaneButtons.clear();
+
+        // Usunięcie dotychczasowych relacji
+        MovementRelations.movementRelations.clear();
 
         // Rysowanie
         drawCanvas(genCanvas);
@@ -148,7 +153,6 @@ public class GeneratorController {
             configureSlider(slider);
             slider.valueProperty().addListener((obs, oldVal, newVal) -> {
                 SliderLane info = sliderMap.get(slider);
-                //System.out.println("Zmiana suwaka: " + info.getLocalization() + " " + info.getType() + " -> " + newVal.intValue());
                 updateIntersectionLanes(info.getLocalization(), info.getType(), newVal.intValue());
             });
         }
@@ -311,6 +315,9 @@ public class GeneratorController {
             if (existingButton == null) {
                 IntersectionLaneButton button = new IntersectionLaneButton(lane.getLocalization(), lane.getType(), lane.getIndex(), x1, y1, buttonSize);
                 intersectionLaneButtons.add(button);
+            } else {
+                existingButton.setX(x1);
+                existingButton.setY(y1);
             }
         }
     }

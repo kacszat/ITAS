@@ -13,15 +13,21 @@
 
     <MenuBar>
         <Menu text="Plik">
-            <!--            <MenuItem text="Nowe skrzyżowanie" onAction="#defaultIntersectionMenuBar"/>-->
-            <!--            <MenuItem text="Zapisz skrzyżowanie" onAction="#saveIntersection"/>-->
-            <!--            <MenuItem text="Wczytaj skrzyżowanie" onAction="#loadIntersection"/>-->
+            <MenuItem text="Nowa symulacja" onAction="#defaultSimulation"/>
+            <MenuItem text="Zapisz symulację" onAction="#saveSimulation"/>
+            <MenuItem text="Wczytaj symulację" onAction="#loadSimulation"/>
         </Menu>
         <Menu text="Okno">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
             <MenuItem text="Przejście do generatora" onAction="#goToGenerator"/>
             <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>
             <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
+        </Menu>
+        <Menu text="Filtry">
+            <MenuItem text="Pokaż relacje ruchu" onAction="#showMovementRelations"/>
+            <MenuItem text="Pokaż pola widzenia pojazdów" onAction="#showVehiclesFOVs"/>
+<!--            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>-->
+<!--            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>-->
         </Menu>
     </MenuBar>
 
