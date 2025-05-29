@@ -54,6 +54,11 @@ public class AlertPopUp {
                                             controller.alertButtonYes.setVisible(false);
                                             controller.alertButtonYes.setManaged(false);
                                             controller.alertButtonNo.setText("OK");}
+                case "Can't Show TL" -> {controller.alertLabel.setText("Obecnie nie można włączyć sygnalizacji świetlnej.");
+                                            controller.alertLabel2.setText("Nie utworzono/wczytano żadnego programu faz sygnalizacji świetlnej.");
+                                            controller.alertButtonYes.setVisible(false);
+                                            controller.alertButtonYes.setManaged(false);
+                                            controller.alertButtonNo.setText("OK");}
                 default -> controller.alertLabel.setText("Czy na pewno chcesz wykonać tę akcję?");
             }
 

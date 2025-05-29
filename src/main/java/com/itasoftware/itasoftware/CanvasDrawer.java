@@ -147,6 +147,7 @@ public class CanvasDrawer {
                     gc.strokeLine(x, y, x, centerY - cutoff);
                 }
                 drawStopLine(gc, x, (centerY - cutoff - stopLaneHeight), laneWidth, stopLaneHeight, lane);
+                drawTrafficLight(gc, x, (centerY - cutoff - laneWidth), laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((x + buttonBuffer), (centerY - cutoff - stopLaneHeight - laneWidth), buttonSize, lane);
                 genContrl.addBorderLine(x, (position_zero - Vehicle.getVehicleHeight()), laneWidth, stopLaneHeight, lane);
             }
@@ -157,6 +158,7 @@ public class CanvasDrawer {
                     gc.strokeLine(x + w, centerY + cutoff, x + w, y + h);
                 }
                 drawStopLine(gc, x, (centerY + cutoff), laneWidth, stopLaneHeight, lane);
+                drawTrafficLight(gc, x, (centerY + cutoff), laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((x + buttonBuffer), (centerY + cutoff + laneWidth - buttonSize), buttonSize, lane);
                 genContrl.addBorderLine(x, (position_max + Vehicle.getVehicleHeight()), laneWidth, stopLaneHeight, lane);
             }
@@ -167,6 +169,7 @@ public class CanvasDrawer {
                     gc.strokeLine(centerX + cutoff, y, x + w, y);
                 }
                 drawStopLine(gc, (centerX + cutoff), y, stopLaneHeight, laneWidth, lane);
+                drawTrafficLight(gc, (centerX + cutoff), y, laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((centerX + cutoff + laneWidth - buttonSize), (y + buttonBuffer), buttonSize, lane);
                 genContrl.addBorderLine((position_max + Vehicle.getVehicleHeight()), y, stopLaneHeight, laneWidth, lane);
             }
@@ -177,6 +180,7 @@ public class CanvasDrawer {
                     gc.strokeLine(centerX - cutoff, y + h, x - w, y + h);
                 }
                 drawStopLine(gc, (centerX - cutoff - stopLaneHeight), y, stopLaneHeight, laneWidth, lane);
+                drawTrafficLight(gc, (centerX - cutoff - laneWidth), y, laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((centerX - cutoff - stopLaneHeight - laneWidth), (y + buttonBuffer), buttonSize, lane);
                 genContrl.addBorderLine((position_zero - Vehicle.getVehicleHeight()), y, stopLaneHeight, laneWidth, lane);
             }
@@ -484,7 +488,7 @@ public class CanvasDrawer {
                 double y2_right = v.y2 - ny * halfWidth;
 
                 // Rysowanie jako wielokąt (cztery punkty)
-                gc.setFill(Color.RED);
+                gc.setFill(Color.GRAY);
                 gc.fillPolygon(
                         new double[]{x1_left, x2_left, x2_right, x1_right},
                         new double[]{y1_left, y2_left, y2_right, y1_right},
@@ -540,6 +544,26 @@ public class CanvasDrawer {
             gc.setStroke(color);
             gc.setLineWidth(2);
             gc.strokePolygon(xPoints, yPoints, 4);
+        }
+    }
+
+    // Funkcja rysująca daną fazę sygnalizacji świetlnej
+    public void drawTrafficLight(GraphicsContext gc, double x1, double y1, double x2, double y2, IntersectionLane lane) {
+        if (SimulationController.areTLshown) {
+            for (TrafficLight tl : TrafficLight.trafficLights) {
+                if (tl.getLocalization() == lane.getLocalization() && tl.getType() == lane.getType() && tl.getIndex() == lane.getIndex()) {
+                    if (tl.getCurrentPhase() != TrafficLight.Phase.RED_YELLOW || tl.getCurrentPhase() != TrafficLight.Phase.GREEN_ARROW) {
+                        switch (tl.getCurrentPhase()) {
+                            case TrafficLight.Phase.GREEN -> gc.setFill(Color.LIME);
+                            case TrafficLight.Phase.YELLOW -> gc.setFill(Color.YELLOW);
+                            case TrafficLight.Phase.RED -> gc.setFill(Color.RED);
+                        }
+                        gc.fillRect(x1, y1, x2, y2);
+                    } else {
+
+                    }
+                }
+            }
         }
     }
 

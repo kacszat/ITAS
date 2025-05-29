@@ -169,4 +169,26 @@ public class SaveLoadSimulation {
         }
     }
 
+    // Funkcje pomocnicze służące do zapisania określonych danych w pliku tymczasowym
+    public void saveToTempFile() {
+        String tempPath = "temp.itasim";
+        saveTextFieldVehicleNumber(tempPath, simContrl.tfVehNumInputs);
+        saveTimeSettings(tempPath);
+    }
+
+    public void restoreFromTempFile() {
+        File file = new File("temp.itasim");
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    loadTextFieldVehicleNumber(line);
+                    loadTimeSettings(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

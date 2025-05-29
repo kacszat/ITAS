@@ -35,10 +35,14 @@ public class SimulationController {
     @FXML Spinner<Integer> spinnerTimeHours, spinnerTimeMinutes;
     @FXML Label labelTime;
     @FXML Button buttonStart;
+    @FXML Button buttonTurnOnTL;
+    @FXML MenuItem menuitemShowMR, menuitemShowFOV, menuitemShowTL;
     static double simSpeed = 1.0, tfVehicleSum = 0;
     static Integer simTimeLength = 0;
     boolean isSimulationActive = false;
-    static boolean isFOVshown = false, areMRshown = false;;
+    static boolean areTrafficLightsActive = false;
+    static boolean isFOVshown = false, areMRshown = false, areTLshown = false;;
+    static boolean isBackFromTLView = false;
 
     // Powrót do głównego menu
     @FXML
@@ -69,6 +73,15 @@ public class SimulationController {
             MainApplication.updateViewSize();
             mainApp.loadView("Settings-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
         }
+    }
+
+    @FXML
+    public void goToTrafficLightController() throws IOException {
+        MainApplication mainApp = new MainApplication();
+        MainApplication.updateViewSize();
+        mainApp.loadView("TrafficLight-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
+        isBackFromTLView = true;
+        SLS.saveToTempFile();
     }
 
     // Przejście do ustawień
@@ -132,12 +145,40 @@ public class SimulationController {
             areMRshown = false;
         }
         simLoop.update();
+        updateMenuItemText();
     }
 
     // Pokazanie FOV-ów pojazdów
     @FXML
     public void showVehiclesFOVs() {
         isFOVshown = (!isFOVshown);
+        updateMenuItemText();
+    }
+
+    // Pokazanie sygnalizacji świetlnej
+    @FXML
+    public void showTrafficLights() {
+        areTLshown = (!areTLshown);
+        simLoop.update();
+        updateMenuItemText();
+    }
+
+    private void updateMenuItemText() {
+        if (areMRshown) {
+            menuitemShowMR.setText("Ukryj relacje ruchu");
+        } else {
+            menuitemShowMR.setText("Pokaż relacje ruchu");
+        }
+        if (isFOVshown) {
+            menuitemShowFOV.setText("Ukryj pola widzenia pojazdów");
+        } else {
+            menuitemShowFOV.setText("Pokaż pola widzenia pojazdów");
+        }
+        if (areTLshown) {
+            menuitemShowTL.setText("Ukryj sygnalizację świetlną");
+        } else {
+            menuitemShowTL.setText("Pokaż sygnalizację świetlną");
+        }
     }
 
     @FXML
@@ -155,6 +196,11 @@ public class SimulationController {
         // Utworzenie pętli symulacji
         simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, simSpeed, this);
         resetSimulation();
+
+        if (isBackFromTLView) {
+            SLS.restoreFromTempFile();
+            isBackFromTLView = false;
+        }
     }
 
     // Załadowanie Canvas lub informacji, w przypadku jego braku
@@ -165,8 +211,12 @@ public class SimulationController {
                 drawer.scaleCanvas(simCanvasContainer, simCanvas);
             });
 
-            // Ukrycie przycisków wyznaczania relacji
+            // Ukrycie przycisków wyznaczania relacji i samych relacji
             GeneratorController.isIntersectionLaneButtonShown = false;
+            GeneratorController.isMRNorthShown = false;
+            GeneratorController.isMRSouthShown = false;
+            GeneratorController.isMREastShown = false;
+            GeneratorController.isMRWestShown = false;
 
             // Rysowanie
             drawer.drawCanvas(simCanvas);
@@ -369,5 +419,26 @@ public class SimulationController {
         }
         return true;
     }
+
+    @FXML
+    public void turnOnTrafficLights() {
+        if (TrafficLight.trafficLights.isEmpty()) {
+            AlertPopUp.showAlertPopUp("Can't Show TL");
+        } else {
+            if (areTrafficLightsActive) {
+                buttonTurnOnTL.setText("Włącz sygnalizację świetlną");
+                areTrafficLightsActive = false;
+                areTLshown = false;
+            } else {
+                buttonTurnOnTL.setText("Wyłącz sygnalizację świetlną");
+                areTrafficLightsActive = true;
+                areTLshown = true;
+            }
+        }
+        simLoop.update();
+        updateMenuItemText();
+    }
+
+
 
 }

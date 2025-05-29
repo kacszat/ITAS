@@ -71,6 +71,7 @@ public class SimulationLoop {
 
 
     public void update() {
+        updateTrafficLights();
         vehicleManager.updateVehicles(simSpeed);
         canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
         updateTime();
@@ -89,7 +90,9 @@ public class SimulationLoop {
         elapsedTime = 0;
         vehicleManager.clearVehicles();
         canvasDrawer.drawCanvas(simCanvas);
+        resetTrafficLights();
     }
+
 
     // Ustawienie prędkości symulacji
     public void setSimSpeed(double simSpeed) {
@@ -125,4 +128,17 @@ public class SimulationLoop {
         String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
         simController.setLabelTime(timeString);
     }
+
+    private void updateTrafficLights() {
+        for (TrafficLight tl : TrafficLight.trafficLights) {
+            tl.updatePhase(elapsedTime);
+        }
+    }
+
+    public static void resetTrafficLights() {
+        for (TrafficLight tl : TrafficLight.trafficLights) {
+            tl.resetPhaseSchedule();
+        }
+    }
+
 }

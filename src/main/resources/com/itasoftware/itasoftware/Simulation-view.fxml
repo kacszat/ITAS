@@ -24,9 +24,9 @@
             <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
         </Menu>
         <Menu text="Filtry">
-            <MenuItem text="Pokaż relacje ruchu" onAction="#showMovementRelations"/>
-            <MenuItem text="Pokaż pola widzenia pojazdów" onAction="#showVehiclesFOVs"/>
-<!--            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>-->
+            <MenuItem fx:id="menuitemShowMR" text="Pokaż relacje ruchu" onAction="#showMovementRelations"/>
+            <MenuItem fx:id="menuitemShowFOV" text="Pokaż pola widzenia pojazdów" onAction="#showVehiclesFOVs"/>
+            <MenuItem fx:id="menuitemShowTL" text="Pokaż sygnalizację świetlną" onAction="#showTrafficLights"/>
 <!--            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>-->
         </Menu>
     </MenuBar>
@@ -157,6 +157,10 @@
                     <Region style="-fx-padding: 0 0 2em 0"/>
                     <Button text="Załaduj liczbę pojazdów" styleClass="obj-button" onAction="#loadVehicleNumbersDedicatedButton"/>
                     <Button text="Wyczyść liczbę pojazdów" styleClass="obj-button" onAction="#clearVehicleNumbers"/>
+                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Button fx:id="buttonTurnOnTL" text="Włącz sygnalizację świetlną" styleClass="obj-button-big" onAction="#turnOnTrafficLights"/>
+                    <Button text="Ustawienia sygnalizacji świetlnej" styleClass="obj-button-big" onAction="#goToTrafficLightController"/>
                 </VBox>
             </left>
 

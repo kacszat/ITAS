@@ -79,6 +79,11 @@
     -fx-spacing: 1em;
 }
 
+.obj-hbox-center {
+    -fx-spacing: 1em;
+    -fx-alignment: top-center;
+}
+
 .obj-hbox2 {
     -fx-spacing: 2em;
 }
@@ -201,7 +206,14 @@
     -fx-border-color: #ffffff;
 }
 
-.obj-spinner .text-field {
+.obj-spinner-wide {
+    -fx-max-width: 6em;
+    -fx-pref-height: 1.5em;
+    -fx-border-color: #ffffff;
+}
+
+.obj-spinner .text-field,
+.obj-spinner-wide .text-field {
     -fx-background-color: #3c3f41;
     -fx-text-fill: #ffffff;
 }
@@ -219,6 +231,16 @@
     -fx-alignment: top-center;
     /*-fx-background-radius: 0.7em;*/
     -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.obj-vbox-phase {
+    -fx-background-color: #474747;
+    -fx-padding: 0.4em;
+    -fx-alignment: top-center;
+    -fx-border-radius: 0.7em;
+    -fx-background-radius: 0.7em;
+    -fx-spacing: 0.7em;
+    -fx-pref-height: Infinity;
 }
 
 

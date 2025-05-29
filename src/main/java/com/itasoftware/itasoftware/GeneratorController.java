@@ -120,6 +120,9 @@ public class GeneratorController {
         // Usunięcie dotychczasowych relacji
         MovementRelations.movementRelations.clear();
 
+        // Usunięcie sygnalizatorów
+        TrafficLight.clear();
+
         // Rysowanie
         drawCanvas(genCanvas);
 

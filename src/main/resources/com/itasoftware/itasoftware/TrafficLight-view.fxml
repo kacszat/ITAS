@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.canvas.Canvas?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.itasoftware.itasoftware.TrafficLightController"
+      stylesheets="@style.css"
+      styleClass="root-gray">
+
+    <MenuBar>
+<!--        <Menu text="Plik">-->
+<!--&lt;!&ndash;            <MenuItem text="Nowa symulacja" onAction="#defaultSimulation"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <MenuItem text="Zapisz symulację" onAction="#saveSimulation"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <MenuItem text="Wczytaj symulację" onAction="#loadSimulation"/>&ndash;&gt;-->
+<!--        </Menu>-->
+        <Menu text="Okno">
+            <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+            <MenuItem text="Powrót do symulacji" onAction="#backToSimulation"/>
+<!--            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>-->
+<!--            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>-->
+        </Menu>
+<!--        <Menu text="Filtry">-->
+<!--&lt;!&ndash;            <MenuItem text="Pokaż relacje ruchu" onAction="#showMovementRelations"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <MenuItem text="Pokaż pola widzenia pojazdów" onAction="#showVehiclesFOVs"/>&ndash;&gt;-->
+<!--            &lt;!&ndash;            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>&ndash;&gt;-->
+<!--            &lt;!&ndash;            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>&ndash;&gt;-->
+<!--        </Menu>-->
+    </MenuBar>
+
+    <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" prefWidth="1920" prefHeight="1080">
+        <BorderPane>
+            <!-- Ustawienie marginesów dla całego układu -->
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- Lewy panel -->
+            <left>
+                <VBox styleClass="obj-vbox-phase" style="-fx-pref-width: 25em;">
+                    <Label text="Programowanie sygnalizacji świetlnej" styleClass="obj-text2"/>
+
+                    <VBox styleClass="obj-vbox-phase">
+                        <Label text="Długość pojedyńczego okresu cyklu:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        <HBox styleClass="obj-hbox-center">
+                            <Spinner fx:id="spinnerSinglePhase" styleClass="obj-spinner-wide" onMouseClicked="#handleSpinnerSinglePhaseClick"/>
+                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox styleClass="obj-vbox-phase">
+                        <Label text="Długość całego cyklu:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        <HBox styleClass="obj-hbox-center">
+                            <Spinner fx:id="spinnerCompletePhase" styleClass="obj-spinner-wide"/>
+                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox styleClass="obj-vbox-phase">
+                        <Label text="Długość sygnału żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        <HBox styleClass="obj-hbox-center">
+                            <Spinner fx:id="spinnerYellowPhase" styleClass="obj-spinner-wide"/>
+                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox styleClass="obj-vbox-phase">
+                        <Label text="Długość sygnału czerwono-żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        <HBox styleClass="obj-hbox-center">
+                            <Spinner fx:id="spinnerRedYellowPhase" styleClass="obj-spinner-wide"/>
+                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Button text="Wczytaj parametry" styleClass="obj-button" onAction="#loadSpinnersButton"/>
+                    <Button text="Wyczyść cykl" styleClass="obj-button" onAction="#clearButtons"/>
+                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Button text="Zwizualizuj cykl" styleClass="obj-button"/>
+                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Button text="Zapisz i wyjdź" styleClass="obj-button" onAction="#save"/>
+<!--                    <Region style="-fx-padding: 0 0 10em 0"/>-->
+<!--                    <Button text="Powrót" styleClass="obj-button" onAction="#backToSimulation"/>-->
+
+                </VBox>
+            </left>
+
+            <!-- Prawy panel -->
+<!--            <right>-->
+<!--                <VBox styleClass="obj-vbox" style="-fx-pref-width: 12em;">-->
+<!--                    <Label text="Czas symulacji:" styleClass="obj-text2"/>-->
+<!--                    <VBox styleClass="obj-vbox-timer">-->
+<!--                        <Label fx:id="labelTime" text="00:00:00" styleClass="obj-text-timer"/>-->
+<!--                    </VBox>-->
+
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Label text="Ustawienie czasu trwania symulacji:" styleClass="obj-text"/>-->
+<!--                    <HBox styleClass="obj-hbox">-->
+<!--                        <Region styleClass="obj-region1"/>-->
+<!--                        <Region styleClass="obj-region1"/>-->
+<!--                        <Spinner fx:id="spinnerTimeHours" styleClass="obj-spinner"/>-->
+<!--                        <Label text="Liczba godzin" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
+<!--                    </HBox>-->
+<!--                    <HBox styleClass="obj-hbox">-->
+<!--                        <Region styleClass="obj-region1"/>-->
+<!--                        <Region styleClass="obj-region1"/>-->
+<!--                        <Spinner fx:id="spinnerTimeMinutes" styleClass="obj-spinner"/>-->
+<!--                        <Label text="Liczba minut" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
+<!--                    </HBox>-->
+
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Label text="Prędkość symulacji:" styleClass="obj-text"/>-->
+<!--                    <HBox>-->
+<!--                        <Region styleClass="obj-region1"/>-->
+<!--                        <Region styleClass="obj-region1"/>-->
+<!--                        <Slider fx:id="sliderTimeSpeed" styleClass="obj-slider"/>-->
+<!--                    </HBox>-->
+
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Button text="Zresetuj parametry czasu" styleClass="obj-button" onAction="#resetSimTime"/>-->
+
+<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
+<!--                    <Button fx:id="buttonStart" text="Uruchom symulację" styleClass="obj-button" onAction="#startSimulation"/>-->
+<!--                    <Button text="Zatrzymaj symulację" styleClass="obj-button" onAction="#stopSimulation"/>-->
+<!--                    <Button text="Zresetuj symulację" styleClass="obj-button" onAction="#resetSimulation"/>-->
+<!--                </VBox>-->
+<!--            </right>-->
+
+            <!-- Środkowy panel (dynamiczna szerokość) -->
+            <center>
+                <VBox styleClass="obj-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 95em" VBox.vgrow="ALWAYS">
+<!--                    <Label text="Symulacja ruchu na skrzyżowaniu" styleClass="menu-label"/>-->
+
+                    <BorderPane.margin>
+                        <Insets left="30" right="0"/>
+                    </BorderPane.margin>
+
+                    <StackPane fx:id="phaseCanvasContainer" VBox.vgrow="ALWAYS">
+                        <Canvas fx:id="phaseCanvas" width="1350" height="850"/>
+<!--                        <Label fx:id="simInfoLabel" styleClass="obj-info-label"/>-->
+                    </StackPane>
+
+                    <Pane style="-fx-background-color: #474747; -fx-min-height: 1em; -fx-pref-height: 1em" />
+
+                </VBox>
+            </center>
+        </BorderPane>
+    </ScrollPane>
+
+</VBox>
