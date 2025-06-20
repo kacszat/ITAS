@@ -552,16 +552,14 @@ public class CanvasDrawer {
         if (SimulationController.areTLshown) {
             for (TrafficLight tl : TrafficLight.trafficLights) {
                 if (tl.getLocalization() == lane.getLocalization() && tl.getType() == lane.getType() && tl.getIndex() == lane.getIndex()) {
-                    if (tl.getCurrentPhase() != TrafficLight.Phase.RED_YELLOW || tl.getCurrentPhase() != TrafficLight.Phase.GREEN_ARROW) {
-                        switch (tl.getCurrentPhase()) {
-                            case TrafficLight.Phase.GREEN -> gc.setFill(Color.LIME);
-                            case TrafficLight.Phase.YELLOW -> gc.setFill(Color.YELLOW);
-                            case TrafficLight.Phase.RED -> gc.setFill(Color.RED);
-                        }
-                        gc.fillRect(x1, y1, x2, y2);
-                    } else {
-
+                    switch (tl.getCurrentPhase()) {
+                        case TrafficLight.Phase.GREEN -> gc.setFill(Color.LIME);
+                        case TrafficLight.Phase.YELLOW -> gc.setFill(Color.YELLOW);
+                        case TrafficLight.Phase.RED -> gc.setFill(Color.RED);
+                        case TrafficLight.Phase.RED_YELLOW -> gc.setFill(Color.DARKORANGE);
+                        case TrafficLight.Phase.GREEN_ARROW -> gc.setFill(Color.DARKGREEN);
                     }
+                    gc.fillRect(x1, y1, x2, y2);
                 }
             }
         }

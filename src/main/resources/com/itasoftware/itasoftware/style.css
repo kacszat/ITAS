@@ -153,6 +153,19 @@
     -fx-background-color: #4a4d50;
 }
 
+.obj-button-reverse {
+    -fx-pref-width: 15em;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #3c3f41;
+    -fx-font-size: 1em;
+    -fx-border-color: #ffffff;
+    -fx-padding: 0.5em;
+}
+
+.obj-button-reverse:hover {
+    -fx-background-color: #dcdcdc;
+}
+
 .obj-button-small {
     -fx-pref-width: 10em;
     -fx-background-color: #3c3f41;

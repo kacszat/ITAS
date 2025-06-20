@@ -2,6 +2,7 @@ package com.itasoftware.itasoftware;
 
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.StackPane;
@@ -15,10 +16,12 @@ public class TrafficLightController {
     @FXML private StackPane phaseCanvasContainer;
 
     @FXML Spinner<Integer> spinnerSinglePhase, spinnerCompletePhase, spinnerYellowPhase, spinnerRedYellowPhase;
+    @FXML Button buttonPhaseRed, buttonPhaseYellow, buttonPhaseGreen, buttonPhaseRedYellow, buttonPhaseGreenArrow;
     int singlePhase = 1, completePhase, maxCompletePhase = 100, yellowPhase, redYellowPhase;
     private boolean isMousePressed = false;
     public static boolean areTrafficLightsON = false;
     private SinglePhaseButton lastHoveredButton = null;
+    private TrafficLight.Phase selectedPhase = TrafficLight.Phase.RED;
     public static final Map<IntersectionLane.Localization, Boolean> hasDedicatedLeftTurnLane = new EnumMap<>(IntersectionLane.Localization.class);
     public static final Map<IntersectionLane.Localization, Boolean> hasDedicatedRightTurnLane = new EnumMap<>(IntersectionLane.Localization.class);
     public static final Map<IntersectionLane.Localization, Boolean> hasDedicatedMainLane = new EnumMap<>(IntersectionLane.Localization.class);
@@ -70,8 +73,8 @@ public class TrafficLightController {
     private void configureSpinners() {
         spinnerSinglePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 1));
         spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxCompletePhase, maxCompletePhase/2));
-        spinnerYellowPhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 59, 1));
-        spinnerRedYellowPhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 59, 1));
+//        spinnerYellowPhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 59, 1));
+//        spinnerRedYellowPhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 59, 1));
     }
 
     // Funkcja pobierajaca wartości ze spinnerów
@@ -112,6 +115,41 @@ public class TrafficLightController {
         areTrafficLightsON = true;
     }
 
+    // Funkcje obsługujące zmianę wybranej fazy
+    @FXML private void changePhaseRed() { selectedPhase = TrafficLight.Phase.RED; buttonSelectedColor(buttonPhaseRed);}
+    @FXML private void changePhaseYellow() { selectedPhase = TrafficLight.Phase.YELLOW; buttonSelectedColor(buttonPhaseYellow);}
+    @FXML private void changePhaseGreen() { selectedPhase = TrafficLight.Phase.GREEN; buttonSelectedColor(buttonPhaseGreen);}
+    @FXML private void changePhaseRedYellow() { selectedPhase = TrafficLight.Phase.RED_YELLOW; buttonSelectedColor(buttonPhaseRedYellow);}
+    @FXML private void changePhaseGreenArrow() { selectedPhase = TrafficLight.Phase.GREEN_ARROW; buttonSelectedColor(buttonPhaseGreenArrow);}
+
+    // Funkcja nadająca danemu przyciskowi kolor oznaczający jego wybranie
+    private void buttonSelectedColor(Button button) {
+        buttonsStylesReset();
+        buttonsDefaultColor();
+        button.getStyleClass().remove("obj-button");
+        button.getStyleClass().add("obj-button-reverse");
+        drawPhaseCanvas(phaseCanvas);
+    }
+
+    // Funkcja przywracająca wszystkim przyciskom domyślny kolor
+    private void buttonsDefaultColor() {
+        buttonPhaseRed.getStyleClass().add("obj-button");
+        buttonPhaseYellow.getStyleClass().add("obj-button");
+        buttonPhaseGreen.getStyleClass().add("obj-button");
+        buttonPhaseRedYellow.getStyleClass().add("obj-button");
+        buttonPhaseGreenArrow.getStyleClass().add("obj-button");
+        drawPhaseCanvas(phaseCanvas);
+    }
+
+    // Wyczyszczenie stylów przycisków
+    private void buttonsStylesReset() {
+        buttonPhaseRed.getStyleClass().removeAll("obj-button", "obj-button-reverse");
+        buttonPhaseYellow.getStyleClass().removeAll("obj-button", "obj-button-reverse");
+        buttonPhaseGreen.getStyleClass().removeAll("obj-button", "obj-button-reverse");
+        buttonPhaseRedYellow.getStyleClass().removeAll("obj-button", "obj-button-reverse");
+        buttonPhaseGreenArrow.getStyleClass().removeAll("obj-button", "obj-button-reverse");
+    }
+
     private void mouseClickHandler() {
         phaseCanvas.setOnMousePressed(event -> {    // Reakcja na naciśnięcie myszy
             isMousePressed = true;
@@ -131,7 +169,7 @@ public class TrafficLightController {
         });
     }
 
-    // Funkcja sprawdzająca, czy dany przycisk został aktywowany
+    // Funkcja sprawdzająca, jaka faza jest przypisana do danego przycisku
     private void handleButtonSelection(double rawX, double rawY) {
         double x = rawX / phaseCanvas.getScaleX();
         double y = rawY / phaseCanvas.getScaleY();
@@ -140,7 +178,7 @@ public class TrafficLightController {
             if (spb.contains(x, y)) {
                 if (spb.isActivated()) {
                     if (spb != lastHoveredButton) {
-                        spb.select();
+                        spb.changePhase(selectedPhase);
                         lastHoveredButton = spb;
                         drawPhaseCanvas(phaseCanvas);
                     }
@@ -194,14 +232,17 @@ public class TrafficLightController {
             if (allowsLeft && !allowsStraight && !allowsRight) {
                 hasDedicatedLeftTurnLane.put(fromLoc, true);
                 TrafficLight.addTrafficLight(fromLoc, TrafficLight.LaneType.LEFT);
+                System.out.println(fromLoc + "left");
             }
             if (allowsRight && !allowsStraight && !allowsLeft) {
                 hasDedicatedRightTurnLane.put(fromLoc, true);
                 TrafficLight.addTrafficLight(fromLoc, TrafficLight.LaneType.RIGHT);
+                System.out.println(fromLoc + "right");
             }
             if (allowsStraight) {
                 hasDedicatedMainLane.put(fromLoc, true);
                 TrafficLight.addTrafficLight(fromLoc, TrafficLight.LaneType.MAIN);
+                System.out.println(fromLoc + "straight");
             }
         }
     }
@@ -245,7 +286,7 @@ public class TrafficLightController {
                 SinglePhaseButton spb = SinglePhaseButton.getSinglePhaseButton(row, col);
                 if (spb != null && spb.isActivated()) {
                     // Dodanie odpowiedniej fazy
-                    sequence.add(spb.isSelected() ? TrafficLight.Phase.GREEN : TrafficLight.Phase.RED);
+                    sequence.add(spb.getPhase());
                 } else {
                     // Domyślnie RED, w przypadku braku przycisku
                     sequence.add(TrafficLight.Phase.RED);

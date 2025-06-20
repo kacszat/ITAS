@@ -112,10 +112,14 @@ public class CanvasPhase {
     private void takeButtonColor(GraphicsContext gc, SinglePhaseButton spb) {
         if (!spb.isActivated()) {
             gc.setFill(Color.rgb(50,50,50));
-        }else if (spb.isSelected()) {
-            gc.setFill(Color.rgb(0,200,0));
         } else {
-            gc.setFill(Color.rgb(200,50,50));
+            switch (spb.getPhase()) {
+                case RED -> gc.setFill(Color.rgb(200,50,50));
+                case YELLOW -> gc.setFill(Color.rgb(200,200,50));
+                case GREEN -> gc.setFill(Color.rgb(0,200,0));
+                case RED_YELLOW -> gc.setFill(Color.rgb(200,100,50));
+                case GREEN_ARROW -> gc.setFill(Color.rgb(0,75,0));
+            }
         }
     }
 

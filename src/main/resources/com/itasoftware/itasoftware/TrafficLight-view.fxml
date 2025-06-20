@@ -59,23 +59,32 @@
                         </HBox>
                     </VBox>
 
-                    <VBox styleClass="obj-vbox-phase">
-                        <Label text="Długość sygnału żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
-                        <HBox styleClass="obj-hbox-center">
-                            <Spinner fx:id="spinnerYellowPhase" styleClass="obj-spinner-wide"/>
-                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
-                        </HBox>
-                    </VBox>
+<!--                    <VBox styleClass="obj-vbox-phase">-->
+<!--                        <Label text="Długość sygnału żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
+<!--                        <HBox styleClass="obj-hbox-center">-->
+<!--                            <Spinner fx:id="spinnerYellowPhase" styleClass="obj-spinner-wide"/>-->
+<!--                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
+<!--                        </HBox>-->
+<!--                    </VBox>-->
+
+<!--                    <VBox styleClass="obj-vbox-phase">-->
+<!--                        <Label text="Długość sygnału czerwono-żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
+<!--                        <HBox styleClass="obj-hbox-center">-->
+<!--                            <Spinner fx:id="spinnerRedYellowPhase" styleClass="obj-spinner-wide"/>-->
+<!--                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
+<!--                        </HBox>-->
+<!--                    </VBox>-->
 
                     <VBox styleClass="obj-vbox-phase">
-                        <Label text="Długość sygnału czerwono-żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
-                        <HBox styleClass="obj-hbox-center">
-                            <Spinner fx:id="spinnerRedYellowPhase" styleClass="obj-spinner-wide"/>
-                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
-                        </HBox>
+                        <Label text="Wybrana faza pojedyńczego okresu cyklu:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
+                        <Button fx:id="buttonPhaseRed" text="Faza czerwona" styleClass="obj-button" onAction="#changePhaseRed"/>
+                        <Button fx:id="buttonPhaseYellow" text="Faza żółta" styleClass="obj-button" onAction="#changePhaseYellow"/>
+                        <Button fx:id="buttonPhaseGreen" text="Faza zielona" styleClass="obj-button" onAction="#changePhaseGreen"/>
+                        <Button fx:id="buttonPhaseRedYellow" text="Faza czerwono-żółta" styleClass="obj-button" onAction="#changePhaseRedYellow"/>
+                        <Button fx:id="buttonPhaseGreenArrow" text="Faza zielonej strzałki" styleClass="obj-button" onAction="#changePhaseGreenArrow"/>
                     </VBox>
 
-                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Region style="-fx-padding: 0 0 4em 0"/>
                     <Button text="Wczytaj parametry" styleClass="obj-button" onAction="#loadSpinnersButton"/>
                     <Button text="Wyczyść cykl" styleClass="obj-button" onAction="#clearButtons"/>
                     <Region style="-fx-padding: 0 0 2em 0"/>
@@ -87,47 +96,6 @@
 
                 </VBox>
             </left>
-
-            <!-- Prawy panel -->
-<!--            <right>-->
-<!--                <VBox styleClass="obj-vbox" style="-fx-pref-width: 12em;">-->
-<!--                    <Label text="Czas symulacji:" styleClass="obj-text2"/>-->
-<!--                    <VBox styleClass="obj-vbox-timer">-->
-<!--                        <Label fx:id="labelTime" text="00:00:00" styleClass="obj-text-timer"/>-->
-<!--                    </VBox>-->
-
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Label text="Ustawienie czasu trwania symulacji:" styleClass="obj-text"/>-->
-<!--                    <HBox styleClass="obj-hbox">-->
-<!--                        <Region styleClass="obj-region1"/>-->
-<!--                        <Region styleClass="obj-region1"/>-->
-<!--                        <Spinner fx:id="spinnerTimeHours" styleClass="obj-spinner"/>-->
-<!--                        <Label text="Liczba godzin" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
-<!--                    </HBox>-->
-<!--                    <HBox styleClass="obj-hbox">-->
-<!--                        <Region styleClass="obj-region1"/>-->
-<!--                        <Region styleClass="obj-region1"/>-->
-<!--                        <Spinner fx:id="spinnerTimeMinutes" styleClass="obj-spinner"/>-->
-<!--                        <Label text="Liczba minut" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
-<!--                    </HBox>-->
-
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Label text="Prędkość symulacji:" styleClass="obj-text"/>-->
-<!--                    <HBox>-->
-<!--                        <Region styleClass="obj-region1"/>-->
-<!--                        <Region styleClass="obj-region1"/>-->
-<!--                        <Slider fx:id="sliderTimeSpeed" styleClass="obj-slider"/>-->
-<!--                    </HBox>-->
-
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Button text="Zresetuj parametry czasu" styleClass="obj-button" onAction="#resetSimTime"/>-->
-
-<!--                    <Region style="-fx-padding: 0 0 1em 0"/>-->
-<!--                    <Button fx:id="buttonStart" text="Uruchom symulację" styleClass="obj-button" onAction="#startSimulation"/>-->
-<!--                    <Button text="Zatrzymaj symulację" styleClass="obj-button" onAction="#stopSimulation"/>-->
-<!--                    <Button text="Zresetuj symulację" styleClass="obj-button" onAction="#resetSimulation"/>-->
-<!--                </VBox>-->
-<!--            </right>-->
 
             <!-- Środkowy panel (dynamiczna szerokość) -->
             <center>

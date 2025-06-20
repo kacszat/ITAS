@@ -10,6 +10,7 @@ public class SinglePhaseButton {
     boolean selected = false, activated = false;
     public static final List<SinglePhaseButton> singlePhaseButtons = new ArrayList<>();
     RowDescriptor desc;
+    TrafficLight.Phase phase;
 
     public SinglePhaseButton(double rowNumber, double colNumber, double startX, double startY, RowDescriptor desc) {
         this.rowNumber = rowNumber;
@@ -17,6 +18,7 @@ public class SinglePhaseButton {
         this.startX = startX;
         this.startY = startY;
         this.desc = desc;
+        phase = TrafficLight.Phase.RED;
     }
 
     public static void addSinglePhaseButton(SinglePhaseButton spb) {
@@ -62,6 +64,10 @@ public class SinglePhaseButton {
         return activated;
     }
 
+    public void changePhase(TrafficLight.Phase newPhase) {
+        phase = newPhase;
+    }
+
     public void select() {
         selected = (!selected);
     }
@@ -88,5 +94,9 @@ public class SinglePhaseButton {
 
     public static double getRectSpacing() {
         return rectSpacing;
+    }
+
+    public TrafficLight.Phase getPhase() {
+        return phase;
     }
 }
