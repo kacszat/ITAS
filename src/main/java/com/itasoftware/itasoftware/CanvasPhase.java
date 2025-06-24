@@ -9,7 +9,7 @@ import javafx.scene.text.Font;
 public class CanvasPhase {
 
     private final double space = 35;
-    public static int rectNumber = 50;   // Domyślna liczba prostokątów
+    public static int rectNumber = 60;   // Domyślna liczba prostokątów
     double rectWidth = SinglePhaseButton.getRectWidth(), rectHeight = SinglePhaseButton.getRectHeight(), rectSpacing = SinglePhaseButton.getRectSpacing();
 
     // Skalowanie Canvas
@@ -117,7 +117,7 @@ public class CanvasPhase {
                 case RED -> gc.setFill(Color.rgb(200,50,50));
                 case YELLOW -> gc.setFill(Color.rgb(200,200,50));
                 case GREEN -> gc.setFill(Color.rgb(0,200,0));
-                case RED_YELLOW -> gc.setFill(Color.rgb(200,100,50));
+                case RED_YELLOW -> gc.setFill(Color.rgb(250,150,50));
                 case GREEN_ARROW -> gc.setFill(Color.rgb(0,75,0));
             }
         }

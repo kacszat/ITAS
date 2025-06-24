@@ -39,6 +39,7 @@ public class AlertPopUp {
                                             controller.alertLabel2.setText("Na skrzyżowaniu nie ma wyznaczonych żadnych relacji ruchu.");}
                 case "Delete Relations" -> {controller.alertLabel.setText("Czy na pewno chcesz zmienić liczbę pasów ruchu?");
                                             controller.alertLabel2.setText("Istniejące relacje ruchu zostaną usunięte.");}
+                case "New TL" -> controller.alertLabel.setText("Czy na pewno chcesz utworzyć nowy program faz?");
                 case "Bad VehicleNumber" -> {controller.alertLabel.setText("Wprowadzono niewłaściwe dane dotyczące liczby pojazdów.");
                                             controller.alertLabel2.setText("Całkowita liczba pojazdów musi być większa niż zero.");
                                             controller.alertButtonYes.setVisible(false);
@@ -56,6 +57,11 @@ public class AlertPopUp {
                                             controller.alertButtonNo.setText("OK");}
                 case "Can't Show TL" -> {controller.alertLabel.setText("Obecnie nie można włączyć sygnalizacji świetlnej.");
                                             controller.alertLabel2.setText("Nie utworzono/wczytano żadnego programu faz sygnalizacji świetlnej.");
+                                            controller.alertButtonYes.setVisible(false);
+                                            controller.alertButtonYes.setManaged(false);
+                                            controller.alertButtonNo.setText("OK");}
+                case "Can't Save TL" -> {controller.alertLabel.setText("Obecnie nie można zapisać programu faz sygnalizacji świetlnej.");
+                                            controller.alertLabel2.setText("Nie wczytano skrzyżowania, bądź na skrzyżowaniu nie ma relacji ruchu.");
                                             controller.alertButtonYes.setVisible(false);
                                             controller.alertButtonYes.setManaged(false);
                                             controller.alertButtonNo.setText("OK");}

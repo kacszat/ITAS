@@ -12,7 +12,7 @@ public class SinglePhaseButton {
     RowDescriptor desc;
     TrafficLight.Phase phase;
 
-    public SinglePhaseButton(double rowNumber, double colNumber, double startX, double startY, RowDescriptor desc) {
+    public SinglePhaseButton(int rowNumber, int colNumber, double startX, double startY, RowDescriptor desc) {
         this.rowNumber = rowNumber;
         this.colNumber = colNumber;
         this.startX = startX;
@@ -32,7 +32,7 @@ public class SinglePhaseButton {
                 clickY >= startY && clickY <= (startY + rectHeight);
     }
 
-    public static SinglePhaseButton getSinglePhaseButton(double row, int column) {
+    public static SinglePhaseButton getSinglePhaseButton(int row, int column) {
         for (SinglePhaseButton spb : singlePhaseButtons) {
             if (spb.getRowNumber() == row && spb.getColNumber() == column) {
                 return spb;

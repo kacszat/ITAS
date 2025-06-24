@@ -12,23 +12,15 @@
       styleClass="root-gray">
 
     <MenuBar>
-<!--        <Menu text="Plik">-->
-<!--&lt;!&ndash;            <MenuItem text="Nowa symulacja" onAction="#defaultSimulation"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            <MenuItem text="Zapisz symulację" onAction="#saveSimulation"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            <MenuItem text="Wczytaj symulację" onAction="#loadSimulation"/>&ndash;&gt;-->
-<!--        </Menu>-->
+        <Menu text="Plik">
+            <MenuItem text="Nowy program faz sygnalizacji świetlnej" onAction="#newTrafficLight"/>
+            <MenuItem text="Zapisz program faz sygnalizacji świetlnej" onAction="#saveTrafficLight"/>
+            <MenuItem text="Wczytaj program faz sygnalizacji świetlnej" onAction="#loadTrafficLight"/>
+        </Menu>
         <Menu text="Okno">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
             <MenuItem text="Powrót do symulacji" onAction="#backToSimulation"/>
-<!--            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>-->
-<!--            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>-->
         </Menu>
-<!--        <Menu text="Filtry">-->
-<!--&lt;!&ndash;            <MenuItem text="Pokaż relacje ruchu" onAction="#showMovementRelations"/>&ndash;&gt;-->
-<!--&lt;!&ndash;            <MenuItem text="Pokaż pola widzenia pojazdów" onAction="#showVehiclesFOVs"/>&ndash;&gt;-->
-<!--            &lt;!&ndash;            <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>&ndash;&gt;-->
-<!--            &lt;!&ndash;            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>&ndash;&gt;-->
-<!--        </Menu>-->
     </MenuBar>
 
     <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" prefWidth="1920" prefHeight="1080">
@@ -59,22 +51,11 @@
                         </HBox>
                     </VBox>
 
-<!--                    <VBox styleClass="obj-vbox-phase">-->
-<!--                        <Label text="Długość sygnału żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
-<!--                        <HBox styleClass="obj-hbox-center">-->
-<!--                            <Spinner fx:id="spinnerYellowPhase" styleClass="obj-spinner-wide"/>-->
-<!--                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
-<!--                        </HBox>-->
-<!--                    </VBox>-->
+                    <Region style="-fx-padding: 0 0 1em 0"/>
+                    <Button text="Wczytaj parametry" styleClass="obj-button" onAction="#loadSpinnersButton"/>
+                    <Button text="Wyczyść cykl" styleClass="obj-button" onAction="#clearButtons"/>
 
-<!--                    <VBox styleClass="obj-vbox-phase">-->
-<!--                        <Label text="Długość sygnału czerwono-żółtego:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
-<!--                        <HBox styleClass="obj-hbox-center">-->
-<!--                            <Spinner fx:id="spinnerRedYellowPhase" styleClass="obj-spinner-wide"/>-->
-<!--                            <Label text="w sekundach" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>-->
-<!--                        </HBox>-->
-<!--                    </VBox>-->
-
+                    <Region style="-fx-padding: 0 0 1em 0"/>
                     <VBox styleClass="obj-vbox-phase">
                         <Label text="Wybrana faza pojedyńczego okresu cyklu:" styleClass="obj-text" style="-fx-padding: 0.4em 0 0 0"/>
                         <Button fx:id="buttonPhaseRed" text="Faza czerwona" styleClass="obj-button" onAction="#changePhaseRed"/>
@@ -84,15 +65,10 @@
                         <Button fx:id="buttonPhaseGreenArrow" text="Faza zielonej strzałki" styleClass="obj-button" onAction="#changePhaseGreenArrow"/>
                     </VBox>
 
-                    <Region style="-fx-padding: 0 0 4em 0"/>
-                    <Button text="Wczytaj parametry" styleClass="obj-button" onAction="#loadSpinnersButton"/>
-                    <Button text="Wyczyść cykl" styleClass="obj-button" onAction="#clearButtons"/>
-                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Region style="-fx-padding: 0 0 3em 0"/>
                     <Button text="Zwizualizuj cykl" styleClass="obj-button"/>
-                    <Region style="-fx-padding: 0 0 2em 0"/>
+                    <Region style="-fx-padding: 0 0 1em 0"/>
                     <Button text="Zapisz i wyjdź" styleClass="obj-button" onAction="#save"/>
-<!--                    <Region style="-fx-padding: 0 0 10em 0"/>-->
-<!--                    <Button text="Powrót" styleClass="obj-button" onAction="#backToSimulation"/>-->
 
                 </VBox>
             </left>
@@ -100,20 +76,24 @@
             <!-- Środkowy panel (dynamiczna szerokość) -->
             <center>
                 <VBox styleClass="obj-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 95em" VBox.vgrow="ALWAYS">
-<!--                    <Label text="Symulacja ruchu na skrzyżowaniu" styleClass="menu-label"/>-->
 
                     <BorderPane.margin>
                         <Insets left="30" right="0"/>
                     </BorderPane.margin>
 
-                    <StackPane fx:id="phaseCanvasContainer" VBox.vgrow="ALWAYS">
-                        <Canvas fx:id="phaseCanvas" width="1350" height="850"/>
-<!--                        <Label fx:id="simInfoLabel" styleClass="obj-info-label"/>-->
-                    </StackPane>
+                    <ScrollPane fx:id="scrollPane" fitToHeight="true" fitToWidth="false" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER"
+                                styleClass="scroll-bar-bright" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0 0 0 30;">
 
-                    <Pane style="-fx-background-color: #474747; -fx-min-height: 1em; -fx-pref-height: 1em" />
+                        <VBox>
+                            <StackPane fx:id="phaseCanvasContainer" VBox.vgrow="ALWAYS">
+                                <Canvas fx:id="phaseCanvas" width="3200" height="860"/>
+                            </StackPane>
+                            <Pane style="-fx-background-color: #474747; -fx-min-height: 1em; -fx-pref-height: 1em"/>
+                        </VBox>
+                    </ScrollPane>
 
                 </VBox>
+
             </center>
         </BorderPane>
     </ScrollPane>

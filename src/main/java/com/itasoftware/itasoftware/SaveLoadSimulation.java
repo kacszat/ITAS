@@ -59,6 +59,8 @@ public class SaveLoadSimulation {
             SaveLoadIntersection.saveMovementRelations(file.getAbsolutePath(), MovementRelations.movementRelations);
             saveTextFieldVehicleNumber(file.getAbsolutePath(), simContrl.tfVehNumInputs);
             saveTimeSettings(file.getAbsolutePath());
+            SaveLoadTrafficLight.saveTrafficLightSettings(file.getAbsolutePath(), true);
+            SaveLoadTrafficLight.saveSinglePhaseButtonState(file.getAbsolutePath());
         }
     }
 
@@ -159,6 +161,8 @@ public class SaveLoadSimulation {
                     SaveLoadIntersection.loadMovementRelations(line);
                     loadTextFieldVehicleNumber(line);
                     loadTimeSettings(line);
+                    SaveLoadTrafficLight.loadTrafficLightSettings(line);
+                    SaveLoadTrafficLight.loadSinglePhaseButtonState(line);
                 }
 
                 simContrl.loadCanvasOrInfo(simContrl.canvasDrawer);

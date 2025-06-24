@@ -21,10 +21,10 @@ public class TrafficLight extends StopLine {
         this.laneType = laneType;
     }
 
-    public static void addTrafficLight(Localization localization, LaneType laneType) {
+    public static void addTrafficLight(IntersectionLane il, LaneType laneType) {
         for (StopLine sl : GeneratorController.stopLines) {
-            if (sl.getLocalization() == localization && sl.getType() == Type.ENTRY) {
-                TrafficLight tl = new TrafficLight(localization, sl.getType(), sl.getIndex(), sl.getPositionCenterX(), sl.getPositionCenterY(), laneType);
+            if (sl.getLocalization() == il.getLocalization() && sl.getType() == Type.ENTRY && sl.getIndex() == il.getIndex()) {
+                TrafficLight tl = new TrafficLight(sl.getLocalization(), sl.getType(), sl.getIndex(), sl.getPositionCenterX(), sl.getPositionCenterY(), laneType);
 
                 // Ustawienie domyślnej sekwencji faz
                 List<Phase> defaultSequence = List.of(Phase.RED);

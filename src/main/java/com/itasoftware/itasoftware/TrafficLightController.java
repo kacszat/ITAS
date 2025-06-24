@@ -1,10 +1,13 @@
 package com.itasoftware.itasoftware;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -14,10 +17,12 @@ public class TrafficLightController {
 
     @FXML Canvas phaseCanvas;
     @FXML private StackPane phaseCanvasContainer;
+    @FXML private ScrollPane scrollPane;
+    SaveLoadTrafficLight SLTL = new SaveLoadTrafficLight(this);
 
-    @FXML Spinner<Integer> spinnerSinglePhase, spinnerCompletePhase, spinnerYellowPhase, spinnerRedYellowPhase;
+    @FXML Spinner<Integer> spinnerSinglePhase, spinnerCompletePhase;
     @FXML Button buttonPhaseRed, buttonPhaseYellow, buttonPhaseGreen, buttonPhaseRedYellow, buttonPhaseGreenArrow;
-    int singlePhase = 1, completePhase, maxCompletePhase = 100, yellowPhase, redYellowPhase;
+    public static int singlePhase = 1, completePhase, maxCompletePhase = 240;
     private boolean isMousePressed = false;
     public static boolean areTrafficLightsON = false;
     private SinglePhaseButton lastHoveredButton = null;
@@ -42,6 +47,40 @@ public class TrafficLightController {
         mainApp.loadView("Simulation-view.fxml", mainApp.actualWidth, mainApp.actualHeight);
     }
 
+    // Zapisanie programu faz sygnalizacji świetlnej
+    @FXML
+    public void saveTrafficLight(ActionEvent event) {
+        if (MovementRelations.movementRelations.isEmpty()) {
+            AlertPopUp.showAlertPopUp("Can't Save TL");
+        } else {
+            SLTL.saveTrafficLightPhaseProgram(event);
+        }
+    }
+
+    // Załadowanie programu faz sygnalizacji świetlnej
+    @FXML
+    public void loadTrafficLight(ActionEvent event) {
+        if (!MovementRelations.movementRelations.isEmpty()) {
+            if (AlertPopUp.showAlertPopUp("Load")) {
+                SLTL.loadTrafficLightPhaseProgram(event);
+            }
+        } else {
+            SLTL.loadTrafficLightPhaseProgram(event);
+        }
+    }
+
+    // Utworzenie nowego programu faz sygnalizacji świetlnej
+    @FXML
+    public void newTrafficLight(ActionEvent event) {
+        if (AlertPopUp.showAlertPopUp("New TL")) {
+            clearButtons();
+            CanvasPhase.rectNumber = 60;
+            configureSpinners();
+            handleSpinnerSinglePhaseClick();
+            loadSpinnersButton();
+        }
+    }
+
     @FXML
     public void initialize() {
 //        // Reakcja na zmianę rozmiaru kontenera
@@ -49,6 +88,16 @@ public class TrafficLightController {
 //            CanvasPhase cp = new CanvasPhase();
 //            cp.scalePhaseCanvas(phaseCanvasContainer, phaseCanvas);
 //        });
+
+        // Blokowanie przewijanie scrolla w pionie
+        scrollPane.setVvalue(0);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setPannable(false);
+        scrollPane.addEventFilter(ScrollEvent.SCROLL, event -> {
+            if (event.getDeltaY() != 0) {
+                event.consume();
+            }
+        });
 
         // Sprawdzenie, czy istnieją wydzielone lewo i prawoskręty
         areTurningLanesAvailable();
@@ -71,10 +120,8 @@ public class TrafficLightController {
     }
 
     private void configureSpinners() {
-        spinnerSinglePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 1));
-        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxCompletePhase, maxCompletePhase/2));
-//        spinnerYellowPhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 59, 1));
-//        spinnerRedYellowPhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 59, 1));
+        spinnerSinglePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1));
+        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxCompletePhase, CanvasPhase.rectNumber));
     }
 
     // Funkcja pobierajaca wartości ze spinnerów
@@ -85,23 +132,23 @@ public class TrafficLightController {
 
     // Funkcja zmieniająca całkowity okres czasu możliwy do ustawienia w zależności od minimalnego okresu
     @FXML
-    private void handleSpinnerSinglePhaseClick() {
+    public void handleSpinnerSinglePhaseClick() {
         singlePhase = spinnerSinglePhase.getValue();
         int max = singlePhase * maxCompletePhase;
-        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(singlePhase, max, max/2, singlePhase));
+        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(singlePhase, max, CanvasPhase.rectNumber, singlePhase));
     }
 
     // Wyczyszczenie przycisków
     @FXML
-    private void clearButtons() {
+    public void clearButtons() {
         SinglePhaseButton.clear();
         drawPhaseCanvas(phaseCanvas);
     }
 
     // Funkcja obsługująca przycisk do wczytania danych
     @FXML
-    private void loadSpinnersButton() {
-        SinglePhaseButton.clear();
+    public void loadSpinnersButton() {
+        //SinglePhaseButton.clear();
         loadValuesFromSpinners();
         CanvasPhase.rectNumber = completePhase/singlePhase;
         drawPhaseCanvas(phaseCanvas);
@@ -231,18 +278,15 @@ public class TrafficLightController {
             // Sprawdzenie czy to dedykowany pas skrętu i dodanie sygnalizatora
             if (allowsLeft && !allowsStraight && !allowsRight) {
                 hasDedicatedLeftTurnLane.put(fromLoc, true);
-                TrafficLight.addTrafficLight(fromLoc, TrafficLight.LaneType.LEFT);
-                System.out.println(fromLoc + "left");
+                TrafficLight.addTrafficLight(from, TrafficLight.LaneType.LEFT);
             }
             if (allowsRight && !allowsStraight && !allowsLeft) {
                 hasDedicatedRightTurnLane.put(fromLoc, true);
-                TrafficLight.addTrafficLight(fromLoc, TrafficLight.LaneType.RIGHT);
-                System.out.println(fromLoc + "right");
+                TrafficLight.addTrafficLight(from, TrafficLight.LaneType.RIGHT);
             }
             if (allowsStraight) {
                 hasDedicatedMainLane.put(fromLoc, true);
-                TrafficLight.addTrafficLight(fromLoc, TrafficLight.LaneType.MAIN);
-                System.out.println(fromLoc + "straight");
+                TrafficLight.addTrafficLight(from, TrafficLight.LaneType.MAIN);
             }
         }
     }
@@ -281,6 +325,7 @@ public class TrafficLightController {
 
             // Znalezienie wiersza na podstawie lokalizacji i typu pasa
             int row = RowDescriptor.getRowNumber(light.getLocalization(), light.getLaneType());
+            System.out.println(light.getLocalization() + " " + light.getLaneType());
 
             for (int col = 0; col < CanvasPhase.rectNumber; col++) {
                 SinglePhaseButton spb = SinglePhaseButton.getSinglePhaseButton(row, col);

@@ -374,3 +374,62 @@
 .alert-popup-bt-yes:hover {
     -fx-background-color: #4a4d50;
 }
+
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12px; /* wysokość */
+    -fx-background-color: #2b2b2b; /* tło paska */
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 12px;
+    -fx-background-color: #2b2b2b;
+}
+
+.scroll-bar .track {    /* "track" – ścieżka paska */
+    -fx-background-color: #2b2b2b;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar .thumb {    /* "thumb" – przesuwalny element */
+    -fx-background-color: #777;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #aaa;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {     /* Strzałki */
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-pane.scroll-bar-bright .scroll-bar:horizontal {
+    -fx-pref-height: 12px;
+    -fx-background-color: #474747;
+    -fx-background-insets: 0 0 0 20; /* top right bottom left */
+    -fx-padding: 0 0 0 20;
+}
+
+.scroll-pane.scroll-bar-bright .track {
+    -fx-background-color: #474747;
+    -fx-background-insets: 0;
+}
+
+.scroll-pane.scroll-bar-bright .thumb {
+    -fx-background-color: #777;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane.scroll-bar-bright .thumb:hover {
+    -fx-background-color: #aaa;
+}
+
+.scroll-pane.scroll-bar-bright .increment-button,
+.scroll-pane.scroll-bar-bright .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-alignment: center;
+}
