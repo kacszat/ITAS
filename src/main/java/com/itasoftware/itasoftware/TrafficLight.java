@@ -1,7 +1,9 @@
 package com.itasoftware.itasoftware;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrafficLight extends StopLine {
 
@@ -11,6 +13,7 @@ public class TrafficLight extends StopLine {
     public LaneType laneType;
     public static final List<TrafficLight> trafficLights = new ArrayList<>();   // Lista sygnalizatorów świetlnych
     public List<Phase> phaseSequence = new ArrayList<>();  // Lista programów faz
+    public static Map<TrafficLight, StopLine> trafficLightStopLineMap = new HashMap<>();
 
     public int currentPhaseIndex = 0;
     public long lastPhaseChangeTime = 0; // W milisekundach
@@ -37,6 +40,8 @@ public class TrafficLight extends StopLine {
                 if (!trafficLights.contains(tl)) {
                     trafficLights.add(tl);
                 }
+
+                trafficLightStopLineMap.put(tl, sl);
             }
         }
     }

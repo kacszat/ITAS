@@ -13,6 +13,9 @@ public class Vehicle {
     private double fovX, fovY, fovRadius, fovSmallRadius, fovStartAngle, fovLength; // Parametry Field Of View
     double angle;   // Kąt kierunku jazdy
     Point2D[] squareFOVCorners, squareSmallFOVCorners;  // Lista czterech punktów prostokąta
+    private StopLine assignedStopLine;
+    private TrafficLight assignedTrafficLight;
+    private TrafficLight.Phase cachedPhase;
 
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
@@ -88,7 +91,7 @@ public class Vehicle {
     public void setSquareFOV(Point2D center, double angleDegrees, Boolean smallFOV) {
         double rectLength;                      // Długość FOV
         double rectWidth = vehicleWidth * 1.4;  // Szerokość FOV
-        rectLength = !smallFOV ? 150 : 50;
+        rectLength = !smallFOV ? 150 : 40;
 
         // Wektor kierunku jazdy
         double angleRad = Math.toRadians(angleDegrees);
@@ -253,6 +256,40 @@ public class Vehicle {
 
     public IntersectionLane.Localization getVehicleDestination() {
         return vehicleDestination;
+    }
+
+    public void assignStopLine(StopLine sl) {
+        this.assignedStopLine = sl;
+    }
+
+    public StopLine getAssignedStopLine() {
+        return assignedStopLine;
+    }
+
+    public boolean hasAssignedStopLine() {
+        return assignedStopLine != null;
+    }
+
+    public void assignTrafficLight(TrafficLight tl) {
+        this.assignedTrafficLight = tl;
+    }
+
+    public TrafficLight getAssignedTrafficLight() {
+        return assignedTrafficLight;
+    }
+
+    public boolean hasAssignedTrafficLight() {
+        return assignedTrafficLight != null;
+    }
+
+    public void updateCachedTrafficLightPhase() {
+        if (assignedTrafficLight != null) {
+            this.cachedPhase = assignedTrafficLight.getCurrentPhase();
+        }
+    }
+
+    public TrafficLight.Phase getCachedPhase() {
+        return this.cachedPhase;
     }
 
 }

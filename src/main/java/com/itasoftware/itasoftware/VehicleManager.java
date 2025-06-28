@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class VehicleManager {
     private final List<Vehicle> vehiclesList = new ArrayList<>();
@@ -15,6 +16,7 @@ public class VehicleManager {
     public void updateVehicles(double simSpeed) {
         for (Vehicle v : vehiclesList) {
             v.setSimSpeed(simSpeed);
+            v.updateCachedTrafficLightPhase();
             v.updateVehiclePosition();
             checkVehicleContact(v);
         }
@@ -32,80 +34,97 @@ public class VehicleManager {
     // Funkcja sprawdzająca, czy dany pojazd nie jest w kontakcie z innymi i jak powinien się zachować
     public void checkVehicleContact(Vehicle vehicle) {
         boolean shouldStop = false, shouldSlowDown = false;
-        double distanceToStop = 20, distanceToSlowDown = 120;
+        double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
+
+        findStopLine(vehicle); // Sprawdzenie, czy znaleziono linie stopu w FOV na pasie ruchu pojazdu
 
         for (Vehicle other : vehiclesList) {
             if (vehicle == other) continue; // Jeśli zadany pojazd jest taki sam, jak wskazany z pętli, pomijamy
-            for (StopLine stopLine : GeneratorController.stopLines) {
-                // Sprawdź czy StopLine jest z tego samego originu co pojazd
-                if (stopLine.getLocalization() != vehicle.getVehicleOrigin()) continue;
-                for (TrafficLight trafficLight : TrafficLight.trafficLights) {
-                    // Sprawdź czy TL jest powiązany z tą samą lokalizacją (opcjonalne, jeśli TL ma localization)
-                    if (trafficLight.getLocalization() != vehicle.getVehicleOrigin()) continue;
 
-                    // Pomocniczne booleany, zwiększające czytelność warunków
-                    boolean inBigFOV = vehicle.isPointInFOV(other.getFovX(), other.getFovY(), false);
-                    boolean inSmallFOV = vehicle.isPointInFOV(other.getFovX(), other.getFovY(), true);
-                    boolean inSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), false);
-                    boolean inSmallSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), true);
-//                    boolean isStopLineInBigFOV = vehicle.isPointInFOV(stopLine.getPositionCenterX(), stopLine.getPositionCenterY(), false);
-//                    boolean isStopLineInSmallFOV = vehicle.isPointInFOV(stopLine.getPositionCenterX(), stopLine.getPositionCenterY(), true);
-//                    boolean isStopLineInSquareFOV = vehicle.isPointInSquareFOV(stopLine.getPositionCenterX(), stopLine.getPositionCenterY(), false);
-//                    boolean isStopLineInSmallSquareFOV = vehicle.isPointInSquareFOV(stopLine.getPositionCenterX(), stopLine.getPositionCenterY(), true);
-//                    boolean isTrafficLightInBigFOV = vehicle.isPointInFOV(trafficLight.getPositionCenterX(), trafficLight.getPositionCenterY(), false);
-//                    boolean isTrafficLightInSmallFOV = vehicle.isPointInFOV(trafficLight.getPositionCenterX(), trafficLight.getPositionCenterY(), true);
-//                    boolean isTrafficLightInSquareFOV = vehicle.isPointInSquareFOV(trafficLight.getPositionCenterX(), trafficLight.getPositionCenterY(), false);
-//                    boolean isTrafficLightInSmallSquareFOV = vehicle.isPointInSquareFOV(trafficLight.getPositionCenterX(), trafficLight.getPositionCenterY(), true);
-                    // Sprawdzenie, czy trajektorie się przecinają
-                    boolean areTrajectoriesIntersect = MovementTrajectory.doTrajectoriesIntersect(vehicle.getTrajectory(), other.getTrajectory());
-                    // Pojazd skręcajacy w lewo udostępnia pierwszeństwa pojazdom jadącym prosto i skręcającym w prawo
-                    boolean isVehicleGoingLeftAndGivingWay = other.isOnIntersectionSegment() && isVehicleTurningLeft(vehicle) &&
-                            isOtherGoingFromOppositeOrigin(vehicle, other) && (isVehicleGoingStraight(other) || isVehicleTurningRight(other));
-                    // Przeciwdziałanie zablokowaniu pojazdów w konkretnych sytuacjach
-                    boolean preventBlockingVehicle = (vehicle.vehicleOrigin == IntersectionLane.Localization.NORTH ||
-                            vehicle.vehicleOrigin == IntersectionLane.Localization.EAST) &&
-                            isOtherGoingFromOppositeOrigin(vehicle, other) && isVehicleTurningLeft(vehicle) && isVehicleTurningLeft(other);
-                    // Sprawdzenie, czy pojazd musi ustąpić innemu pojazdowi z prawej
-                    boolean isVehicleGivingWayToRight = isOtherGoingFromRight(vehicle, other) && !vehicle.isOnIntersectionSegment();
-                    // Sprawdzenie, czy TL pokrywa się z SL
-                    boolean isTrafficLightAndStopLineStack = TrafficLight.isTrafficLightAndStopLineStack(trafficLight, stopLine);
-                    // Sprawdzenie, czy jest zbliża się do sygnalizacji
-                    boolean isVehicleApproachingTL = SimulationController.areTrafficLightsActive && isTrafficLightAndStopLineStack &&
-                            isVehicleApproachingStopLine(vehicle, stopLine, distanceToSlowDown);
-                    boolean isVehicleNearTL = SimulationController.areTrafficLightsActive && isTrafficLightAndStopLineStack &&
-                            isVehicleApproachingStopLine(vehicle, stopLine, distanceToStop);
-                    // Fazy sygnalizacji
-                    boolean redPhase = trafficLight.getCurrentPhase() == TrafficLight.Phase.RED || trafficLight.getCurrentPhase() == TrafficLight.Phase.RED_YELLOW;
-                    boolean yellowPhase = trafficLight.getCurrentPhase() == TrafficLight.Phase.YELLOW;
-                    boolean greenPhase = trafficLight.getCurrentPhase() == TrafficLight.Phase.GREEN;
-                    boolean greenArrowPhase = trafficLight.getCurrentPhase() == TrafficLight.Phase.GREEN_ARROW;
+            if (!isVehicleWithinDistance(vehicle, other, 150)) continue;    // Jeśli zadany pojazd jest dalej niz 150, pomijamy
 
-                    // Zasady ruchu drogowego
-                    if (inSmallSquareFOV || (isVehicleNearTL && redPhase)) {
-                        shouldStop = true;
-                        break;
-                    } else if (inSquareFOV && areTrajectoriesIntersect && isVehicleGoingLeftAndGivingWay) {
-                        shouldStop = true;
-                        break;
-                    }  else if (inSquareFOV || (isVehicleApproachingTL && redPhase)) {
+            boolean inBigFOV = vehicle.isPointInFOV(other.getFovX(), other.getFovY(), false);   // Jeśli zadany pojazd jest poza FOV, pomijamy
+            if (!inBigFOV) continue;
+
+            boolean inSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), false);
+            boolean inSmallSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), true);
+
+            // Sprawdzenie, czy trajektorie się przecinają
+            boolean areTrajectoriesIntersect = MovementTrajectory.doTrajectoriesIntersect(vehicle.getTrajectory(), other.getTrajectory());
+            // Pojazd skręcajacy w lewo udostępnia pierwszeństwa pojazdom jadącym prosto i skręcającym w prawo
+            boolean isVehicleGoingLeftAndGivingWay = other.isOnIntersectionSegment() && isVehicleTurningLeft(vehicle) &&
+                    isOtherGoingFromOppositeOrigin(vehicle, other) && (isVehicleGoingStraight(other) || isVehicleTurningRight(other));
+            // Przeciwdziałanie zablokowaniu pojazdów w konkretnych sytuacjach
+            boolean preventBlockingVehicle = (vehicle.vehicleOrigin == IntersectionLane.Localization.NORTH ||
+                    vehicle.vehicleOrigin == IntersectionLane.Localization.EAST) &&
+                    isOtherGoingFromOppositeOrigin(vehicle, other) && isVehicleTurningLeft(vehicle) && isVehicleTurningLeft(other);
+            // Sprawdzenie, czy pojazd musi ustąpić innemu pojazdowi z prawej
+            boolean isVehicleGivingWayToRight = isOtherGoingFromRight(vehicle, other) && !vehicle.isOnIntersectionSegment();
+
+            if (SimulationController.areTrafficLightsActive && vehicle.hasAssignedTrafficLight()) {
+                // Zasady ruchu z sygnalizacją
+                TrafficLight.Phase phase = vehicle.getCachedPhase();
+                boolean redPhase = phase == TrafficLight.Phase.RED || phase == TrafficLight.Phase.RED_YELLOW;
+                boolean yellowPhase = phase == TrafficLight.Phase.YELLOW;
+                boolean greenPhase = phase == TrafficLight.Phase.GREEN;
+                boolean greenArrowPhase = phase == TrafficLight.Phase.GREEN_ARROW;
+
+//                // Pojazd skręcajacy w lewo udostępnia pierwszeństwa pojazdom jadącym prosto i skręcającym w prawo
+//                boolean isVehicleGoingLeftAndGivingWayWithTrafficLight = hasGreenLight(other) && isVehicleTurningLeft(vehicle)
+//                        && isOtherGoingFromOppositeOrigin(vehicle, other) && (isVehicleGoingStraight(other) || isVehicleTurningRight(other));
+
+                if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToSlowDown) && (redPhase || yellowPhase)) {
+                    if (!(isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), marginTL) && yellowPhase)) {
                         shouldSlowDown = true;
-                    } else if (inBigFOV && preventBlockingVehicle) {
-                        shouldSlowDown = true;
-                        if (isVehicleApproachingStopLine(vehicle, stopLine, distanceToStop)) {
+                        if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToTL)) {
                             shouldStop = true;
                         }
-                    } else if (inBigFOV && areTrajectoriesIntersect) {
-                        if (isVehicleGivingWayToRight || isVehicleGoingLeftAndGivingWay) {
-                            shouldSlowDown = true;
-                            if (isVehicleApproachingStopLine(vehicle, stopLine, distanceToStop)) {
-                                shouldStop = true;
-                            }
+                    }
+                } else if (inSmallSquareFOV) {
+                    shouldStop = true;
+                    break;
+                } else if (inSquareFOV) {
+                    shouldSlowDown = true;
+                } else if (preventBlockingVehicle) {
+                    shouldSlowDown = true;
+                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
+                        shouldStop = true;
+                        break;
+                    }
+                } else if (areTrajectoriesIntersect) {
+                    if (isVehicleGoingLeftAndGivingWay) {
+                        shouldSlowDown = true;
+                        if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
+                            shouldStop = true;
+                            break;
                         }
                     }
-
-
                 }
+            } else {
+                // Zasady ruchu bez sygnalziacji
+                if (inSmallSquareFOV || (inSquareFOV && areTrajectoriesIntersect && isVehicleGoingLeftAndGivingWay)) {
+                    shouldStop = true;
+                    break;
+                } else if (inSquareFOV) {
+                    shouldSlowDown = true;
+                } else if (preventBlockingVehicle) {
+                    shouldSlowDown = true;
+                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
+                        shouldStop = true;
+                        break;
+                    }
+                } else if (areTrajectoriesIntersect) {
+                    if (isVehicleGivingWayToRight || isVehicleGoingLeftAndGivingWay) {
+                        shouldSlowDown = true;
+                        if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
+                            shouldStop = true;
+                            break;
+                        }
+                    }
+                }
+
             }
+
         }
 
         // Modyfikacja prędkości pojazdu
@@ -116,6 +135,36 @@ public class VehicleManager {
         } else {
             increaseSpeed(vehicle);
         }
+    }
+
+    // Sprawdzenie i przypisanie lini stopu (w tym i sygnalizatora)
+    private void findStopLine(Vehicle v) {
+        if (!v.hasAssignedStopLine()) {
+            for (StopLine sl : GeneratorController.stopLines) {
+                if (sl.getLocalization() !=v.getVehicleOrigin()) continue;
+
+                if (v.isPointInSquareFOV(sl.getPositionCenterX(), sl.getPositionCenterY(), false)) {
+                    v.assignStopLine(sl);
+                    findTrafficLight(v, sl);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void findTrafficLight(Vehicle v, StopLine sl) {
+        for (Map.Entry<TrafficLight, StopLine> entry : TrafficLight.trafficLightStopLineMap.entrySet()) {
+            if (entry.getValue().equals(sl)) {
+                v.assignTrafficLight(entry.getKey()); // znaleziony TrafficLight
+            }
+        }
+    }
+
+    public boolean isVehicleWithinDistance(Vehicle vehicle, Vehicle other, double maxDistance) {
+        double dx = vehicle.getFovX() - other.getFovX();
+        double dy = vehicle.getFovY() - other.getFovY();
+        double distanceSquared = dx * dx + dy * dy;
+        return distanceSquared <= maxDistance * maxDistance;
     }
 
     public boolean isOtherGoingFromRight(Vehicle vehicle1, Vehicle vehicle2) {  // Sprawdzenie, czy drugi pojazd nie nadjeżdża z prawej
@@ -155,6 +204,7 @@ public class VehicleManager {
 
     // Funkcja sprawdzająca, czy dany pojazd jest w odległości mniejszej od zadanej do linii stopu
     public boolean isVehicleApproachingStopLine(Vehicle vehicle, StopLine stopLine, double distance) {
+        if (stopLine == null) return false;
         double stopLineDistance = Double.MAX_VALUE;
         if (stopLine.getType() == IntersectionLane.Type.ENTRY) {
             stopLineDistance = vehicle.getTrajectory().getDistanceToApproximatePoint(new Point2D(stopLine.getPositionCenterX(), stopLine.getPositionCenterY()));

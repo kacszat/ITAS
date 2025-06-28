@@ -2,6 +2,7 @@ package com.itasoftware.itasoftware;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.util.Duration;
 import javafx.util.Pair;
@@ -11,6 +12,9 @@ import java.util.*;
 public class SimulationLoop {
 
     Timeline timelineSim;
+    private Thread simulationThread;
+    private volatile boolean running = false;
+
     double runTimerInterval = 10; // Interwał dla timeline w milisekundach (10 ms = 1 cs)
     private final VehicleManager vehicleManager;
     private final CanvasDrawer canvasDrawer;
@@ -37,13 +41,45 @@ public class SimulationLoop {
         timelineSim.setCycleCount(Timeline.INDEFINITE);
     }
 
+//    public void run() {
+//        timelineSim.play();
+//        isSimStopped = false;
+//    }
+
     public void run() {
-        timelineSim.play();
+        if (running) return;
+        running = true;
         isSimStopped = false;
+
+        simulationThread = new Thread(() -> {
+            long lastUpdate = System.nanoTime();
+
+            while (running) {
+                long now = System.nanoTime();
+                double deltaMillis = (now - lastUpdate) / 1_000_000.0;
+                lastUpdate = now;
+
+                update();
+
+                try {
+                    Thread.sleep((long) runTimerInterval);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        simulationThread.setDaemon(true);
+        simulationThread.start();
     }
 
+//    public void stop() {
+//        timelineSim.stop();
+//        isSimStopped = true;
+//    }
+
     public void stop() {
-        timelineSim.stop();
+        running = false;
         isSimStopped = true;
     }
 
@@ -70,13 +106,36 @@ public class SimulationLoop {
     }
 
 
+//    public void update() {
+//        updateTrafficLights();
+//        vehicleManager.updateVehicles(simSpeed);
+//        canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
+//        updateTime();
+//
+//        // Pętla sprawdzająca, czy w danym momencie powinien zostać zespawnowany spojazd
+//        for (VehicleSpawnSchedule vss : spawnSchedule) {
+//            if (vss.shouldSpawn(elapsedTime)) {
+//                vehicleManager.spawnVehicle(vss.getRandomTrajectory());
+//                vss.markSpawned();
+//            }
+//        }
+//    }
+
     public void update() {
         updateTrafficLights();
         vehicleManager.updateVehicles(simSpeed);
-        canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
-        updateTime();
 
-        // Pętla sprawdzająca, czy w danym momencie powinien zostać zespawnowany spojazd
+        Platform.runLater(() -> {
+            canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
+            updateTimer();
+        });
+
+        elapsedTime += (long) (runTimerInterval * simSpeed);
+
+        if (elapsedTime >= simTimeLength) {
+            stop();
+        }
+
         for (VehicleSpawnSchedule vss : spawnSchedule) {
             if (vss.shouldSpawn(elapsedTime)) {
                 vehicleManager.spawnVehicle(vss.getRandomTrajectory());
