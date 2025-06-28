@@ -11,6 +11,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,11 +164,12 @@ public class SaveLoadSimulation {
                     SaveLoadIntersection.loadMovementRelations(line);
                     loadTextFieldVehicleNumber(line);
                     loadTimeSettings(line);
-                    SaveLoadTrafficLight.loadTrafficLightSettings(line);
-                    SaveLoadTrafficLight.loadSinglePhaseButtonState(line);
+//                    SaveLoadTrafficLight.loadTrafficLightSettings(line);
+//                    SaveLoadTrafficLight.loadSinglePhaseButtonState(line);
                 }
 
                 simContrl.loadCanvasOrInfo(simContrl.canvasDrawer);
+                copyToTempFile(String.valueOf(file));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -192,6 +196,19 @@ public class SaveLoadSimulation {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // Skopiowanie pliku wczytanego do tymczasowego - rozwiązanie niedocelowe
+    public static void copyToTempFile(String original) {
+        String temp = "temp.itasim";
+        Path originalFile = Path.of(original);      // oryginalny plik
+        Path tempFile = Path.of(temp);          // nowy plik z tą samą zawartością
+
+        try {
+            Files.copy(originalFile, tempFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
     }
 

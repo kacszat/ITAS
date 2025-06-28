@@ -42,7 +42,7 @@ public class SimulationController {
     boolean isSimulationActive = false;
     static boolean areTrafficLightsActive = false;
     static boolean isFOVshown = false, areMRshown = false, areTLshown = false;;
-    static boolean isBackFromTLView = false;
+    static boolean isBackFromTLView = false, idLoadedFromSaveFile = false;
 
     // Powrót do głównego menu
     @FXML
@@ -121,10 +121,12 @@ public class SimulationController {
             if (AlertPopUp.showAlertPopUp("Load")) {
                 SLS.loadSimulation(event);
                 resetSimulation();
+                idLoadedFromSaveFile = true;
             }
         } else {
             SLS.loadSimulation(event);
             resetSimulation();
+            idLoadedFromSaveFile = true;
         }
     }
 

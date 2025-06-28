@@ -109,6 +109,12 @@ public class TrafficLightController {
         configureSpinners();
         loadValuesFromSpinners();
 
+        // Załadowanie danych z pliku symulacji (potrzebne, gdyż nie wczytano wcześniej tej instancji) - Rozwiązanie niedocelowe
+        if (SimulationController.idLoadedFromSaveFile) {
+            SLTL.loadFromTempFile();
+            SimulationController.idLoadedFromSaveFile = false;
+        }
+
         // Wykrywanie kliknięcia myszką
         mouseClickHandler();
     }

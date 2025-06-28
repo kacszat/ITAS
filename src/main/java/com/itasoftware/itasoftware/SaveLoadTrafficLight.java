@@ -68,7 +68,7 @@ public class SaveLoadTrafficLight {
 
     // Wczytanie ustawień SŚ
     public static void loadTrafficLightSettings(String line) {
-        if (line.startsWith("tlactive,")) {
+        if (line.startsWith("tlactive,")) { // Obecnie zbędny zapis (zostawiony potencjalnie)
             String[] tokens = line.split(",");
             if (tokens.length == 2) {
                 String active = tokens[1];
@@ -122,21 +122,29 @@ public class SaveLoadTrafficLight {
         Window window = ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
         File file = fileChooser.showOpenDialog(window);
 
-        if (file != null) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                traffLightContrl.clearButtons();
+        justLoad(file);
+    }
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    loadTrafficLightSettings(line);
-                    loadSinglePhaseButtonState(line);
-                }
+    // Wczytanie danych z pliku tymczasowego - przydatne przy wczytywaniu programu faz z zapisu symulacji
+    public void loadFromTempFile() {
+        File file = new File("temp.itasim");
+        justLoad(file);
+    }
 
+    private void justLoad(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            traffLightContrl.clearButtons();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                loadTrafficLightSettings(line);
                 traffLightContrl.loadSpinnersButton();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                loadSinglePhaseButtonState(line);
             }
+            traffLightContrl.loadSpinnersButton();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
