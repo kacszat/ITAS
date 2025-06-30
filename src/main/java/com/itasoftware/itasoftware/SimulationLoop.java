@@ -25,6 +25,7 @@ public class SimulationLoop {
     private SimulationController simController;
     private final List<VehicleSpawnSchedule> spawnSchedule = new ArrayList<>();     // Harmonogram spawnu pojazdów
     private final Map<Pair<IntersectionLane.Localization, IntersectionLane.Localization>, List<MovementTrajectory>> groupedTrajectories = new HashMap<>();
+    private final Map<Pair<IntersectionLane.Localization, IntersectionLane.Localization>, Queue<MovementTrajectory>> spawnQueues = new HashMap<>();
 
     public SimulationLoop(Canvas simCanvas, CanvasDrawer canvasDrawer, VehicleManager vehicleManager, double simSpeed, SimulationController simController) {
         if (simCanvas == null) {
@@ -83,26 +84,9 @@ public class SimulationLoop {
         isSimStopped = true;
     }
 
-    public void spawn(List<TextFieldVehicleNumber> tfVehNumInputs, Map<MovementRelations, MovementTrajectory> movementMap) {
+    public void createSpawnSchedule() {
         spawnSchedule.clear();  // Czyszczenie poprzedniego harmonogramu spawn-ów
-
-        // Grupowanie trajektorii według klucza lokalizacja A - lokalizacja B
-        for (MovementRelations mr : MovementRelations.movementRelations) {
-            var key = new Pair<>(mr.getObjectA().getLocalization(), mr.getObjectB().getLocalization()); // Utworzenie klucza
-            MovementTrajectory traj = movementMap.get(mr);
-            if (traj != null) {
-                groupedTrajectories.computeIfAbsent(key, k -> new ArrayList<>()).add(traj); // Sprawdzenie istnienia klucza i dodanie trajektorii do listy
-            }   // W efekcie, wszystkie trajektorie związane z tą samą parą lokalizacja A - lokalizacja B są przechowywane razem w groupedTrajectories
-        }
-
-        for (TextFieldVehicleNumber tfVehNum : tfVehNumInputs) {
-            var key = new Pair<>(tfVehNum.getLocalization(), tfVehNum.getDestination());    // Utworzenie klucza lokalizacja-destynacja
-            List<MovementTrajectory> trajGroup = groupedTrajectories.get(key);  // Pobranie grupy trajektorii dla danego klucza
-            if (trajGroup != null && !trajGroup.isEmpty()) {
-                int numVehicles = tfVehNum.getVehiclesNumber().intValue();  // Liczba pojazdów z danego textfield
-                spawnSchedule.add(new VehicleSpawnSchedule(trajGroup, numVehicles, simTimeLength));
-            }
-        }
+        spawnSchedule.add(new VehicleSpawnSchedule(simTimeLength));
     }
 
 
@@ -115,7 +99,8 @@ public class SimulationLoop {
 //        // Pętla sprawdzająca, czy w danym momencie powinien zostać zespawnowany spojazd
 //        for (VehicleSpawnSchedule vss : spawnSchedule) {
 //            if (vss.shouldSpawn(elapsedTime)) {
-//                vehicleManager.spawnVehicle(vss.getRandomTrajectory());
+//                //vehicleManager.spawnVehicle(vss.getRandomTrajectory());
+//                vehicleManager.spawnVehicle();
 //                vss.markSpawned();
 //            }
 //        }
@@ -138,7 +123,8 @@ public class SimulationLoop {
 
         for (VehicleSpawnSchedule vss : spawnSchedule) {
             if (vss.shouldSpawn(elapsedTime)) {
-                vehicleManager.spawnVehicle(vss.getRandomTrajectory());
+                //vehicleManager.spawnVehicle(vss.getRandomTrajectory());
+                vehicleManager.spawnVehicle();
                 vss.markSpawned();
             }
         }

@@ -1,16 +1,54 @@
 package com.itasoftware.itasoftware;
 
 import javafx.geometry.Point2D;
+import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class VehicleManager {
     private final List<Vehicle> vehiclesList = new ArrayList<>();
+    private static final List<Vehicle> vehiclesToSpawnList = new ArrayList<>();
 
-    public void spawnVehicle(MovementTrajectory traj) {
-        vehiclesList.add(new Vehicle(traj));
+    public void spawnVehicle() {
+        if (!vehiclesToSpawnList.isEmpty()) {
+            int randomIndex = new Random().nextInt(vehiclesToSpawnList.size());
+            Vehicle selectedVehicle = vehiclesToSpawnList.remove(randomIndex); // Jednocześnie usuwa i pobiera pojazd z listy
+            vehiclesList.add(selectedVehicle);
+            System.out.println("Spawnowano pojazd: " + selectedVehicle);
+//            for (Vehicle vehicle : vehiclesToSpawnList) {
+//                System.out.println("Na liście: " + vehicle);
+//            }
+//        } else {
+//            System.out.println("Brak pojazdów do spawnowania.");
+        }
+    }
+
+    // Dodanie pojazdów do listy oczekujących na spawn, na bazie dopasowań wpisów w Textfiel-dach a trajektoriach
+    public static void addVehiclesToSpawn() {
+        for (Map.Entry<TextField, TextFieldVehicleNumber> tfm : SimulationController.textfieldMap.entrySet()) {
+            TextField tf = tfm.getKey();
+            TextFieldVehicleNumber tfVehNum = tfm.getValue();
+
+            for (MovementRelations mr : MovementRelations.movementRelations) {
+                IntersectionLaneButton objA = mr.getObjectA();
+                IntersectionLaneButton objB = mr.getObjectB();
+
+                if (tfVehNum.getLocalization() == objA.getLocalization() && tfVehNum.getDestination() == objB.getLocalization()) {
+
+                    MovementTrajectory traj = MovementTrajectory.movementMap.get(mr);
+                    if (traj != null) {
+                        for (int i = 0; i < tfVehNum.getVehiclesNumber().intValue(); i++) {
+                            vehiclesToSpawnList.add(new Vehicle(traj));
+                            //System.out.println(traj);
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     public void updateVehicles(double simSpeed) {
@@ -215,12 +253,12 @@ public class VehicleManager {
 
     public void decreaseSpeed(Vehicle vehicle) {
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.max(tempSpeed - 0.02, 0)); // Minimalna prędkość: 0
+        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * SimulationController.simSpeed), 0)); // Minimalna prędkość: 0
     }
 
     public void increaseSpeed(Vehicle vehicle) {
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.min(tempSpeed + 0.02, 2.0)); // Maksymalna prędkość: 2.0
+        vehicle.setSpeed(Math.min(tempSpeed + (0.02 * SimulationController.simSpeed), 2.0)); // Maksymalna prędkość: 2.0
     }
 
 }

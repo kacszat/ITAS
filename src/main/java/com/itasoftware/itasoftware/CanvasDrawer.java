@@ -134,6 +134,7 @@ public class CanvasDrawer {
         int buttonSize = 15;
         double buttonBuffer = (laneWidth - buttonSize)/2;
         double position_zero = 0, position_max = (2*laneHeight-stopLaneHeight);
+        double marginDist = Vehicle.getVehicleHeight();
 
         // Rysowanie białych linii (z uwzględnieniem cutoff)
         gc.setStroke(Color.WHITE);
@@ -149,7 +150,7 @@ public class CanvasDrawer {
                 drawStopLine(gc, x, (centerY - cutoff - stopLaneHeight), laneWidth, stopLaneHeight, lane);
                 drawTrafficLight(gc, x, (centerY - cutoff - laneWidth), laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((x + buttonBuffer), (centerY - cutoff - stopLaneHeight - laneWidth), buttonSize, lane);
-                genContrl.addBorderLine(x, (position_zero - Vehicle.getVehicleHeight()), laneWidth, stopLaneHeight, lane);
+                genContrl.addBorderLine(x, (position_zero - marginDist), laneWidth, stopLaneHeight, lane);
             }
             case SOUTH -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -160,7 +161,7 @@ public class CanvasDrawer {
                 drawStopLine(gc, x, (centerY + cutoff), laneWidth, stopLaneHeight, lane);
                 drawTrafficLight(gc, x, (centerY + cutoff), laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((x + buttonBuffer), (centerY + cutoff + laneWidth - buttonSize), buttonSize, lane);
-                genContrl.addBorderLine(x, (position_max + Vehicle.getVehicleHeight()), laneWidth, stopLaneHeight, lane);
+                genContrl.addBorderLine(x, (position_max + marginDist), laneWidth, stopLaneHeight, lane);
             }
             case EAST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -171,7 +172,7 @@ public class CanvasDrawer {
                 drawStopLine(gc, (centerX + cutoff), y, stopLaneHeight, laneWidth, lane);
                 drawTrafficLight(gc, (centerX + cutoff), y, laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((centerX + cutoff + laneWidth - buttonSize), (y + buttonBuffer), buttonSize, lane);
-                genContrl.addBorderLine((position_max + Vehicle.getVehicleHeight()), y, stopLaneHeight, laneWidth, lane);
+                genContrl.addBorderLine((position_max + marginDist), y, stopLaneHeight, laneWidth, lane);
             }
             case WEST -> {
                 if (lane.getType() == IntersectionLane.Type.ENTRY) {
@@ -182,7 +183,7 @@ public class CanvasDrawer {
                 drawStopLine(gc, (centerX - cutoff - stopLaneHeight), y, stopLaneHeight, laneWidth, lane);
                 drawTrafficLight(gc, (centerX - cutoff - laneWidth), y, laneWidth, laneWidth, lane);
                 genContrl.addIntersectionLaneButton((centerX - cutoff - stopLaneHeight - laneWidth), (y + buttonBuffer), buttonSize, lane);
-                genContrl.addBorderLine((position_zero - Vehicle.getVehicleHeight()), y, stopLaneHeight, laneWidth, lane);
+                genContrl.addBorderLine((position_zero - marginDist), y, stopLaneHeight, laneWidth, lane);
             }
         }
     }

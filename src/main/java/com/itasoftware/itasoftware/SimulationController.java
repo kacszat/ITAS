@@ -27,7 +27,7 @@ public class SimulationController {
     VehicleManager vehicleManager = new VehicleManager();
     SaveLoadSimulation SLS = new SaveLoadSimulation(this);
 
-    final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
+    static final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
     List<TextFieldVehicleNumber> tfVehNumInputs = new ArrayList<>();    // Lista liczby pojazdów z danych textfieldów
     @FXML private TextField tfNorthLeft, tfNorthStraight, tfNorthRight, tfNorthBack, tfSouthLeft, tfSouthStraight, tfSouthRight, tfSouthBack,
                             tfWestLeft, tfWestStraight, tfWestRight, tfWestBack, tfEastLeft, tfEastStraight, tfEastRight, tfEastBack;
@@ -355,7 +355,8 @@ public class SimulationController {
             loadVehicleNumbers();
             if (!isSimulationActive) {
                 isSimulationActive = true;
-                simLoop.spawn(tfVehNumInputs, MovementTrajectory.movementMap);
+                simLoop.createSpawnSchedule();
+                VehicleManager.addVehiclesToSpawn();
             }
             if (checkSimParameters()) {
                 simLoop.run();
@@ -416,6 +417,10 @@ public class SimulationController {
             return false;
         } else if (simTimeLength == 0) {
             AlertPopUp.showAlertPopUp("Bad SimTime");
+            resetSimulation();
+            return false;
+        } else if ((simTimeLength * 60) / tfVehicleSum < 0.33) {
+            AlertPopUp.showAlertPopUp("Bad Data");
             resetSimulation();
             return false;
         }

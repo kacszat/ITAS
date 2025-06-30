@@ -50,6 +50,11 @@ public class AlertPopUp {
                                             controller.alertButtonYes.setVisible(false);
                                             controller.alertButtonYes.setManaged(false);
                                             controller.alertButtonNo.setText("OK");}
+                case "Bad Data" -> {controller.alertLabel.setText("Wprowadzono zbyt dużą liczbę pojazdów.");
+                                            controller.alertLabel2.setText("Na jedną sekundę czasu symulacji mogą przypadać maksymalnie trzy pojazdy.");
+                                            controller.alertButtonYes.setVisible(false);
+                                            controller.alertButtonYes.setManaged(false);
+                                            controller.alertButtonNo.setText("OK");}
                 case "Can't Save Sim" -> {controller.alertLabel.setText("Obecnie nie można zapisać symulacji.");
                                             controller.alertLabel2.setText("Nie wczytano skrzyżowania, bądź na skrzyżowaniu nie ma relacji ruchu.");
                                             controller.alertButtonYes.setVisible(false);
