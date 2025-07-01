@@ -134,6 +134,7 @@ public class SimulationLoop {
         stop();
         elapsedTime = 0;
         vehicleManager.clearVehicles();
+        vehicleManager.resetCountInts();
         canvasDrawer.drawCanvas(simCanvas);
         resetTrafficLights();
     }

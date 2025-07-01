@@ -16,6 +16,9 @@ public class Vehicle {
     private StopLine assignedStopLine;
     private TrafficLight assignedTrafficLight;
     private TrafficLight.Phase cachedPhase;
+    public boolean isAccelerating = true;
+    public boolean shouldStop = false;
+    public boolean shouldSlowDown = false;
 
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
@@ -91,7 +94,7 @@ public class Vehicle {
     public void setSquareFOV(Point2D center, double angleDegrees, Boolean smallFOV) {
         double rectLength;                      // Długość FOV
         double rectWidth = vehicleWidth * 1.4;  // Szerokość FOV
-        rectLength = !smallFOV ? 150 : 40;
+        rectLength = !smallFOV ? 170 : 40;
 
         // Wektor kierunku jazdy
         double angleRad = Math.toRadians(angleDegrees);
@@ -290,6 +293,18 @@ public class Vehicle {
 
     public TrafficLight.Phase getCachedPhase() {
         return this.cachedPhase;
+    }
+
+    public boolean isAccelerating() {
+        return isAccelerating;
+    }
+
+    public boolean getShouldStop() {
+        return shouldStop;
+    }
+
+    public boolean getShouldSlowDown() {
+        return shouldSlowDown;
     }
 
 }

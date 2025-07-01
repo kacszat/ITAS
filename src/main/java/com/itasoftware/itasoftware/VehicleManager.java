@@ -3,31 +3,58 @@ package com.itasoftware.itasoftware;
 import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class VehicleManager {
     private final List<Vehicle> vehiclesList = new ArrayList<>();
     private static final List<Vehicle> vehiclesToSpawnList = new ArrayList<>();
+    private static Map<Vehicle, IntersectionLane.Localization> vehiclesOriginMap = new HashMap<>();
+    private IntersectionLane.Localization selectedLocalization, lastSpawnedLocalization;
+    int sameLocationCounter = 0, iterations = 0;
+
+    double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
 
     public void spawnVehicle() {
         if (!vehiclesToSpawnList.isEmpty()) {
+            Collections.shuffle(vehiclesToSpawnList);
             int randomIndex = new Random().nextInt(vehiclesToSpawnList.size());
-            Vehicle selectedVehicle = vehiclesToSpawnList.remove(randomIndex); // Jednocześnie usuwa i pobiera pojazd z listy
-            vehiclesList.add(selectedVehicle);
-            System.out.println("Spawnowano pojazd: " + selectedVehicle);
-//            for (Vehicle vehicle : vehiclesToSpawnList) {
-//                System.out.println("Na liście: " + vehicle);
-//            }
-//        } else {
-//            System.out.println("Brak pojazdów do spawnowania.");
+            Vehicle selectedVehicle = vehiclesToSpawnList.get(randomIndex);
+            selectedLocalization = vehiclesOriginMap.get(selectedVehicle);
+
+            if (!Objects.equals(selectedLocalization, lastSpawnedLocalization)) {
+                sameLocationCounter = 0;    // Inna lokalizacja, reset licznika
+            } else {
+                sameLocationCounter++;      // Ta sama lokalizacja, zwiększenie licznika
+            }
+
+            if (sameLocationCounter < 5) {  // Jeśli wybrana lokalziacja nie powtórzyła się 5 razy, można spawnować
+                lastSpawnedLocalization = selectedLocalization;
+                vehiclesList.add(selectedVehicle);
+                vehiclesToSpawnList.remove(selectedVehicle);
+            } else {    // Po 5 powtózeniu, powone wywołanie funkcji
+                if (iterations > 4) {   // Jeśli 5-krotne potwórzenie funkcji nie zmieniło lokalziacji, pomijamy warunek
+                    lastSpawnedLocalization = selectedLocalization;
+                    vehiclesList.add(selectedVehicle);
+                    vehiclesToSpawnList.remove(selectedVehicle);
+                } else {
+                    iterations++;
+                    spawnVehicle();
+                }
+            }
+
         }
+    }
+
+    public void resetCountInts() {
+        sameLocationCounter = 0;
+        iterations = 0;
     }
 
     // Dodanie pojazdów do listy oczekujących na spawn, na bazie dopasowań wpisów w Textfiel-dach a trajektoriach
     public static void addVehiclesToSpawn() {
+        vehiclesToSpawnList.clear();
+        vehiclesOriginMap.clear();
+
         for (Map.Entry<TextField, TextFieldVehicleNumber> tfm : SimulationController.textfieldMap.entrySet()) {
             TextField tf = tfm.getKey();
             TextFieldVehicleNumber tfVehNum = tfm.getValue();
@@ -41,8 +68,9 @@ public class VehicleManager {
                     MovementTrajectory traj = MovementTrajectory.movementMap.get(mr);
                     if (traj != null) {
                         for (int i = 0; i < tfVehNum.getVehiclesNumber().intValue(); i++) {
-                            vehiclesToSpawnList.add(new Vehicle(traj));
-                            //System.out.println(traj);
+                            Vehicle vehicle = new Vehicle(traj);
+                            vehiclesToSpawnList.add(vehicle);
+                            vehiclesOriginMap.put(vehicle, tfVehNum.getLocalization());
                         }
                     }
 
@@ -71,10 +99,11 @@ public class VehicleManager {
 
     // Funkcja sprawdzająca, czy dany pojazd nie jest w kontakcie z innymi i jak powinien się zachować
     public void checkVehicleContact(Vehicle vehicle) {
-        boolean shouldStop = false, shouldSlowDown = false;
-        double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
+        vehicle.shouldStop = false;
+        vehicle.shouldSlowDown = false;
 
         findStopLine(vehicle); // Sprawdzenie, czy znaleziono linie stopu w FOV na pasie ruchu pojazdu
+        chechkTrafficLightState(vehicle);   // Sprawdzenie aktualnej fazy sygnalizacji
 
         for (Vehicle other : vehiclesList) {
             if (vehicle == other) continue; // Jeśli zadany pojazd jest taki sam, jak wskazany z pętli, pomijamy
@@ -107,33 +136,30 @@ public class VehicleManager {
                 boolean greenPhase = phase == TrafficLight.Phase.GREEN;
                 boolean greenArrowPhase = phase == TrafficLight.Phase.GREEN_ARROW;
 
-//                // Pojazd skręcajacy w lewo udostępnia pierwszeństwa pojazdom jadącym prosto i skręcającym w prawo
-//                boolean isVehicleGoingLeftAndGivingWayWithTrafficLight = hasGreenLight(other) && isVehicleTurningLeft(vehicle)
-//                        && isOtherGoingFromOppositeOrigin(vehicle, other) && (isVehicleGoingStraight(other) || isVehicleTurningRight(other));
-
-                if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToSlowDown) && (redPhase || yellowPhase)) {
+                if (inSmallSquareFOV) {
+                    vehicle.shouldStop = true;
+                    break;
+                } else if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToSlowDown) && (redPhase || yellowPhase)) {
                     if (!(isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), marginTL) && yellowPhase)) {
-                        shouldSlowDown = true;
+                        vehicle.shouldSlowDown = true;
                         if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToTL)) {
-                            shouldStop = true;
+                            vehicle.shouldStop = true;
                         }
                     }
-                } else if (inSmallSquareFOV) {
-                    shouldStop = true;
-                    break;
-                } else if (inSquareFOV) {
-                    shouldSlowDown = true;
+                } else if (inSquareFOV && !other.isAccelerating()) {
+                    vehicle.shouldSlowDown = true;
                 } else if (preventBlockingVehicle) {
-                    shouldSlowDown = true;
-                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
-                        shouldStop = true;
+                    //vehicle.shouldSlowDown = true;
+                    vehicle.shouldStop = true;
+                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
+                        vehicle.shouldStop = true;
                         break;
                     }
                 } else if (areTrajectoriesIntersect) {
-                    if (isVehicleGoingLeftAndGivingWay) {
-                        shouldSlowDown = true;
+                    if (isVehicleGoingLeftAndGivingWay || (isVehicleGivingWayToRight && greenArrowPhase)) {
+                        vehicle.shouldSlowDown = true;
                         if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
-                            shouldStop = true;
+                            vehicle.shouldStop = true;
                             break;
                         }
                     }
@@ -141,21 +167,21 @@ public class VehicleManager {
             } else {
                 // Zasady ruchu bez sygnalziacji
                 if (inSmallSquareFOV || (inSquareFOV && areTrajectoriesIntersect && isVehicleGoingLeftAndGivingWay)) {
-                    shouldStop = true;
+                    vehicle.shouldStop = true;
                     break;
-                } else if (inSquareFOV) {
-                    shouldSlowDown = true;
+                } else if (inSquareFOV && !other.isAccelerating()) {
+                    vehicle.shouldSlowDown = true;
                 } else if (preventBlockingVehicle) {
-                    shouldSlowDown = true;
-                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
-                        shouldStop = true;
+                    vehicle.shouldSlowDown = true;
+                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
+                        vehicle.shouldStop = true;
                         break;
                     }
                 } else if (areTrajectoriesIntersect) {
                     if (isVehicleGivingWayToRight || isVehicleGoingLeftAndGivingWay) {
-                        shouldSlowDown = true;
+                        vehicle.shouldSlowDown = true;
                         if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
-                            shouldStop = true;
+                            vehicle.shouldStop = true;
                             break;
                         }
                     }
@@ -166,12 +192,41 @@ public class VehicleManager {
         }
 
         // Modyfikacja prędkości pojazdu
-        if (shouldStop) {
+        changeVehicleSpeed(vehicle);
+    }
+
+    private void chechkTrafficLightState(Vehicle vehicle) {
+        if (SimulationController.areTrafficLightsActive && vehicle.hasAssignedTrafficLight()) {
+            // Zasady ruchu z sygnalizacją
+            TrafficLight.Phase phase = vehicle.getCachedPhase();
+            boolean redPhase = phase == TrafficLight.Phase.RED || phase == TrafficLight.Phase.RED_YELLOW;
+            boolean yellowPhase = phase == TrafficLight.Phase.YELLOW;
+            boolean greenPhase = phase == TrafficLight.Phase.GREEN;
+            boolean greenArrowPhase = phase == TrafficLight.Phase.GREEN_ARROW;
+            if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToSlowDown) && (redPhase || yellowPhase)) {
+                if (!(isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), marginTL) && yellowPhase)) {
+                    vehicle.shouldSlowDown = true;
+                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToTL)) {
+                        vehicle.shouldStop = true;
+                    }
+                }
+            }
+            // Modyfikacja prędkości pojazdu
+            changeVehicleSpeed(vehicle);
+        }
+    }
+
+    // Modyfikacja prędkości pojazdu
+    private void changeVehicleSpeed(Vehicle vehicle) {
+        if (vehicle.getShouldStop()) {
             vehicle.setSpeed(0);
-        } else if (shouldSlowDown) {
+            vehicle.isAccelerating = false;
+        } else if (vehicle.getShouldSlowDown()) {
             decreaseSpeed(vehicle);
+            vehicle.isAccelerating = false;
         } else {
             increaseSpeed(vehicle);
+            vehicle.isAccelerating = true;
         }
     }
 
@@ -207,9 +262,9 @@ public class VehicleManager {
 
     public boolean isOtherGoingFromRight(Vehicle vehicle1, Vehicle vehicle2) {  // Sprawdzenie, czy drugi pojazd nie nadjeżdża z prawej
         return ((vehicle1.getVehicleOrigin() == IntersectionLane.Localization.NORTH && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.WEST) ||
-            (vehicle1.getVehicleOrigin() == IntersectionLane.Localization.WEST && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.SOUTH) ||
-            (vehicle1.getVehicleOrigin() == IntersectionLane.Localization.SOUTH && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.EAST) ||
-            (vehicle1.getVehicleOrigin() == IntersectionLane.Localization.EAST && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.NORTH));
+                (vehicle1.getVehicleOrigin() == IntersectionLane.Localization.WEST && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.SOUTH) ||
+                (vehicle1.getVehicleOrigin() == IntersectionLane.Localization.SOUTH && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.EAST) ||
+                (vehicle1.getVehicleOrigin() == IntersectionLane.Localization.EAST && vehicle2.getVehicleOrigin() == IntersectionLane.Localization.NORTH));
     }
 
     public boolean isOtherGoingFromOppositeOrigin(Vehicle vehicle1, Vehicle vehicle2) {  // Sprawdzenie, czy drugi pojazd nie nadjeżdża z przeciwnego origin
@@ -253,7 +308,7 @@ public class VehicleManager {
 
     public void decreaseSpeed(Vehicle vehicle) {
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * SimulationController.simSpeed), 0)); // Minimalna prędkość: 0
+        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * SimulationController.simSpeed), 0.4)); // Minimalna prędkość: 0.2
     }
 
     public void increaseSpeed(Vehicle vehicle) {
