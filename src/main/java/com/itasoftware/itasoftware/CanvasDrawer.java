@@ -504,24 +504,24 @@ public class CanvasDrawer {
 
     // Ustawienie parametrów do rysowania FOV
     private void setFOV(GraphicsContext gc, Vehicle v) {
-        double fovX, fovY, fovRadius, fovSmallRadius, fovStartAngle, fovLength;
+        double fovX, fovY, fovRadius, fovStartAngle, fovStartAngleHalf, fovLength;
 
         fovX = v.getFovX();
         fovY = v.getFovY();
         fovRadius = v.getFovRadius();
-        fovSmallRadius = v.getFovSmallRadius();
         fovStartAngle = v.getFovStartAngle();
+        fovStartAngleHalf = v.getFovStartAngleHalf();
         fovLength = v.getFovLength();
 
-        drawVehicleFOV(gc, Color.CYAN, fovX, fovY, fovRadius, fovStartAngle, fovLength);
-        //drawVehicleFOV(gc, Color.BLUE, fovX, fovY, fovSmallRadius, fovStartAngle, fovLength);
+        drawVehicleFOV(gc, Color.LIGHTBLUE, fovX, fovY, fovRadius, fovStartAngleHalf, fovLength / 2.0, false);
+        drawVehicleFOV(gc, Color.CYAN, fovX, fovY, fovRadius, fovStartAngle, fovLength, true);
         drawVehicleSquareFOV(gc, Color.BLUE, v, false);
         drawVehicleSquareFOV(gc, Color.PURPLE, v, true);
     }
 
     // Rysowanie FOV
 
-    private void drawVehicleFOV(GraphicsContext gc, Color color, double fovX, double fovY, double fovRadius, double fovStartAngle, double fovLength) {
+    private void drawVehicleFOV(GraphicsContext gc, Color color, double fovX, double fovY, double fovRadius, double fovStartAngle, double fovLength, Boolean isArcChord) {
         if (SimulationController.isFOVshown) {
             gc.setStroke(color);
             gc.setLineWidth(2);
@@ -529,7 +529,7 @@ public class CanvasDrawer {
                     fovX - fovRadius, fovY - fovRadius,
                     fovRadius * 2, fovRadius * 2,
                     fovStartAngle, fovLength,
-                    ArcType.CHORD
+                    (isArcChord ? ArcType.CHORD : ArcType.ROUND)
             );
         }
     }

@@ -10,7 +10,7 @@ public class Vehicle {
     IntersectionLane.Localization vehicleOrigin, vehicleDestination;
     private MovementTrajectory trajectory;
     private double distanceTraveled;
-    private double fovX, fovY, fovRadius, fovSmallRadius, fovStartAngle, fovLength; // Parametry Field Of View
+    private double fovX, fovY, fovRadius, fovStartAngle, fovStartAngleHalf, fovLength; // Parametry Field Of View
     double angle;   // Kąt kierunku jazdy
     Point2D[] squareFOVCorners, squareSmallFOVCorners;  // Lista czterech punktów prostokąta
     private StopLine assignedStopLine;
@@ -86,9 +86,9 @@ public class Vehicle {
         this.fovX = center.getX();
         this.fovY = center.getY();
         this.fovRadius = 210;  // Promień pola widzenia
-        this.fovSmallRadius = 40;   // // Promień małego pola widzenia
         this.fovLength = 180;  // Kąt pola widzenia
         this.fovStartAngle = - angleDegrees - (fovLength / 2.0); // Ustawienie początku sektora FOV
+        this.fovStartAngleHalf = - angleDegrees; // Ustawienie początku sektora FOV
     }
 
     public void setSquareFOV(Point2D center, double angleDegrees, Boolean smallFOV) {
@@ -127,27 +127,28 @@ public class Vehicle {
     }
 
     // Funkcja sprawdzająca, czy dane punkty znajdują się w FOV
-    public boolean isPointInFOV(double px, double py, boolean smallFOV) {
+    public boolean isPointInFOV(double px, double py, boolean halfFOV) {
         double dx = px - fovX;
         double dy = py - fovY;
         double distance = Math.hypot(dx, dy);
-        double radius;
-
-        radius = !smallFOV ? fovRadius : fovSmallRadius;    // Obecnie smallFOV nie jest używany
+        double radius = fovRadius;
 
         if (distance > radius) return false;
+
+        // Obliczenie kąta FOV w zależności od parametru
+        double fovAngle = halfFOV ? fovLength / 2.0 : fovLength;
 
         // Obliczenie kąta do punktu
         double angleToPoint = Math.toDegrees(Math.atan2(dy, dx));   // Kąt w radianach
         angleToPoint = (angleToPoint + 360) % 360;  // Kąt jest unormowany do zakresu od 0 do 360 stopni
 
         double normalizedAngle = (angle + 360) % 360;   // Normalizacja kąta kierunku jazdy do zakresu 0–360 stopni
-        double fovStartAngle_Real = (normalizedAngle - fovLength / 2.0 + 360) % 360; // Obliczenie rzeczywistego kąta początkowego FOV
+        double fovStartAngle_Real = (normalizedAngle - fovAngle / 2.0 + 360) % 360; // Obliczenie rzeczywistego kąta początkowego FOV
                                                                                     // (dla części relacji położenie rzeczywistego FOV nie pokrywa się z rysowanym)
 
         // Wyznaczenie zakresu FOV
         double start = (fovStartAngle_Real + 360) % 360;
-        double end = (start + fovLength) % 360;
+        double end = (start + fovAngle) % 360;
 
         // Sprawdzenie, czy punkt mieści się w FOV
         if (start < end) {
@@ -241,12 +242,12 @@ public class Vehicle {
         return fovRadius;
     }
 
-    public double getFovSmallRadius() {
-        return fovSmallRadius;
-    }
-
     public double getFovStartAngle() {
         return fovStartAngle;
+    }
+
+    public double getFovStartAngleHalf() {
+        return fovStartAngleHalf;
     }
 
     public double getFovLength() {

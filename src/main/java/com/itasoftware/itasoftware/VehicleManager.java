@@ -102,25 +102,28 @@ public class VehicleManager {
         vehicle.shouldStop = false;
         vehicle.shouldSlowDown = false;
 
+        if (vehicle.getDistanceTraveled() < 30) return; // Jeśli koniec jest bliżej niż 10px, nie analizujemy reszty warunków
+
         findStopLine(vehicle); // Sprawdzenie, czy znaleziono linie stopu w FOV na pasie ruchu pojazdu
         chechkTrafficLightState(vehicle);   // Sprawdzenie aktualnej fazy sygnalizacji
 
         for (Vehicle other : vehiclesList) {
             if (vehicle == other) continue; // Jeśli zadany pojazd jest taki sam, jak wskazany z pętli, pomijamy
 
-            if (!isVehicleWithinDistance(vehicle, other, 150)) continue;    // Jeśli zadany pojazd jest dalej niz 150, pomijamy
+            if (!isVehicleWithinDistance(vehicle, other, 170)) continue;    // Jeśli zadany pojazd jest dalej niz 150, pomijamy
 
             boolean inBigFOV = vehicle.isPointInFOV(other.getFovX(), other.getFovY(), false);   // Jeśli zadany pojazd jest poza FOV, pomijamy
             if (!inBigFOV) continue;
 
             boolean inSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), false);
             boolean inSmallSquareFOV = vehicle.isPointInSquareFOV(other.getFovX(), other.getFovY(), true);
+            boolean inLeftFOV = vehicle.isPointInFOV(other.getFovX(), other.getFovY(), true);
 
             // Sprawdzenie, czy trajektorie się przecinają
             boolean areTrajectoriesIntersect = MovementTrajectory.doTrajectoriesIntersect(vehicle.getTrajectory(), other.getTrajectory());
             // Pojazd skręcajacy w lewo udostępnia pierwszeństwa pojazdom jadącym prosto i skręcającym w prawo
-            boolean isVehicleGoingLeftAndGivingWay = other.isOnIntersectionSegment() && isVehicleTurningLeft(vehicle) &&
-                    isOtherGoingFromOppositeOrigin(vehicle, other) && (isVehicleGoingStraight(other) || isVehicleTurningRight(other));
+            boolean isVehicleGoingLeftAndGivingWay = isVehicleTurningLeft(vehicle) &&
+                    isOtherGoingFromOppositeOrigin(vehicle, other);
             // Przeciwdziałanie zablokowaniu pojazdów w konkretnych sytuacjach
             boolean preventBlockingVehicle = (vehicle.vehicleOrigin == IntersectionLane.Localization.NORTH ||
                     vehicle.vehicleOrigin == IntersectionLane.Localization.EAST) &&
@@ -131,10 +134,15 @@ public class VehicleManager {
             if (SimulationController.areTrafficLightsActive && vehicle.hasAssignedTrafficLight()) {
                 // Zasady ruchu z sygnalizacją
                 TrafficLight.Phase phase = vehicle.getCachedPhase();
+                TrafficLight.Phase phaseOther = other.getCachedPhase();
                 boolean redPhase = phase == TrafficLight.Phase.RED || phase == TrafficLight.Phase.RED_YELLOW;
                 boolean yellowPhase = phase == TrafficLight.Phase.YELLOW;
                 boolean greenPhase = phase == TrafficLight.Phase.GREEN;
                 boolean greenArrowPhase = phase == TrafficLight.Phase.GREEN_ARROW;
+                boolean redPhaseOther = phaseOther == TrafficLight.Phase.RED || phaseOther == TrafficLight.Phase.RED_YELLOW;
+                boolean yellowPhaseOther = phaseOther == TrafficLight.Phase.YELLOW;
+                boolean greenPhaseOther = phaseOther == TrafficLight.Phase.GREEN;
+                boolean greenArrowPhaseOther = phaseOther == TrafficLight.Phase.GREEN_ARROW;
 
                 if (inSmallSquareFOV) {
                     vehicle.shouldStop = true;
@@ -148,17 +156,24 @@ public class VehicleManager {
                     }
                 } else if (inSquareFOV && !other.isAccelerating()) {
                     vehicle.shouldSlowDown = true;
-                } else if (preventBlockingVehicle) {
-                    //vehicle.shouldSlowDown = true;
+                } else if (inLeftFOV && preventBlockingVehicle && (greenPhaseOther || greenArrowPhaseOther)) {
+//                    //vehicle.shouldSlowDown = true;
                     vehicle.shouldStop = true;
-                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
-                        vehicle.shouldStop = true;
-                        break;
-                    }
+//                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
+//                        vehicle.shouldStop = true;
+//                        break;
+//                    }
                 } else if (areTrajectoriesIntersect) {
-                    if (isVehicleGoingLeftAndGivingWay || (isVehicleGivingWayToRight && greenArrowPhase)) {
+                    if (isVehicleGivingWayToRight && greenArrowPhase) {
                         vehicle.shouldSlowDown = true;
                         if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
+                            vehicle.shouldStop = true;
+                            break;
+                        }
+                    }
+                    if (inLeftFOV && isVehicleGoingLeftAndGivingWay && (greenPhaseOther || greenArrowPhaseOther) && vehicle.isOnIntersectionSegment()) {
+                        vehicle.shouldSlowDown = true;
+                        if (other.isAccelerating() || (isVehicleTurningLeft(other) && other.isOnIntersectionSegment())) {
                             vehicle.shouldStop = true;
                             break;
                         }

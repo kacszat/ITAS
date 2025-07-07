@@ -43,6 +43,7 @@ public class SimulationController {
     static boolean areTrafficLightsActive = false;
     static boolean isFOVshown = false, areMRshown = false, areTLshown = false;;
     static boolean isBackFromTLView = false, idLoadedFromSaveFile = false;
+    static boolean tooManyVehiclesOnLane = false;
 
     // Powrót do głównego menu
     @FXML
@@ -321,7 +322,8 @@ public class SimulationController {
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
-            tfVehNum.setVehiclesNumber(Double.parseDouble(tf.getText()));
+            double vehiclesNumbers = Double.parseDouble(tf.getText());
+            tfVehNum.setVehiclesNumber(vehiclesNumbers);
 
             tfVehicleSum = textfieldMap.values()
                     .stream()
@@ -353,6 +355,7 @@ public class SimulationController {
         if (!MovementRelations.movementRelations.isEmpty()) {
             loadSimTimeLength();
             loadVehicleNumbers();
+            checkVehicleNumbers();
             if (!isSimulationActive) {
                 isSimulationActive = true;
                 simLoop.createSpawnSchedule();
@@ -409,6 +412,45 @@ public class SimulationController {
         }
     }
 
+    // Sprawdzenie, czy liczba pojazdów nie jest zbyt duża
+    private void checkVehicleNumbers() {
+        Map<String, Double> vehiclesPerRelation = new HashMap<>();  // Mapa przechowująca liczbę pojazdów dla danej relacji (np. SOUTH->NORTH)
+        Map<String, Integer> lanesPerRelation = new HashMap<>();    // Mapa przechowująca ilość pasów obsługujących daną relację
+
+        // Zliczenie pojazdów z TextFieldów
+        for (TextFieldVehicleNumber tfVN : tfVehNumInputs) {
+            String key = tfVN.getLocalization() + "->" + tfVN.getDestination();
+            vehiclesPerRelation.put(key,
+                    vehiclesPerRelation.getOrDefault(key, 0.0) + tfVN.getVehiclesNumber());
+        }
+
+        // Zliczenie relacji (czyli "pasów") obsługujących daną trasę
+        for (MovementRelations mr : MovementRelations.movementRelations) {
+            if (mr.getObjectA().getType() == TextFieldVehicleNumber.Type.ENTRY) {
+                String key = mr.getObjectA().getLocalization() + "->" + mr.getObjectB().getLocalization();
+                lanesPerRelation.put(key,
+                        lanesPerRelation.getOrDefault(key, 0) + 1);
+            }
+        }
+
+        // Sprawdzenie czy liczba pojazdów nie przekracza dozwolonej wartości
+        tooManyVehiclesOnLane = false;
+
+        for (Map.Entry<String, Double> entry : vehiclesPerRelation.entrySet()) {
+            String relation = entry.getKey();
+            double vehicles = entry.getValue();
+            int lanes = lanesPerRelation.getOrDefault(relation, 0);
+
+            if (lanes == 0) continue; // brak dostępnych pasów - nie sprawdzamy
+
+            if ((vehicles / (simTimeLength * 60)) / lanes > 0.5) { // True, jeśli na jeden pas na jedną sekundę przypada więcej niż 0.5 pojazdu
+                tooManyVehiclesOnLane = true;
+                System.out.println("Za dużo pojazdów dla relacji: " + relation +
+                        " (pojazdy: " + vehicles + ", pasy: " + lanes + ")");
+            }
+        }
+    }
+
     // Sprawdzenie, czy wprowadzono wymagane parametry symulacji
     private boolean checkSimParameters() {
         if (tfVehicleSum == 0) {
@@ -419,7 +461,7 @@ public class SimulationController {
             AlertPopUp.showAlertPopUp("Bad SimTime");
             resetSimulation();
             return false;
-        } else if ((simTimeLength * 60) / tfVehicleSum < 0.33) {
+        } else if (tooManyVehiclesOnLane) {
             AlertPopUp.showAlertPopUp("Bad Data");
             resetSimulation();
             return false;
