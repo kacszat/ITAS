@@ -443,7 +443,7 @@ public class SimulationController {
 
             if (lanes == 0) continue; // brak dostępnych pasów - nie sprawdzamy
 
-            if ((vehicles / (simTimeLength * 60)) / lanes > 0.5) { // True, jeśli na jeden pas na jedną sekundę przypada więcej niż 0.5 pojazdu
+            if ((vehicles / (simTimeLength * 60)) / lanes > 1) { // True, jeśli na jeden pas na jedną sekundę przypada więcej niż 1 pojazd
                 tooManyVehiclesOnLane = true;
                 System.out.println("Za dużo pojazdów dla relacji: " + relation +
                         " (pojazdy: " + vehicles + ", pasy: " + lanes + ")");

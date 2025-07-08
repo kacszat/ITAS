@@ -331,7 +331,7 @@ public class TrafficLightController {
 
             // Znalezienie wiersza na podstawie lokalizacji i typu pasa
             int row = RowDescriptor.getRowNumber(light.getLocalization(), light.getLaneType());
-            System.out.println(light.getLocalization() + " " + light.getLaneType());
+            //System.out.println(light.getLocalization() + " " + light.getLaneType());
 
             for (int col = 0; col < CanvasPhase.rectNumber; col++) {
                 SinglePhaseButton spb = SinglePhaseButton.getSinglePhaseButton(row, col);

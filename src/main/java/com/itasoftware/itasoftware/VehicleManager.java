@@ -12,6 +12,10 @@ public class VehicleManager {
     private IntersectionLane.Localization selectedLocalization, lastSpawnedLocalization;
     int sameLocationCounter = 0, iterations = 0;
 
+    private final Map<Set<Vehicle>, Long> stuckVehiclesMap = new HashMap<>();
+    private final long stuckMaxTime = 5000 , ignoreTime = 2000;   // wartości w sekundach
+    public long currentTime;
+
     double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
 
     public void spawnVehicle() {
@@ -20,6 +24,8 @@ public class VehicleManager {
             int randomIndex = new Random().nextInt(vehiclesToSpawnList.size());
             Vehicle selectedVehicle = vehiclesToSpawnList.get(randomIndex);
             selectedLocalization = vehiclesOriginMap.get(selectedVehicle);
+
+            if (isTooCloseSpawn(selectedVehicle)) return; // Jeżeli inny pojazd jest za blisko, to nie spawnuje kolejnego pojazdu
 
             if (!Objects.equals(selectedLocalization, lastSpawnedLocalization)) {
                 sameLocationCounter = 0;    // Inna lokalizacja, reset licznika
@@ -43,6 +49,19 @@ public class VehicleManager {
             }
 
         }
+    }
+
+    private boolean isTooCloseSpawn(Vehicle selectedVehicle) {
+        // Punkt startowy pojazdu (X, Y)
+        Point2D spawnPoint = selectedVehicle.getTrajectory().getPoints().getFirst();
+
+        // Sprawdzenie, czy inny pojazd nie jest w odległości < 35 px od punktu spawnu
+        return vehiclesList.stream().anyMatch(existingVehicle -> {
+            double dx = spawnPoint.getX() - existingVehicle.getFovX();
+            double dy = spawnPoint.getY() - existingVehicle.getFovY();
+            double distanceSquared = dx * dx + dy * dy;
+            return distanceSquared < (35 * 35);
+        });
     }
 
     public void resetCountInts() {
@@ -85,6 +104,8 @@ public class VehicleManager {
             v.updateCachedTrafficLightPhase();
             v.updateVehiclePosition();
             checkVehicleContact(v);
+            cleanupStuckVehiclesMap();
+            v.updateIgnoreRules(currentTime, ignoreTime);
         }
         vehiclesList.removeIf(Vehicle::isFinished);     // Pojazd zostaje usunięty, jeśli dotarł do końca trasy
     }
@@ -102,15 +123,16 @@ public class VehicleManager {
         vehicle.shouldStop = false;
         vehicle.shouldSlowDown = false;
 
-        if (vehicle.getDistanceTraveled() < 30) return; // Jeśli koniec jest bliżej niż 10px, nie analizujemy reszty warunków
+        if (vehicle.getDistanceTraveled() < 20) return; // Jeśli koniec jest bliżej niż 20px, nie analizujemy reszty warunków
 
         findStopLine(vehicle); // Sprawdzenie, czy znaleziono linie stopu w FOV na pasie ruchu pojazdu
-        chechkTrafficLightState(vehicle);   // Sprawdzenie aktualnej fazy sygnalizacji
+        checkTrafficLightState(vehicle);   // Sprawdzenie aktualnej fazy sygnalizacji
 
         for (Vehicle other : vehiclesList) {
             if (vehicle == other) continue; // Jeśli zadany pojazd jest taki sam, jak wskazany z pętli, pomijamy
 
-            if (!isVehicleWithinDistance(vehicle, other, 170)) continue;    // Jeśli zadany pojazd jest dalej niz 150, pomijamy
+            if (!isVehicleWithinDistance(vehicle, other, 210)) continue;    // Jeśli zadany pojazd jest dalej niz 240, pomijamy
+            if (vehicle.ignoreRules) continue;     // Jeśli ignorujemy zasady, to przerywamy
 
             boolean inBigFOV = vehicle.isPointInFOV(other.getFovX(), other.getFovY(), false);   // Jeśli zadany pojazd jest poza FOV, pomijamy
             if (!inBigFOV) continue;
@@ -130,6 +152,8 @@ public class VehicleManager {
                     isOtherGoingFromOppositeOrigin(vehicle, other) && isVehicleTurningLeft(vehicle) && isVehicleTurningLeft(other);
             // Sprawdzenie, czy pojazd musi ustąpić innemu pojazdowi z prawej
             boolean isVehicleGivingWayToRight = isOtherGoingFromRight(vehicle, other) && !vehicle.isOnIntersectionSegment();
+            // Sprawdzenie, czy pojazdy mają inne pochodzenie
+            boolean differentOrigins = vehicle.getVehicleOrigin() != other.getVehicleOrigin();
 
             if (SimulationController.areTrafficLightsActive && vehicle.hasAssignedTrafficLight()) {
                 // Zasady ruchu z sygnalizacją
@@ -146,6 +170,7 @@ public class VehicleManager {
 
                 if (inSmallSquareFOV) {
                     vehicle.shouldStop = true;
+                    if (areTrajectoriesIntersect && differentOrigins) {checkPotentialDeadlock(vehicle, other);}
                     break;
                 } else if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToSlowDown) && (redPhase || yellowPhase)) {
                     if (!(isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), marginTL) && yellowPhase)) {
@@ -156,11 +181,13 @@ public class VehicleManager {
                     }
                 } else if (inSquareFOV && !other.isAccelerating()) {
                     vehicle.shouldSlowDown = true;
-                } else if (inLeftFOV && preventBlockingVehicle && (greenPhaseOther || greenArrowPhaseOther)) {
-//                    //vehicle.shouldSlowDown = true;
+                } else if (inLeftFOV && preventBlockingVehicle && (greenPhaseOther || greenArrowPhaseOther) && other.isOnIntersectionSegment()) {
+                    //vehicle.shouldSlowDown = true;
                     vehicle.shouldStop = true;
+                    if (areTrajectoriesIntersect && differentOrigins) {checkPotentialDeadlock(vehicle, other);}
 //                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
 //                        vehicle.shouldStop = true;
+//                        if (areTrajectoriesIntersect && differentOrigins) {checkPotentialDeadlock(vehicle, other);}
 //                        break;
 //                    }
                 } else if (areTrajectoriesIntersect) {
@@ -168,35 +195,39 @@ public class VehicleManager {
                         vehicle.shouldSlowDown = true;
                         if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
                             vehicle.shouldStop = true;
+                            if (differentOrigins) {checkPotentialDeadlock(vehicle, other);}
                             break;
                         }
                     }
-                    if (inLeftFOV && isVehicleGoingLeftAndGivingWay && (greenPhaseOther || greenArrowPhaseOther) && vehicle.isOnIntersectionSegment()) {
+                    if (inLeftFOV && isVehicleGoingLeftAndGivingWay && (greenPhaseOther || greenArrowPhaseOther)) {
                         vehicle.shouldSlowDown = true;
                         if (other.isAccelerating() || (isVehicleTurningLeft(other) && other.isOnIntersectionSegment())) {
                             vehicle.shouldStop = true;
+                            if (differentOrigins) {checkPotentialDeadlock(vehicle, other);}
                             break;
                         }
                     }
                 }
             } else {
                 // Zasady ruchu bez sygnalziacji
-                if (inSmallSquareFOV || (inSquareFOV && areTrajectoriesIntersect && isVehicleGoingLeftAndGivingWay)) {
+                if (inSmallSquareFOV) {
                     vehicle.shouldStop = true;
                     break;
                 } else if (inSquareFOV && !other.isAccelerating()) {
                     vehicle.shouldSlowDown = true;
-                } else if (preventBlockingVehicle) {
+                } else if (inLeftFOV && preventBlockingVehicle && other.isOnIntersectionSegment()) {
                     vehicle.shouldSlowDown = true;
-                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
+                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
                         vehicle.shouldStop = true;
+                        if (differentOrigins) {checkPotentialDeadlock(vehicle, other);}
                         break;
                     }
                 } else if (areTrajectoriesIntersect) {
-                    if (isVehicleGivingWayToRight || isVehicleGoingLeftAndGivingWay) {
+                    if (isVehicleGivingWayToRight || (inLeftFOV && isVehicleGoingLeftAndGivingWay && other.isOnIntersectionSegment())) {
                         vehicle.shouldSlowDown = true;
                         if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) {
                             vehicle.shouldStop = true;
+                            if (differentOrigins) {checkPotentialDeadlock(vehicle, other);}
                             break;
                         }
                     }
@@ -210,7 +241,7 @@ public class VehicleManager {
         changeVehicleSpeed(vehicle);
     }
 
-    private void chechkTrafficLightState(Vehicle vehicle) {
+    private void checkTrafficLightState(Vehicle vehicle) {
         if (SimulationController.areTrafficLightsActive && vehicle.hasAssignedTrafficLight()) {
             // Zasady ruchu z sygnalizacją
             TrafficLight.Phase phase = vehicle.getCachedPhase();
@@ -329,6 +360,33 @@ public class VehicleManager {
     public void increaseSpeed(Vehicle vehicle) {
         double tempSpeed = vehicle.getSpeed();
         vehicle.setSpeed(Math.min(tempSpeed + (0.02 * SimulationController.simSpeed), 2.0)); // Maksymalna prędkość: 2.0
+    }
+
+    // Funkcja sprawdzająca, czy pojazdy nie zostały zablokowane
+    private void checkPotentialDeadlock(Vehicle v1, Vehicle v2) {
+        Set<Vehicle> pair = new HashSet<>(Arrays.asList(v1, v2));
+
+        if (!stuckVehiclesMap.containsKey(pair)) {
+            stuckVehiclesMap.put(pair, currentTime);
+        } else {
+            long stuckTime = currentTime - stuckVehiclesMap.get(pair);
+            if (stuckTime >= stuckMaxTime) {
+                // Odblokowanie pojazdów
+                v1.setIgnoreRules(currentTime);
+                v2.setIgnoreRules(currentTime);
+                stuckVehiclesMap.remove(pair);
+            }
+        }
+    }
+
+    private void cleanupStuckVehiclesMap() {
+        stuckVehiclesMap.entrySet().removeIf(entry ->
+                entry.getKey().stream().anyMatch(Vehicle::isFinished)
+        );
+    }
+
+    public void setCurrentTime(long time) {
+        this.currentTime = time;
     }
 
 }

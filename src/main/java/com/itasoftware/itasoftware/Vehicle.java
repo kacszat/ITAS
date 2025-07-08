@@ -10,7 +10,7 @@ public class Vehicle {
     IntersectionLane.Localization vehicleOrigin, vehicleDestination;
     private MovementTrajectory trajectory;
     private double distanceTraveled;
-    private double fovX, fovY, fovRadius, fovStartAngle, fovStartAngleHalf, fovLength; // Parametry Field Of View
+    private double fovX, fovY, fovRadius, fovRadiusLeft, fovStartAngle, fovStartAngleHalf, fovLength; // Parametry Field Of View
     double angle;   // Kąt kierunku jazdy
     Point2D[] squareFOVCorners, squareSmallFOVCorners;  // Lista czterech punktów prostokąta
     private StopLine assignedStopLine;
@@ -19,6 +19,8 @@ public class Vehicle {
     public boolean isAccelerating = true;
     public boolean shouldStop = false;
     public boolean shouldSlowDown = false;
+    public boolean ignoreRules = false;
+    private long ignoreRulesStartTime = 0;
 
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
@@ -86,6 +88,7 @@ public class Vehicle {
         this.fovX = center.getX();
         this.fovY = center.getY();
         this.fovRadius = 210;  // Promień pola widzenia
+        this.fovRadiusLeft = 240;  // Promień pola widzenia lewego
         this.fovLength = 180;  // Kąt pola widzenia
         this.fovStartAngle = - angleDegrees - (fovLength / 2.0); // Ustawienie początku sektora FOV
         this.fovStartAngleHalf = - angleDegrees; // Ustawienie początku sektora FOV
@@ -94,7 +97,7 @@ public class Vehicle {
     public void setSquareFOV(Point2D center, double angleDegrees, Boolean smallFOV) {
         double rectLength;                      // Długość FOV
         double rectWidth = vehicleWidth * 1.4;  // Szerokość FOV
-        rectLength = !smallFOV ? 170 : 40;
+        rectLength = !smallFOV ? 160 : 40;
 
         // Wektor kierunku jazdy
         double angleRad = Math.toRadians(angleDegrees);
@@ -242,6 +245,10 @@ public class Vehicle {
         return fovRadius;
     }
 
+    public double getFovRadiusLeft() {
+        return fovRadiusLeft;
+    }
+
     public double getFovStartAngle() {
         return fovStartAngle;
     }
@@ -306,6 +313,17 @@ public class Vehicle {
 
     public boolean getShouldSlowDown() {
         return shouldSlowDown;
+    }
+
+    public void setIgnoreRules(long currentTime) {
+        this.ignoreRules = true;
+        this.ignoreRulesStartTime = currentTime;
+    }
+
+    public void updateIgnoreRules(long currentTime, long durationMs) {
+        if (ignoreRules && (currentTime - ignoreRulesStartTime > durationMs)) {
+            this.ignoreRules = false;
+        }
     }
 
 }

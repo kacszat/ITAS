@@ -51,7 +51,7 @@ public class AlertPopUp {
                                             controller.alertButtonYes.setManaged(false);
                                             controller.alertButtonNo.setText("OK");}
                 case "Bad Data" -> {controller.alertLabel.setText("Wprowadzono zbyt dużą liczbę pojazdów.");
-                                            controller.alertLabel2.setText("Na danej relacji na jeden pas ruchu może maksymalnie przypadać jeden pojazd na dwie sekundy.");
+                                            controller.alertLabel2.setText("Na danej relacji na jeden pas ruchu może maksymalnie przypadać jeden pojazd na jedną sekundę.");
                                             controller.alertButtonYes.setVisible(false);
                                             controller.alertButtonYes.setManaged(false);
                                             controller.alertButtonNo.setText("OK");}

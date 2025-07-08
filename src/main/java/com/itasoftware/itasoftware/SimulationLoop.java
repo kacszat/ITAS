@@ -38,14 +38,9 @@ public class SimulationLoop {
         this.simSpeed = simSpeed;
         this.simController = simController;
 
-        timelineSim = new Timeline(new KeyFrame(Duration.millis(runTimerInterval), e -> update()));
-        timelineSim.setCycleCount(Timeline.INDEFINITE);
+//        timelineSim = new Timeline(new KeyFrame(Duration.millis(runTimerInterval), e -> update()));
+//        timelineSim.setCycleCount(Timeline.INDEFINITE);
     }
-
-//    public void run() {
-//        timelineSim.play();
-//        isSimStopped = false;
-//    }
 
     public void run() {
         if (running) return;
@@ -74,11 +69,6 @@ public class SimulationLoop {
         simulationThread.start();
     }
 
-//    public void stop() {
-//        timelineSim.stop();
-//        isSimStopped = true;
-//    }
-
     public void stop() {
         running = false;
         isSimStopped = true;
@@ -89,41 +79,21 @@ public class SimulationLoop {
         spawnSchedule.add(new VehicleSpawnSchedule(simTimeLength));
     }
 
-
-//    public void update() {
-//        updateTrafficLights();
-//        vehicleManager.updateVehicles(simSpeed);
-//        canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
-//        updateTime();
-//
-//        // Pętla sprawdzająca, czy w danym momencie powinien zostać zespawnowany spojazd
-//        for (VehicleSpawnSchedule vss : spawnSchedule) {
-//            if (vss.shouldSpawn(elapsedTime)) {
-//                //vehicleManager.spawnVehicle(vss.getRandomTrajectory());
-//                vehicleManager.spawnVehicle();
-//                vss.markSpawned();
-//            }
-//        }
-//    }
-
     public void update() {
         updateTrafficLights();
         vehicleManager.updateVehicles(simSpeed);
+        vehicleManager.setCurrentTime(elapsedTime);
 
         Platform.runLater(() -> {
             canvasDrawer.drawCanvasWithVehicles(simCanvas, vehicleManager.getVehicles());
             updateTimer();
         });
 
-        elapsedTime += (long) (runTimerInterval * simSpeed);
+        updateTime();
 
-        if (elapsedTime >= simTimeLength) {
-            stop();
-        }
-
+        // Pętla sprawdzająca, czy w danym momencie powinien zostać zespawnowany spojazd
         for (VehicleSpawnSchedule vss : spawnSchedule) {
             if (vss.shouldSpawn(elapsedTime)) {
-                //vehicleManager.spawnVehicle(vss.getRandomTrajectory());
                 vehicleManager.spawnVehicle();
                 vss.markSpawned();
             }
@@ -143,9 +113,9 @@ public class SimulationLoop {
     // Ustawienie prędkości symulacji
     public void setSimSpeed(double simSpeed) {
         this.simSpeed = simSpeed;
-        if (!isSimStopped) {
-            timelineSim.play();
-        }
+//        if (!isSimStopped) {
+//            timelineSim.play();
+//        }
     }
 
     // Usatwienie czasu trwania symulacji
@@ -156,7 +126,7 @@ public class SimulationLoop {
     // Funkcja aktualizująca czas
     private void updateTime() {
         elapsedTime += (long) (runTimerInterval * simSpeed);
-        updateTimer();
+        //updateTimer();
         if (elapsedTime >= simTimeLength) {
             stop();
         }
