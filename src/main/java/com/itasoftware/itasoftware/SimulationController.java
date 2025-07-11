@@ -44,6 +44,8 @@ public class SimulationController {
     static boolean isFOVshown = false, areMRshown = false, areTLshown = false;;
     static boolean isBackFromTLView = false, idLoadedFromSaveFile = false;
     static boolean tooManyVehiclesOnLane = false;
+    private Map<String, Double> vehiclesPerRelation = new HashMap<>();  // Mapa przechowująca liczbę pojazdów dla danej relacji (np. SOUTH->NORTH)
+    private Map<String, Integer> lanesPerRelation = new HashMap<>();    // Mapa przechowująca ilość pasów obsługujących daną relację
 
     // Powrót do głównego menu
     @FXML
@@ -198,6 +200,7 @@ public class SimulationController {
 
         // Utworzenie pętli symulacji
         simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, simSpeed, this);
+        //simLoop.setSimSpeed(simSpeed);
         resetSimulation();
 
         if (isBackFromTLView) {
@@ -347,6 +350,7 @@ public class SimulationController {
             tf.setText("0");
             tfVehNum.setVehiclesNumber(0);
         }
+        clearCheckVehiclesLists();
     }
 
     // Uruchomienie symulacji
@@ -414,9 +418,6 @@ public class SimulationController {
 
     // Sprawdzenie, czy liczba pojazdów nie jest zbyt duża
     private void checkVehicleNumbers() {
-        Map<String, Double> vehiclesPerRelation = new HashMap<>();  // Mapa przechowująca liczbę pojazdów dla danej relacji (np. SOUTH->NORTH)
-        Map<String, Integer> lanesPerRelation = new HashMap<>();    // Mapa przechowująca ilość pasów obsługujących daną relację
-
         // Zliczenie pojazdów z TextFieldów
         for (TextFieldVehicleNumber tfVN : tfVehNumInputs) {
             String key = tfVN.getLocalization() + "->" + tfVN.getDestination();
@@ -449,6 +450,11 @@ public class SimulationController {
                         " (pojazdy: " + vehicles + ", pasy: " + lanes + ")");
             }
         }
+    }
+
+    private void clearCheckVehiclesLists() {
+        vehiclesPerRelation.clear();
+        lanesPerRelation.clear();
     }
 
     // Sprawdzenie, czy wprowadzono wymagane parametry symulacji

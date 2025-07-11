@@ -4,35 +4,67 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.itasoftware.itasoftware.SettingsController"
       stylesheets="@style.css"
       styleClass="root-gray">
 
-<MenuBar>
-    <Menu text="Plik">
-        <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
-    </Menu>
-    <Menu text="Test">
-        <MenuItem text="Test"/>
-    </Menu>
-</MenuBar>
+    <MenuBar>
+        <Menu text="Okno">
+            <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+            <MenuItem text="Przejście do generatora" onAction="#goToGenerator"/>
+            <MenuItem text="Przejście do symulacji" onAction="#goToSimulation"/>
+            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
+        </Menu>
+    </MenuBar>
 
-<BorderPane>
-    <!-- Ustawienie marginesów dla całego układu -->
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="30"/>
-    </padding>
+    <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" prefWidth="1920" prefHeight="1080">
+        <BorderPane>
+            <!-- Ustawienie marginesów dla całego układu -->
+            <padding>
+                <Insets top="30" right="30" bottom="30" left="30"/>
+            </padding>
 
-    <!-- Środkowy panel (dynamiczna szerokość) -->
-    <center>
-        <VBox styleClass="obj-vbox" BorderPane.alignment="CENTER" style="-fx-min-width: 32em">
-            <Label text="Ustawienia" styleClass="menu-label" style="-fx-padding: 0 0 1em 0"/>
-            <Label text="Opcje wyświetlania:"/>
-            <Button text="Pełny ekran" onAction="#onFullScreenButtonClick"/>
-        </VBox>
-    </center>
-</BorderPane>
+            <!-- Środkowy panel (dynamiczna szerokość) -->
+            <center>
+                <VBox styleClass="obj-vbox" BorderPane.alignment="TOP_LEFT" style="-fx-min-width: 32em">
+                    <Label text="Ustawienia" styleClass="menu-label" style="-fx-padding: 0 0 1em 0"/>
+
+                    <VBox>
+                        <Label text="Maksymalizacja/minimalizacja okna:" styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                        <Button fx:id="fullScreenButton" onAction="#onFullScreenButtonClick" styleClass="obj-button-small"/>
+                        <Region style="-fx-padding: 0 0 3em 0"/>
+
+                        <Label text="Maksymalna prędkość poruszania się pojazdów (km/h):" styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                        <ComboBox fx:id="speedComboBox" styleClass="obj-combobox-small" value="50" onAction="#loadSpeedValueFromComboBox">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="20"/>
+                                    <String fx:value="30"/>
+                                    <String fx:value="40"/>
+                                    <String fx:value="50"/>
+                                    <String fx:value="60"/>
+                                    <String fx:value="70"/>
+                                    <String fx:value="80"/>
+                                    <String fx:value="90"/>
+                                    <String fx:value="100"/>
+                                    <String fx:value="110"/>
+                                    <String fx:value="120"/>
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                        <Region style="-fx-padding: 0 0 3em 0"/>
+
+                        <Label text="Ustawienia są w trakcie rozbudowy. W przyszłości modyfikacjom ulegać będzie mogła większa liczba elementów i funkcji."
+                               styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                    </VBox>
+
+                </VBox>
+            </center>
+        </BorderPane>
+    </ScrollPane>
 
 </VBox>

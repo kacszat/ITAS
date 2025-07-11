@@ -24,7 +24,7 @@ public class Vehicle {
 
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
-        this.speed = 2.0;
+        this.speed = 1.4 * SettingsController.speedMultiplier;
         this.simSpeed = 1.0;
         this.distanceTraveled = 0;
 
@@ -224,9 +224,13 @@ public class Vehicle {
         this.simSpeed = simSpeed;
     }
 
+    public double getSimSpeed() {
+        return simSpeed;
+    }
+
     // Prędkość pojazdu
-    public void setSpeed(double simSpeed) {
-        this.speed = simSpeed;
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     public double getSpeed() {

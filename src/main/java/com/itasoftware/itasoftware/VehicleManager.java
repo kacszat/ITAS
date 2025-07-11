@@ -18,6 +18,7 @@ public class VehicleManager {
 
     double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
 
+
     public void spawnVehicle() {
         if (!vehiclesToSpawnList.isEmpty()) {
             Collections.shuffle(vehiclesToSpawnList);
@@ -354,12 +355,13 @@ public class VehicleManager {
 
     public void decreaseSpeed(Vehicle vehicle) {
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * SimulationController.simSpeed), 0.4)); // Minimalna prędkość: 0.2
+        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * vehicle.getSimSpeed()), 0.4)); // Minimalna prędkość: 0.4
     }
 
     public void increaseSpeed(Vehicle vehicle) {
+        double maxSpeed = 1.4 * SettingsController.speedMultiplier;
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.min(tempSpeed + (0.02 * SimulationController.simSpeed), 2.0)); // Maksymalna prędkość: 2.0
+        vehicle.setSpeed(Math.min(tempSpeed + (0.02 * vehicle.getSimSpeed()), maxSpeed)); // Maksymalna prędkość: 1.4 (bez modyfikatorów)
     }
 
     // Funkcja sprawdzająca, czy pojazdy nie zostały zablokowane

@@ -140,6 +140,30 @@
     -fx-text-fill: #3c3f41;
 }
 
+.obj-combobox-small {
+    -fx-min-width: 10em;
+    -fx-border-color: #ffffff;
+    -fx-background-color: #3c3f41;
+}
+
+.obj-combobox-small {
+    -fx-min-width: 10em;
+    -fx-border-color: #ffffff;
+    -fx-background-color: #3c3f41;
+    -fx-padding: 0.2em;
+}
+
+.obj-combobox-small  .list-cell {
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #ffffff;
+}
+
+.obj-combobox-small .list-cell:hover {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #3c3f41;
+}
+
+
 .obj-button {
     -fx-pref-width: 15em;
     -fx-background-color: #3c3f41;
