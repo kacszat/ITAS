@@ -11,7 +11,6 @@ import java.util.*;
 
 public class SimulationLoop {
 
-    Timeline timelineSim;
     private Thread simulationThread;
     private volatile boolean running = false;
 
@@ -37,9 +36,6 @@ public class SimulationLoop {
         this.simCanvas = simCanvas;
         this.simSpeed = simSpeed;
         this.simController = simController;
-
-//        timelineSim = new Timeline(new KeyFrame(Duration.millis(runTimerInterval), e -> update()));
-//        timelineSim.setCycleCount(Timeline.INDEFINITE);
     }
 
     public void run() {
@@ -107,6 +103,7 @@ public class SimulationLoop {
         vehicleManager.resetCountInts();
         canvasDrawer.drawCanvas(simCanvas);
         resetTrafficLights();
+        DataCollector.clearReportContent();
     }
 
 

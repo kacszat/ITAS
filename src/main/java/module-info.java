@@ -11,6 +11,8 @@ module com.itasoftware.itasoftware {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.desktop;
+    requires com.github.librepdf.openpdf;
+    requires javafx.swing;
 
     opens com.itasoftware.itasoftware to javafx.fxml;
     exports com.itasoftware.itasoftware;

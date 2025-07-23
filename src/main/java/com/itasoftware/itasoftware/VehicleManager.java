@@ -6,14 +6,16 @@ import javafx.scene.control.TextField;
 import java.util.*;
 
 public class VehicleManager {
-    private final List<Vehicle> vehiclesList = new ArrayList<>();
+    public final List<Vehicle> vehiclesList = new ArrayList<>();
+    public static final List<Vehicle> finishedVehiclesList = new ArrayList<>();    // Lista pojazdów, które ukończyły trasę
     private static final List<Vehicle> vehiclesToSpawnList = new ArrayList<>();
     private static Map<Vehicle, IntersectionLane.Localization> vehiclesOriginMap = new HashMap<>();
     private IntersectionLane.Localization selectedLocalization, lastSpawnedLocalization;
     int sameLocationCounter = 0, iterations = 0;
+    DataCollector DC = new DataCollector(this);
 
     private final Map<Set<Vehicle>, Long> stuckVehiclesMap = new HashMap<>();
-    private final long stuckMaxTime = 5000 , ignoreTime = 2000;   // wartości w sekundach
+    private final long stuckMaxTime = 5000 , ignoreTime = 2000;   // wartości w milisekundach
     public long currentTime;
 
     double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
@@ -37,6 +39,7 @@ public class VehicleManager {
             if (sameLocationCounter < 5) {  // Jeśli wybrana lokalziacja nie powtórzyła się 5 razy, można spawnować
                 lastSpawnedLocalization = selectedLocalization;
                 vehiclesList.add(selectedVehicle);
+                selectedVehicle.setVehicleSpawnTime(currentTime);
                 vehiclesToSpawnList.remove(selectedVehicle);
             } else {    // Po 5 powtózeniu, powone wywołanie funkcji
                 if (iterations > 4) {   // Jeśli 5-krotne potwórzenie funkcji nie zmieniło lokalziacji, pomijamy warunek
@@ -75,25 +78,31 @@ public class VehicleManager {
         vehiclesToSpawnList.clear();
         vehiclesOriginMap.clear();
 
+        Random random = new Random();
+
         for (Map.Entry<TextField, TextFieldVehicleNumber> tfm : SimulationController.textfieldMap.entrySet()) {
             TextField tf = tfm.getKey();
             TextFieldVehicleNumber tfVehNum = tfm.getValue();
 
-            for (MovementRelations mr : MovementRelations.movementRelations) {
-                IntersectionLaneButton objA = mr.getObjectA();
-                IntersectionLaneButton objB = mr.getObjectB();
+            // Zebranie wszystkich relacji pasujących do danej lokalizacji i celu
+            List<MovementRelations> matchingRelations = MovementRelations.movementRelations.stream()
+                    .filter(mr ->
+                            tfVehNum.getLocalization() == mr.getObjectA().getLocalization() &&
+                                    tfVehNum.getDestination() == mr.getObjectB().getLocalization())
+                    .toList();
 
-                if (tfVehNum.getLocalization() == objA.getLocalization() && tfVehNum.getDestination() == objB.getLocalization()) {
+            // Jeśli znaleziono jakieś pasujące relację, rozdziela się losowo pojazdy pośród nie
+            if (!matchingRelations.isEmpty()) {
+                for (int i = 0; i < tfVehNum.getVehiclesNumber().intValue(); i++) {
+                    // Losowe wybieranie jedną z relacji
+                    MovementRelations selectedMR = matchingRelations.get(random.nextInt(matchingRelations.size()));
+                    MovementTrajectory traj = MovementTrajectory.movementMap.get(selectedMR);
 
-                    MovementTrajectory traj = MovementTrajectory.movementMap.get(mr);
                     if (traj != null) {
-                        for (int i = 0; i < tfVehNum.getVehiclesNumber().intValue(); i++) {
-                            Vehicle vehicle = new Vehicle(traj);
-                            vehiclesToSpawnList.add(vehicle);
-                            vehiclesOriginMap.put(vehicle, tfVehNum.getLocalization());
-                        }
+                        Vehicle vehicle = new Vehicle(traj);
+                        vehiclesToSpawnList.add(vehicle);
+                        vehiclesOriginMap.put(vehicle, tfVehNum.getLocalization());
                     }
-
                 }
             }
         }
@@ -107,6 +116,8 @@ public class VehicleManager {
             checkVehicleContact(v);
             cleanupStuckVehiclesMap();
             v.updateIgnoreRules(currentTime, ignoreTime);
+            //if (currentTime % 1000 == 0) { DC.collectDataForCharts(currentTime / 1000); }
+            if (v.isFinished()) {finishedVehiclesList.add(v);}  // Dodanie do listy ukończonych
         }
         vehiclesList.removeIf(Vehicle::isFinished);     // Pojazd zostaje usunięty, jeśli dotarł do końca trasy
     }
@@ -117,6 +128,7 @@ public class VehicleManager {
 
     public void clearVehicles() {
         vehiclesList.clear();
+        finishedVehiclesList.clear();
     }
 
     // Funkcja sprawdzająca, czy dany pojazd nie jest w kontakcie z innymi i jak powinien się zachować
@@ -128,6 +140,8 @@ public class VehicleManager {
 
         findStopLine(vehicle); // Sprawdzenie, czy znaleziono linie stopu w FOV na pasie ruchu pojazdu
         checkTrafficLightState(vehicle);   // Sprawdzenie aktualnej fazy sygnalizacji
+
+        timeToCheckVehicleData(vehicle);  // Jeśli pojazd opuści dojazd do skrzyżowania, zostaną zebrane jego dane
 
         for (Vehicle other : vehiclesList) {
             if (vehicle == other) continue; // Jeśli zadany pojazd jest taki sam, jak wskazany z pętli, pomijamy
@@ -240,6 +254,8 @@ public class VehicleManager {
 
         // Modyfikacja prędkości pojazdu
         changeVehicleSpeed(vehicle);
+        // Obliczenie łącznego czasu zatrzymania
+        vehicle.updateStopTimeTotalValue(currentTime);
     }
 
     private void checkTrafficLightState(Vehicle vehicle) {
@@ -355,13 +371,12 @@ public class VehicleManager {
 
     public void decreaseSpeed(Vehicle vehicle) {
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * vehicle.getSimSpeed()), 0.4)); // Minimalna prędkość: 0.4
+        vehicle.setSpeed(Math.max(tempSpeed - (0.02 * vehicle.getSimSpeed()), 0.3)); // Minimalna prędkość: 0.3
     }
 
     public void increaseSpeed(Vehicle vehicle) {
-        double maxSpeed = 1.4 * SettingsController.speedMultiplier;
         double tempSpeed = vehicle.getSpeed();
-        vehicle.setSpeed(Math.min(tempSpeed + (0.02 * vehicle.getSimSpeed()), maxSpeed)); // Maksymalna prędkość: 1.4 (bez modyfikatorów)
+        vehicle.setSpeed(Math.min(tempSpeed + (0.02 * vehicle.getSimSpeed()), vehicle.speedMax)); // Maksymalna prędkość
     }
 
     // Funkcja sprawdzająca, czy pojazdy nie zostały zablokowane
@@ -389,6 +404,21 @@ public class VehicleManager {
 
     public void setCurrentTime(long time) {
         this.currentTime = time;
+    }
+
+    private void timeToCheckVehicleData(Vehicle v) {    // Jeśli pojazd opuści dojazd do skrzyżowania, zostaną zebrane jego dane
+        if (v.hasPassedStopLine) return;
+
+        if (v.isOnIntersectionSegment()) {
+            v.setHasPassedStopLine();
+
+            // Obliczenie średniej prędkości pojazdu na dojeździe, jeśli pojazd minie linie stopu
+            v.setVehicleStopLineTime(currentTime);
+            v.calculateVehicleAverageSpeed();
+
+            // Obliczenie łącznego czasu zatrzymania pojazdu i liczby zatrzymań pojazdu
+            v.updateStopTimeTotalValue(currentTime); // Zakończenie pomiaru czasu zatrzymania, jeśli nadal trwa
+        }
     }
 
 }

@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.StackPane;
+import javafx.util.StringConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class SimulationController {
     SimulationLoop simLoop;
     VehicleManager vehicleManager = new VehicleManager();
     SaveLoadSimulation SLS = new SaveLoadSimulation(this);
+    SaveReport SR = new SaveReport();
 
     static final Map<TextField, TextFieldVehicleNumber> textfieldMap = new HashMap<>();
     List<TextFieldVehicleNumber> tfVehNumInputs = new ArrayList<>();    // Lista liczby pojazdów z danych textfieldów
@@ -34,8 +36,7 @@ public class SimulationController {
     @FXML Slider sliderTimeSpeed;
     @FXML Spinner<Integer> spinnerTimeHours, spinnerTimeMinutes;
     @FXML Label labelTime;
-    @FXML Button buttonStart;
-    @FXML Button buttonTurnOnTL;
+    @FXML Button buttonStart, buttonTurnOnTL, buttonReport, buttonQuickSim;
     @FXML MenuItem menuitemShowMR, menuitemShowFOV, menuitemShowTL;
     static double simSpeed = 1.0, tfVehicleSum = 0;
     static Integer simTimeLength = 0;
@@ -200,7 +201,6 @@ public class SimulationController {
 
         // Utworzenie pętli symulacji
         simLoop = new SimulationLoop(simCanvas, canvasDrawer, vehicleManager, simSpeed, this);
-        //simLoop.setSimSpeed(simSpeed);
         resetSimulation();
 
         if (isBackFromTLView) {
@@ -237,9 +237,11 @@ public class SimulationController {
     }
 
     private void configureTimeSpeedSlider() {
-        sliderTimeSpeed.setMin(1);
-        sliderTimeSpeed.setMax(10);
-        sliderTimeSpeed.setValue(1);
+        List<Integer> sliderAllowedValues = List.of(1,2,3,4,5,10,15,20);    // Dozwolone prędkości symulacji
+
+        sliderTimeSpeed.setMin(0);
+        sliderTimeSpeed.setMax(sliderAllowedValues.size() - 1);
+        sliderTimeSpeed.setValue(0);
         sliderTimeSpeed.setBlockIncrement(1);
         sliderTimeSpeed.setMajorTickUnit(1);
         sliderTimeSpeed.setMinorTickCount(0);
@@ -247,9 +249,21 @@ public class SimulationController {
         sliderTimeSpeed.setShowTickMarks(true);
         sliderTimeSpeed.setShowTickLabels(true);
 
+        // Pokazywanie etykiet zgodnie z sliderAllowedValues
+        sliderTimeSpeed.setLabelFormatter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double dbl) {    // Służy do konwersji liczby z suwaka (Double) na tekstową etykietę
+                return sliderAllowedValues.get(dbl.intValue()).toString();
+            }
+            @Override
+            public Double fromString(String str) {  // Służy do konwersji tekstu etykiety na wartość liczbową suwaka
+                return (double) sliderAllowedValues.indexOf(Integer.valueOf(str));
+            }
+        });
+
         // Pobranie aktualnie ustawionej wartości na sliderze
         sliderTimeSpeed.valueProperty().addListener((obs, oldVal, newVal) -> {
-            simSpeed = newVal.doubleValue();
+            simSpeed = sliderAllowedValues.get(newVal.intValue());
             simLoop.setSimSpeed(simSpeed);
         });
     }
@@ -269,6 +283,7 @@ public class SimulationController {
 
     // Załadowanie TextFieldów (sam textfield, potem obiekt klasy tfVehNumber z lokalizacją startową, typem lokalizacji startowej i lokalizacją końcową)
     private void loadTextField() {
+        textfieldMap.clear();
         textfieldMap.put(tfNorthLeft, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.NORTH, TextFieldVehicleNumber.Type.ENTRY, IntersectionLane.Localization.EAST));
         textfieldMap.put(tfNorthStraight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.NORTH, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.SOUTH));
         textfieldMap.put(tfNorthRight, new TextFieldVehicleNumber(TextFieldVehicleNumber.Localization.NORTH, TextFieldVehicleNumber.Type.ENTRY, TextFieldVehicleNumber.Localization.WEST));
@@ -369,6 +384,7 @@ public class SimulationController {
                 simLoop.run();
                 changeButtonsText();
             }
+            DataCollector.clearReportContent();
         }
     }
 
@@ -396,7 +412,7 @@ public class SimulationController {
     @FXML
     public void resetSimTime() {
         if (!isSimulationActive) {
-            sliderTimeSpeed.setValue(1);
+            sliderTimeSpeed.setValue(0);
             simSpeed = 0;
             configureTimeSpinners();
             simTimeLength = 0;
@@ -494,6 +510,14 @@ public class SimulationController {
         updateMenuItemText();
     }
 
-
+    // Generacja raportu
+    @FXML
+    public void showReport(ActionEvent event) {
+       DataCollector.generateData();    // Funkcja agregująca dane
+//       ChartCreator chartCreator = new ChartCreator();
+//       List<ChartCreator.ChartImage> charts = chartCreator.createChartsAsImages();
+       List<ChartCreator.ChartImage> charts = null;
+       SR.saveReport(event, charts);
+    }
 
 }

@@ -202,6 +202,9 @@
                     <Button fx:id="buttonStart" text="Uruchom symulację" styleClass="obj-button" onAction="#startSimulation"/>
                     <Button text="Zatrzymaj symulację" styleClass="obj-button" onAction="#stopSimulation"/>
                     <Button text="Zresetuj symulację" styleClass="obj-button" onAction="#resetSimulation"/>
+
+                    <Region style="-fx-padding: 0 0 8.65em 0"/>
+                    <Button fx:id="buttonReport" text="Generuj raport" styleClass="obj-button" onAction="#showReport"/>
                 </VBox>
             </right>
 

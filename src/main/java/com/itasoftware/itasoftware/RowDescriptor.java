@@ -35,6 +35,15 @@ public class RowDescriptor {
         int locIndex = rowIndex / 3;
         int typeIndex = rowIndex % 3;
 
+        // Pomijanie duplikatu
+        IntersectionLane.Localization loc = locs[locIndex];
+        TrafficLight.LaneType type = types[typeIndex];
+        for (RowDescriptor existing : rowDescriptors) {
+            if (existing.getLocalization() == loc && existing.getType() == type) {
+                return existing;
+            }
+        }
+
         RowDescriptor rd = new RowDescriptor(locs[locIndex], types[typeIndex], rowIndex);
         rowDescriptors.add(rd);
         return rd;

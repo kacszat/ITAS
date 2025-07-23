@@ -128,7 +128,7 @@ public class SaveLoadSimulation {
             if (tokens.length == 2) {
                 double speed = Double.parseDouble(tokens[1]);
                 SimulationController.simSpeed = speed;
-                simContrl.sliderTimeSpeed.setValue(speed);
+                simContrl.sliderTimeSpeed.setValue(speed-1);
             }
         }
     }

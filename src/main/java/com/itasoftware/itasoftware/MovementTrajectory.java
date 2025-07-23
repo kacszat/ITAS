@@ -66,8 +66,8 @@ public class MovementTrajectory {
         Point2D p5 = trajectoryPoints.get(4);
         Point2D p6 = trajectoryPoints.get(5);
 
-        stopLine1 = trajectoryPoints.get(2);
-        stopLine2 = trajectoryPoints.get(3);
+        stopLine1 = trajectoryPoints.get(1);
+        stopLine2 = trajectoryPoints.get(4);
 
         // Generowanie odcinka do skrzyżowania
         List<Point2D> fullTraj = new ArrayList<>();

@@ -54,6 +54,7 @@ dependencies {
         exclude(group: 'org.openjfx')
         exclude(group: 'org.jetbrains.kotlin')
     }
+    implementation 'com.github.librepdf:openpdf:1.3.30'
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")

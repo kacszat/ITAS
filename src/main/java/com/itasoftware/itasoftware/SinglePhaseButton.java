@@ -99,4 +99,8 @@ public class SinglePhaseButton {
     public TrafficLight.Phase getPhase() {
         return phase;
     }
+
+    public RowDescriptor getDesc() {
+        return desc;
+    }
 }

@@ -4,7 +4,7 @@ import javafx.geometry.Point2D;
 
 public class Vehicle {
 
-    double speed, simSpeed;
+    double speed, speedMax, simSpeed;
     double x1, y1, x2, y2;  // Współrzędne dwóch punktów
     static int vehicleWidth = 15, vehicleHeight = 30;
     IntersectionLane.Localization vehicleOrigin, vehicleDestination;
@@ -21,10 +21,17 @@ public class Vehicle {
     public boolean shouldSlowDown = false;
     public boolean ignoreRules = false;
     private long ignoreRulesStartTime = 0;
+    public double vehicleSpawnTime = 0.0, vehicleStopLineTime = 0.0;
+    public double vehicleAverageSpeed = 0;
+    public boolean hasPassedStopLine = false;
+    public boolean isCurrentlyStopped = false;
+    public double vehicleStopTimeTotal = 0.0, currentStopTimeStartTime = 0.0;
+    public int vehicleStopsCount = 0;
 
     public Vehicle(MovementTrajectory trajectory) {
         this.trajectory = trajectory;
-        this.speed = 1.4 * SettingsController.speedMultiplier;
+        this.speed = 1 * SettingsController.speedMultiplier;
+        this.speedMax = speed;
         this.simSpeed = 1.0;
         this.distanceTraveled = 0;
 
@@ -328,6 +335,54 @@ public class Vehicle {
         if (ignoreRules && (currentTime - ignoreRulesStartTime > durationMs)) {
             this.ignoreRules = false;
         }
+    }
+
+    public void setVehicleSpawnTime(long currentTime) {
+        this.vehicleSpawnTime = currentTime;
+    }
+
+    public void setVehicleStopLineTime(long currentTime) {
+        this.vehicleStopLineTime = currentTime;
+    }
+
+    public void calculateVehicleAverageSpeed() {    // Obliczenie średniej prędkości
+        double distanceInMeters = distanceTraveled / 25 * 3.5;
+        double distanceTimeInSeconds = (vehicleStopLineTime - vehicleSpawnTime) / 1000;
+        vehicleAverageSpeed = distanceInMeters / distanceTimeInSeconds * 3.6;   // Wynik w km/h
+    }
+
+    public void updateStopTimeTotalValue(long currentTime) { // Obliczenie łącznego czasu zatrzymania pojazdu
+        // Jeśli pojazd zatrzymał się
+        if (shouldStop && !isCurrentlyStopped) {
+            currentStopTimeStartTime = currentTime;
+            isCurrentlyStopped = true;
+            vehicleStopsCount++;    // Liczba zatrzymań pojazdu
+        }
+
+        // Jeśli pojazd zaczął się poruszać po zatrzymaniu
+        if (!shouldStop && isCurrentlyStopped) {
+            if (currentStopTimeStartTime != 0) {
+                vehicleStopTimeTotal += (currentTime - currentStopTimeStartTime);
+            }
+            currentStopTimeStartTime = 0;
+            isCurrentlyStopped = false;
+        }
+    }
+
+    public double getVehicleStopTimeTotal() {
+        return (vehicleStopTimeTotal / 1000);  // Czas w sekundach
+    }
+
+    public int getVehicleStopsCount() {
+        return vehicleStopsCount;   // Liczba zatrzymań pojazdu
+    }
+
+    public double getVehicleAverageSpeed() {
+        return vehicleAverageSpeed;
+    }
+
+    public void setHasPassedStopLine() {
+        this.hasPassedStopLine = true;
     }
 
 }
