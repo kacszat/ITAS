@@ -371,7 +371,7 @@ public class SimulationController {
     // Uruchomienie symulacji
     @FXML
     public void startSimulation() {
-        if (!MovementRelations.movementRelations.isEmpty()) {
+        if (!MovementRelations.movementRelations.isEmpty() && !SimulationLoop.isSimFinished) {
             loadSimTimeLength();
             loadVehicleNumbers();
             checkVehicleNumbers();

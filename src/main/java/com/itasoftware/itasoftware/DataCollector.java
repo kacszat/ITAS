@@ -56,6 +56,8 @@ public class DataCollector {
                 && sl.getType() == IntersectionLane.Type.ENTRY) {
                     for (Vehicle v : VehicleManager.finishedVehiclesList) {
                         if (v.getAssignedStopLine() == sl) {
+                            if (v.getVehicleAverageSpeed() == 0) continue;  // Pominięcie błędnych pojazdów
+
                             averageSpeedSum = averageSpeedSum + v.getVehicleAverageSpeed();
                             averageStopTimeSum = averageStopTimeSum + v.getVehicleStopTimeTotal();
                             averageStopCountsSum = averageStopCountsSum + v.getVehicleStopsCount();

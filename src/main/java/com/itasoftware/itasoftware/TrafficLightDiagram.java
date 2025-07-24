@@ -118,7 +118,7 @@ public class TrafficLightDiagram {
 
     // Funkcja generująca diagram
     public static BufferedImage generateDiagram(Map<String, List<TrafficLight.Phase>> trafficProgram, String outputFilePath, boolean save) throws IOException {
-        int programTime = TrafficLightController.completePhase;
+        int programTime = TrafficLightController.completePhase / TrafficLightController.singlePhase;
         int cellWidth = 10;
         int rowHeight = 20;
         int rowSpacing = 10;
@@ -191,7 +191,7 @@ public class TrafficLightDiagram {
 
             // Znaczniki na osi czasu
             g.drawLine(x, axisY - 5, x, axisY);
-            g.drawString(String.valueOf(sec), x - 5, axisY + 12);
+            g.drawString(String.valueOf(sec * TrafficLightController.singlePhase), x - 5, axisY + 12);
         }
 
         g.dispose();

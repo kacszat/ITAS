@@ -27,7 +27,7 @@ public class SaveLoadTrafficLight {
         List<String> lines = new ArrayList<>();
         lines.add("tlactive," + SimulationController.isBackFromTLView);
         lines.add("singlephasetime," + TrafficLightController.singlePhase);
-        lines.add("phasetime," + CanvasPhase.rectNumber);
+        lines.add("phasetime," + (CanvasPhase.rectNumber * TrafficLightController.singlePhase));
         SaveLoadIntersection.saveToFile(filePath, lines, saveWithSim);  // nadpisz linie
     }
 

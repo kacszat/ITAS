@@ -141,7 +141,7 @@ public class TrafficLightController {
     public void handleSpinnerSinglePhaseClick() {
         singlePhase = spinnerSinglePhase.getValue();
         int max = singlePhase * maxCompletePhase;
-        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(singlePhase, max, CanvasPhase.rectNumber, singlePhase));
+        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(singlePhase, max, CanvasPhase.rectNumber * singlePhase, singlePhase));
     }
 
     // Wyczyszczenie przycisków

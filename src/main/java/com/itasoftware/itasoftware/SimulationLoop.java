@@ -21,6 +21,7 @@ public class SimulationLoop {
     private double simSpeed;    // Prędkość działania symulacji
     long simTimeLength, elapsedTime = 0;
     private boolean isSimStopped = true;
+    public static boolean isSimFinished = false;
     private SimulationController simController;
     private final List<VehicleSpawnSchedule> spawnSchedule = new ArrayList<>();     // Harmonogram spawnu pojazdów
     private final Map<Pair<IntersectionLane.Localization, IntersectionLane.Localization>, List<MovementTrajectory>> groupedTrajectories = new HashMap<>();
@@ -104,6 +105,7 @@ public class SimulationLoop {
         canvasDrawer.drawCanvas(simCanvas);
         resetTrafficLights();
         DataCollector.clearReportContent();
+        isSimFinished = false;
     }
 
 
@@ -126,6 +128,7 @@ public class SimulationLoop {
         //updateTimer();
         if (elapsedTime >= simTimeLength) {
             stop();
+            isSimFinished = true;
         }
     }
 
