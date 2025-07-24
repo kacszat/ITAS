@@ -6,14 +6,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class SettingsController {
 
     public static boolean isViewMaximized = false;
-    public static String speedSelected = "50";
+    // Zapis raportu z diagramem programu faz sygnalizacji świetlnej
+    public static boolean saveReportWithPhaseDiagram = true, saveReportWithTextPhaseProgram = true;
+    public static String speedSelected = "50", optionSelected = "Tekstowej i graficznej";
     public static double speedMultiplier = 1;
-    @FXML ComboBox<String> speedComboBox;
-    @FXML Button fullScreenButton;
+    @FXML ComboBox<String> speedComboBox, reportComboBox;
+    @FXML Button fullScreenButton, saveSettingsButton;
 
     // Powrót do głównego menu
     @FXML
@@ -48,6 +51,7 @@ public class SettingsController {
     @FXML
     public void initialize() {
         speedComboBox.setValue(speedSelected);
+        reportComboBox.setValue(optionSelected);
         if (isViewMaximized) {
             fullScreenButton.setText("Zminimalizuj");
         } else {
@@ -72,6 +76,21 @@ public class SettingsController {
     private void loadSpeedValueFromComboBox() {
         speedSelected = speedComboBox.getSelectionModel().getSelectedItem();
         speedMultiplier = Double.parseDouble(speedSelected) / 50;
+    }
+
+    @FXML
+    private void addDiagramToReportComboBox() {
+        optionSelected = reportComboBox.getSelectionModel().getSelectedItem();
+        if (Objects.equals(optionSelected, "Tekstowej")) {
+            saveReportWithTextPhaseProgram = true;
+            saveReportWithPhaseDiagram = false;
+        } else if (Objects.equals(optionSelected, "Graficznej")) {
+            saveReportWithTextPhaseProgram = false;
+            saveReportWithPhaseDiagram = true;
+        } else if (Objects.equals(optionSelected, "Tekstowej i graficznej")) {
+            saveReportWithTextPhaseProgram = true;
+            saveReportWithPhaseDiagram = true;
+        }
     }
 
 }

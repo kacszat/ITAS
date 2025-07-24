@@ -22,7 +22,10 @@ public class DataCollector {
         collectAllDataAndCalculateAverageValues();
         describePossibleRelations();
         describeVehiclesNumber();
-        describeTrafficLightsProgram();
+        if (SimulationController.areTrafficLightsActive) {
+            if (SettingsController.saveReportWithTextPhaseProgram) { describeTrafficLightsProgram(); }
+            if (SettingsController.saveReportWithPhaseDiagram) { describeTrafficLightsDiagram(); }
+        }
     }
 
     private static void describeSimulationTime() {
@@ -172,6 +175,17 @@ public class DataCollector {
 
             reportContent.append("\n");
         }
+        reportContent.append("\n");
+    }
+
+    public static void describeTrafficLightsDiagram() {
+        reportContent.append("Poniżej umieszczony jest diagram programu faz sygnalizacji świetlnej. Dolna oś reprezentuje czas trwania programu. " +
+                        "Poszczególne kolory reprezentują następujące fazy: ").append("\n").append("Kolor czerwony - faza światła czerwonego ").append("\n").
+                        append("Kolor żółty - faza światła żółtego ").append("\n").append("Kolor zielony - faza światła zielonego ").append("\n").
+                        append("Kolor pomarańczowy - faza światła czerwono-żółtego ").append("\n").
+                        append("Kolor ciemno-zielony - faza światła zielonej strzałki ").append("\n\n");
+
+        reportContent.append("Całkowita długość programu faz sygnalizacji świetlnej wynosi: ").append(TrafficLightController.completePhase).append(" sekund").append("\n");
     }
 
     public static void clearReportContent() {  // Wyczyszczenie zawartości StringBuildera

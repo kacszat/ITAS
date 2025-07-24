@@ -65,8 +65,9 @@
                         <Button fx:id="buttonPhaseGreenArrow" text="Faza zielonej strzałki" styleClass="obj-button" onAction="#changePhaseGreenArrow"/>
                     </VBox>
 
-                    <Region style="-fx-padding: 0 0 3em 0"/>
-                    <Button text="Zwizualizuj cykl" styleClass="obj-button"/>
+                    <Region style="-fx-padding: 0 0 1em 0"/>
+                    <Button fx:id="buttonShowDiagram" text="Zwizualizuj cykl" styleClass="obj-button" onAction="#showDiagram"/>
+                    <Button fx:id="buttonSaveDiagram" text="Zapisz cykl" styleClass="obj-button" onAction="#saveDiagramToPNG"/>
                     <Region style="-fx-padding: 0 0 1em 0"/>
                     <Button text="Zapisz i wyjdź" styleClass="obj-button" onAction="#save"/>
 

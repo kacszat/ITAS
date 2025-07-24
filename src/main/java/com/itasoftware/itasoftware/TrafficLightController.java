@@ -21,7 +21,7 @@ public class TrafficLightController {
     SaveLoadTrafficLight SLTL = new SaveLoadTrafficLight(this);
 
     @FXML Spinner<Integer> spinnerSinglePhase, spinnerCompletePhase;
-    @FXML Button buttonPhaseRed, buttonPhaseYellow, buttonPhaseGreen, buttonPhaseRedYellow, buttonPhaseGreenArrow;
+    @FXML Button buttonPhaseRed, buttonPhaseYellow, buttonPhaseGreen, buttonPhaseRedYellow, buttonPhaseGreenArrow, buttonShowDiagram, buttonSaveDiagram;
     public static int singlePhase = 1, completePhase, maxCompletePhase = 240;
     private boolean isMousePressed = false;
     public static boolean areTrafficLightsON = false;
@@ -126,8 +126,8 @@ public class TrafficLightController {
     }
 
     private void configureSpinners() {
-        spinnerSinglePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1));
-        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxCompletePhase, CanvasPhase.rectNumber));
+        spinnerSinglePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, singlePhase));
+        spinnerCompletePhase.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxCompletePhase, CanvasPhase.rectNumber * singlePhase));
     }
 
     // Funkcja pobierajaca wartości ze spinnerów
@@ -347,6 +347,18 @@ public class TrafficLightController {
             light.setPhaseSequence(sequence);
             //System.out.println(sequence);
         }
+    }
+
+    // Pokazanie programu faz sygnalizacji świetlnej jako PNG
+    @FXML
+    public void showDiagram(){
+        TrafficLightDiagram.getTrafficLightsDiagramWindow();
+    }
+
+    // Zapis programu faz sygnalizacji świetlnej jako PNG
+    @FXML
+    public void saveDiagramToPNG(ActionEvent event){
+        TrafficLightDiagram.saveTrafficDiagramAsPng(event);
     }
 
 }

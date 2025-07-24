@@ -22,7 +22,7 @@ public class SimulationController {
     @FXML Canvas simCanvas;
     @FXML private StackPane simCanvasContainer;
 
-    // Utworzenie nowych instancji klas CanvasDrawer, SimulationLoop, VehicleManager i SaveLoadSimulation
+    // Utworzenie nowych instancji klas CanvasDrawer, SimulationLoop, VehicleManager i SaveLoadSimulation itd.
     CanvasDrawer canvasDrawer = new CanvasDrawer();
     SimulationLoop simLoop;
     VehicleManager vehicleManager = new VehicleManager();
@@ -512,7 +512,7 @@ public class SimulationController {
 
     // Generacja raportu
     @FXML
-    public void showReport(ActionEvent event) {
+    public void showReport(ActionEvent event){
        DataCollector.generateData();    // Funkcja agregująca dane
 //       ChartCreator chartCreator = new ChartCreator();
 //       List<ChartCreator.ChartImage> charts = chartCreator.createChartsAsImages();

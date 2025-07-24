@@ -11,9 +11,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class SaveReport {
@@ -65,6 +67,21 @@ public class SaveReport {
 //                document.add(Chunk.NEWLINE);
 //                document.newPage();
 //            }
+
+            if (SettingsController.saveReportWithPhaseDiagram) {
+                // Dodanie diagramu sygnalizacji świetlnej
+                TrafficLightDiagram.prepareDataToTrafficLightsDiagram();
+                BufferedImage diagramImage = TrafficLightDiagram.generateDiagram(
+                        TrafficLightDiagram.trafficlightWithLabelMap, null, false);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(diagramImage, "png", baos);
+                Image diagram = Image.getInstance(baos.toByteArray());
+
+                diagram.scaleToFit(500, 250); // Skalowanie
+                document.add(Chunk.NEWLINE);
+                document.add(diagram);
+            }
 
             document.close();
             System.out.println("PDF zapisany jako " + filename);

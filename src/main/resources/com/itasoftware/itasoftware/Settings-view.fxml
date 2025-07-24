@@ -58,6 +58,18 @@
                         </ComboBox>
                         <Region style="-fx-padding: 0 0 3em 0"/>
 
+                        <Label text="Raport podsumowujący symulację ma zawierać program sygnalizacji świetlnej w formie:" styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                        <ComboBox fx:id="reportComboBox" styleClass="obj-combobox-small" value="Tekstowej i graficznej" onAction="#addDiagramToReportComboBox">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="Tekstowej i graficznej"/>
+                                    <String fx:value="Tekstowej"/>
+                                    <String fx:value="Graficznej"/>
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+                        <Region style="-fx-padding: 0 0 3em 0"/>
+
                         <Label text="Ustawienia są w trakcie rozbudowy. W przyszłości modyfikacjom ulegać będzie mogła większa liczba elementów i funkcji."
                                styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
                     </VBox>
