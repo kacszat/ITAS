@@ -42,7 +42,7 @@ public class SimulationController {
     static Integer simTimeLength = 0;
     boolean isSimulationActive = false;
     static boolean areTrafficLightsActive = false;
-    static boolean isFOVshown = false, areMRshown = false, areTLshown = false;;
+    static boolean isFOVshown = false, areMRshown = false, areTLshown = false;
     static boolean isBackFromTLView = false, idLoadedFromSaveFile = false;
     static boolean tooManyVehiclesOnLane = false;
     private Map<String, Double> vehiclesPerRelation = new HashMap<>();  // Mapa przechowująca liczbę pojazdów dla danej relacji (np. SOUTH->NORTH)
@@ -206,6 +206,7 @@ public class SimulationController {
         if (isBackFromTLView) {
             SLS.restoreFromTempFile();
             isBackFromTLView = false;
+            turnOnTrafficLights();  // Obecnie widoczność TL jest False, to po wywołaniu funkcji będzie True
         }
     }
 

@@ -50,6 +50,9 @@ public class SettingsController {
 
     @FXML
     public void initialize() {
+        MovementRelations.movementRelations.clear();    // Usunięcie dotychczasowych relacji
+        TrafficLight.clear();   // Usunięcie sygnalizatorów
+
         speedComboBox.setValue(speedSelected);
         reportComboBox.setValue(optionSelected);
         if (isViewMaximized) {

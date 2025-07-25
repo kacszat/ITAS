@@ -12,22 +12,21 @@
       styleClass="root-gray">
 
     <MenuBar>
-        <Menu text="Plik">
-            <MenuItem text="Nowa symulacja" onAction="#defaultSimulation"/>
-            <MenuItem text="Zapisz symulację" onAction="#saveSimulation"/>
-            <MenuItem text="Wczytaj symulację" onAction="#loadSimulation"/>
-        </Menu>
         <Menu text="Okno">
             <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
             <MenuItem text="Przejście do generatora" onAction="#goToGenerator"/>
             <MenuItem text="Przejście do ustawień" onAction="#goToSettings"/>
             <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>
         </Menu>
+        <Menu text="Plik">
+            <MenuItem text="Nowa symulacja" onAction="#defaultSimulation"/>
+            <MenuItem text="Zapisz symulację" onAction="#saveSimulation"/>
+            <MenuItem text="Wczytaj symulację" onAction="#loadSimulation"/>
+        </Menu>
         <Menu text="Filtry">
             <MenuItem fx:id="menuitemShowMR" text="Pokaż relacje ruchu" onAction="#showMovementRelations"/>
             <MenuItem fx:id="menuitemShowFOV" text="Pokaż pola widzenia pojazdów" onAction="#showVehiclesFOVs"/>
             <MenuItem fx:id="menuitemShowTL" text="Pokaż sygnalizację świetlną" onAction="#showTrafficLights"/>
-<!--            <MenuItem text="Wyjście z programu" onAction="#exitITAS"/>-->
         </Menu>
     </MenuBar>
 

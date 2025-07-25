@@ -123,6 +123,10 @@ public class GeneratorController {
         // Usunięcie sygnalizatorów
         TrafficLight.clear();
 
+        // Wyczyszczenie i załadowanie domyślnego skrzyżowania
+        clearIntersection();
+        defaultIntersection();
+
         // Rysowanie
         drawCanvas(genCanvas);
 

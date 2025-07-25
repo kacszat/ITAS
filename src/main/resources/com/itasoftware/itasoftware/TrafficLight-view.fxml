@@ -12,14 +12,14 @@
       styleClass="root-gray">
 
     <MenuBar>
+        <Menu text="Okno">
+            <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
+            <MenuItem text="Powrót do symulacji" onAction="#backToSimulation"/>
+        </Menu>
         <Menu text="Plik">
             <MenuItem text="Nowy program faz sygnalizacji świetlnej" onAction="#newTrafficLight"/>
             <MenuItem text="Zapisz program faz sygnalizacji świetlnej" onAction="#saveTrafficLight"/>
             <MenuItem text="Wczytaj program faz sygnalizacji świetlnej" onAction="#loadTrafficLight"/>
-        </Menu>
-        <Menu text="Okno">
-            <MenuItem text="Powrót do menu głównego" onAction="#backToMainMenu"/>
-            <MenuItem text="Powrót do symulacji" onAction="#backToSimulation"/>
         </Menu>
     </MenuBar>
 
