@@ -15,10 +15,10 @@ public class VehicleManager {
     DataCollector DC = new DataCollector(this);
 
     private final Map<Set<Vehicle>, Long> stuckVehiclesMap = new HashMap<>();
-    private final long stuckMaxTime = 5000 , ignoreTime = 2000;   // wartości w milisekundach
+    private final long stuckMaxTime = 4000 , ignoreTime = 2000;   // wartości w milisekundach
     public long currentTime;
 
-    double distanceToStop = 20, distanceToSlowDown = 120, distanceToTL = 30, marginTL = 10;
+    double distanceToStop = 20, distanceToSlowDown = 120, distanceToTurn = 10, distanceToTL = 30, marginTL = 10;
 
 
     public void spawnVehicle() {
@@ -196,15 +196,6 @@ public class VehicleManager {
                     }
                 } else if (inSquareFOV && !other.isAccelerating()) {
                     vehicle.shouldSlowDown = true;
-                } else if (inLeftFOV && preventBlockingVehicle && (greenPhaseOther || greenArrowPhaseOther) && other.isOnIntersectionSegment()) {
-                    //vehicle.shouldSlowDown = true;
-                    vehicle.shouldStop = true;
-                    if (areTrajectoriesIntersect && differentOrigins) {checkPotentialDeadlock(vehicle, other);}
-//                    if (isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop) || vehicle.isOnIntersectionSegment()) {
-//                        vehicle.shouldStop = true;
-//                        if (areTrajectoriesIntersect && differentOrigins) {checkPotentialDeadlock(vehicle, other);}
-//                        break;
-//                    }
                 } else if (areTrajectoriesIntersect) {
                     if (isVehicleGivingWayToRight && greenArrowPhase) {
                         vehicle.shouldSlowDown = true;
@@ -214,14 +205,25 @@ public class VehicleManager {
                             break;
                         }
                     }
-                    if (inLeftFOV && isVehicleGoingLeftAndGivingWay && (greenPhaseOther || greenArrowPhaseOther)) {
+                    if (inLeftFOV && isVehicleGoingLeftAndGivingWay && (greenPhaseOther || greenArrowPhaseOther) &&
+                            isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToSlowDown)) {
                         vehicle.shouldSlowDown = true;
-                        if (other.isAccelerating() || (isVehicleTurningLeft(other) && other.isOnIntersectionSegment())) {
+                        if ((other.isOnIntersectionSegment() || isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToStop)) &&
+                                (other.isAccelerating() || isVehicleTurningLeft(other))) {
+                            vehicle.shouldStop = true;
+                            if (differentOrigins) {checkPotentialDeadlock(vehicle, other);}
+                            break;
+                        }
+                        if ((other.isOnIntersectionSegment() || isVehicleApproachingStopLine(other, other.getAssignedStopLine(), distanceToSlowDown))
+                                && preventBlockingVehicle) {
                             vehicle.shouldStop = true;
                             if (differentOrigins) {checkPotentialDeadlock(vehicle, other);}
                             break;
                         }
                     }
+                } else if ((vehicle.isOnIntersectionSegment() || isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToTurn)) &&
+                        (isVehicleTurningLeft(vehicle) || isVehicleTurningRight(vehicle)) && (greenPhase || greenArrowPhase)) {
+                    vehicle.shouldSlowDown = true;
                 }
             } else {
                 // Zasady ruchu bez sygnalziacji
@@ -246,7 +248,11 @@ public class VehicleManager {
                             break;
                         }
                     }
+                } else if ((vehicle.isOnIntersectionSegment() || isVehicleApproachingStopLine(vehicle, vehicle.getAssignedStopLine(), distanceToTurn)) &&
+                        (isVehicleTurningLeft(vehicle) || isVehicleTurningRight(vehicle))) {
+                    vehicle.shouldSlowDown = true;
                 }
+
 
             }
 
@@ -274,8 +280,6 @@ public class VehicleManager {
                     }
                 }
             }
-            // Modyfikacja prędkości pojazdu
-            changeVehicleSpeed(vehicle);
         }
     }
 

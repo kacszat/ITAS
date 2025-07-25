@@ -10,7 +10,7 @@ public class Vehicle {
     IntersectionLane.Localization vehicleOrigin, vehicleDestination;
     private MovementTrajectory trajectory;
     private double distanceTraveled;
-    private double fovX, fovY, fovRadius, fovRadiusLeft, fovStartAngle, fovStartAngleHalf, fovLength; // Parametry Field Of View
+    private double fovX, fovY, fovRadius, fovStartAngle, fovStartAngleHalf, fovLength, fovLengthLeft; // Parametry Field Of View
     double angle;   // Kąt kierunku jazdy
     Point2D[] squareFOVCorners, squareSmallFOVCorners;  // Lista czterech punktów prostokąta
     private StopLine assignedStopLine;
@@ -95,10 +95,10 @@ public class Vehicle {
         this.fovX = center.getX();
         this.fovY = center.getY();
         this.fovRadius = 210;  // Promień pola widzenia
-        this.fovRadiusLeft = 240;  // Promień pola widzenia lewego
         this.fovLength = 180;  // Kąt pola widzenia
-        this.fovStartAngle = - angleDegrees - (fovLength / 2.0); // Ustawienie początku sektora FOV
-        this.fovStartAngleHalf = - angleDegrees; // Ustawienie początku sektora FOV
+        this.fovLengthLeft = 110;  // ąt pola widzenia lewego pola
+        this.fovStartAngle = - angleDegrees - 90; // Ustawienie początku sektora FOV
+        this.fovStartAngleHalf = angleDegrees - 90 - fovLengthLeft; // Ustawienie początku sektora FOV
     }
 
     public void setSquareFOV(Point2D center, double angleDegrees, Boolean smallFOV) {
@@ -256,8 +256,8 @@ public class Vehicle {
         return fovRadius;
     }
 
-    public double getFovRadiusLeft() {
-        return fovRadiusLeft;
+    public double getFovLengthLeft() {
+        return fovLengthLeft;
     }
 
     public double getFovStartAngle() {

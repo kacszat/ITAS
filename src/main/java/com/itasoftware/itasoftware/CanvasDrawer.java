@@ -504,17 +504,17 @@ public class CanvasDrawer {
 
     // Ustawienie parametrów do rysowania FOV
     private void setFOV(GraphicsContext gc, Vehicle v) {
-        double fovX, fovY, fovRadius, fovRadiusLeft, fovStartAngle, fovStartAngleHalf, fovLength;
+        double fovX, fovY, fovRadius, fovStartAngle, fovStartAngleHalf, fovLength, fovLengthLeft;
 
         fovX = v.getFovX();
         fovY = v.getFovY();
         fovRadius = v.getFovRadius();
-        fovRadiusLeft = v.getFovRadiusLeft();
         fovStartAngle = v.getFovStartAngle();
         fovStartAngleHalf = v.getFovStartAngleHalf();
         fovLength = v.getFovLength();
+        fovLengthLeft = v.getFovLengthLeft();
 
-        drawVehicleFOV(gc, Color.LIGHTBLUE, fovX, fovY, fovRadius, fovStartAngleHalf, fovLength / 2.0, false);
+        drawVehicleFOV(gc, Color.LIGHTBLUE, fovX, fovY, fovRadius, fovStartAngleHalf, fovLengthLeft, false);
         drawVehicleFOV(gc, Color.CYAN, fovX, fovY, fovRadius, fovStartAngle, fovLength, true);
         drawVehicleSquareFOV(gc, Color.BLUE, v, false);
         drawVehicleSquareFOV(gc, Color.PURPLE, v, true);

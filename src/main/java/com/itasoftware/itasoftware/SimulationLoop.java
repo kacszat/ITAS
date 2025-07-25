@@ -126,7 +126,7 @@ public class SimulationLoop {
     private void updateTime() {
         elapsedTime += (long) (runTimerInterval * simSpeed);
         //updateTimer();
-        if (elapsedTime >= simTimeLength) {
+        if (elapsedTime >= simTimeLength && simTimeLength != 0) {
             stop();
             isSimFinished = true;
         }
