@@ -45,6 +45,9 @@ public class DataCollector {
     }
 
     private static void collectAllDataAndCalculateAverageValues() {
+        double averageSpeedTotal = 0, averageStopTimeTotal = 0, averageStopCountsTotal = 0;
+        int countTotal = 0;
+
         for (IntersectionLane il : GeneratorController.intersectionLanes) {
             double averageSpeed, averageStopTime, averageStopCounts;
             double averageSpeedSum = 0, averageStopTimeSum = 0, averageStopCountsSum = 0;
@@ -75,6 +78,12 @@ public class DataCollector {
                     averageStopTime = averageStopTimeSum / count;
                     averageStopCounts = averageStopCountsSum / count;
 
+                    averageSpeedTotal += averageSpeed;
+                    averageStopTimeTotal += averageStopTime;
+                    averageStopCountsTotal += averageStopCounts;
+
+                    countTotal++;
+
                     String laneInfo = "Wlot: " + il.getLocalization() + " " + il.getIndex();
                     reportContent.append(laneInfo).append(":\n");
                     reportContent.append("  Średnia prędkość pojazdów na dojeździe do skrzyżowania: ").append(String.format("%.2f", averageSpeed)).append(" km/h\n");
@@ -87,6 +96,13 @@ public class DataCollector {
                 }
             }
         }
+        averageSpeedTotal = averageSpeedTotal / countTotal;
+        averageStopTimeTotal = averageStopTimeTotal / countTotal;
+        averageStopCountsTotal = averageStopCountsTotal / countTotal;
+
+        reportContent.append("Średnia prędkość wszystkich pojazdów na dojeździe do skrzyżowania wynosi: ").append(String.format("%.2f", averageSpeedTotal)).append(" km/h\n");
+        reportContent.append("Średni czas oczekiwania wszystkich pojazdów przed skrzyżowaniem wynosi: ").append(String.format("%.2f", averageStopTimeTotal)).append(" sekund\n");
+        reportContent.append("Średnia liczba zatrzymań wszystkich pojazdów przed skrzyżowaniem wynosi: ").append(String.format("%.2f", averageStopCountsTotal)).append("\n\n");
     }
 
     // Opis tekstowy dozwolonych na skrzyżowaniu relacji ruchu
@@ -107,6 +123,7 @@ public class DataCollector {
     private static void describeVehiclesNumber() {
         String relationsInfo = "Liczba pojazdów zliczonych w stosunku do liczby pojazdów zaplanowanych na następujących relacjach wynosi: ";
         reportContent.append(relationsInfo).append("\n");
+        int totalFinishedVehicleCount = 0;
         for (Map.Entry<TextField, TextFieldVehicleNumber> entry : SimulationController.textfieldMap.entrySet()) {
             TextField tf = entry.getKey();
             TextFieldVehicleNumber tfVehNum = entry.getValue();
@@ -118,12 +135,15 @@ public class DataCollector {
                         finishedVehiclesCount++;    // Ilość pojazdów z danej relacji, które ukończyły swoje trajektorie, w chwili wygenerowania raportu
                     }
                 }
+                totalFinishedVehicleCount += finishedVehiclesCount;
                 reportContent.append("  Z kierunku: ").append(tfVehNum.getLocalization()).append(" do kierunku: ").append(tfVehNum.getDestination()).
                         append(" występuje liczba pojazdów równa: ").append(finishedVehiclesCount).append("/").
                         append(String.format("%.0f", tfVehNum.getVehiclesNumber())).append("\n");
             }
         }
         reportContent.append("\n");
+        reportContent.append("Łączna liczba pojazdów zliczonych w stosunku do zaplanowanych wynosi: ").append(totalFinishedVehicleCount).append("/").
+                append(String.format("%.0f", SimulationController.tfVehicleSum)).append("\n\n");
     }
 
     // Opis tekstowy programu faz sygnalizacji świetlnej

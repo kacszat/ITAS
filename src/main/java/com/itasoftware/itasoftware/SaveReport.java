@@ -68,7 +68,7 @@ public class SaveReport {
 //                document.newPage();
 //            }
 
-            if (SettingsController.saveReportWithPhaseDiagram) {
+            if (SettingsController.saveReportWithPhaseDiagram && SimulationController.areTrafficLightsActive) {
                 // Dodanie diagramu sygnalizacji świetlnej
                 TrafficLightDiagram.prepareDataToTrafficLightsDiagram();
                 BufferedImage diagramImage = TrafficLightDiagram.generateDiagram(

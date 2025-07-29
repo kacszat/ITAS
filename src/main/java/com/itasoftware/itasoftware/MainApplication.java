@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -18,14 +19,14 @@ public class MainApplication extends Application {
 
     // Lista obrazów tła
     private static final List<String> BACKGROUND_PHOTOS = List.of(
-            "/com/itasoftware/itasoftware/photos/background-photo-v1.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v2.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v3.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v4.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v5.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v6.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v7.jpg",
-            "/com/itasoftware/itasoftware/photos/background-photo-v8.jpg"
+            "background-photo-v1.jpg",
+            "background-photo-v2.jpg",
+            "background-photo-v3.jpg",
+            "background-photo-v4.jpg",
+            "background-photo-v5.jpg",
+            "background-photo-v6.jpg",
+            "background-photo-v7.jpg",
+            "background-photo-v8.jpg"
     );
 
     private int currentPhotoIndex = 0;
@@ -69,19 +70,28 @@ public class MainApplication extends Application {
 
     // Zmiana obrazu tła co 10 sekund
     private void startBackgroundRotation(Pane root) {
+        // Ustaw pierwsze zdjęcie od razu
+        setBackground(root, currentPhotoIndex);
+
+        // Ustaw rotację co 10 sekund
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
             currentPhotoIndex = (currentPhotoIndex + 1) % BACKGROUND_PHOTOS.size();
-            URL imageUrl = getClass().getResource(BACKGROUND_PHOTOS.get(currentPhotoIndex));
-            if (imageUrl != null) {
-                String backgroundStyle = "-fx-background-image: url('" + imageUrl.toExternalForm() + "');" +
-                        "-fx-background-size: cover; -fx-background-position: top;";
-                root.setStyle(backgroundStyle + baseFontStyle);
-            } else {
-                System.err.println("Nie znaleziono obrazu: " + BACKGROUND_PHOTOS.get(currentPhotoIndex));
-            }
+            setBackground(root, currentPhotoIndex);
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+    }
+
+    private void setBackground(Pane root, int index) {
+        File file = new File("photos" + File.separator + BACKGROUND_PHOTOS.get(index));
+        if (file.exists()) {
+            String imagePath = file.toURI().toString();
+            String backgroundStyle = "-fx-background-image: url('" + imagePath + "');" +
+                    "-fx-background-size: cover; -fx-background-position: top;";
+            root.setStyle(backgroundStyle + baseFontStyle);
+        } else {
+            System.err.println("Nie znaleziono obrazu: " + file.getAbsolutePath());
+        }
     }
 
     // Pobranie aktualnych rozmiarów okna (bez ramki okna systemowego Windows)

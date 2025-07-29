@@ -72,6 +72,12 @@
 
                         <Label text="Ustawienia są w trakcie rozbudowy. W przyszłości modyfikacjom ulegać będzie mogła większa liczba elementów i funkcji."
                                styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                        <Label text="Wersja programu: Alfa 1"
+                               styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                        <Region style="-fx-padding: 0 0 15em 0"/>
+
+                        <Label text="Autor programu: Kacper Adam Szatlach" styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
+                        <Label text="GitHub: https://github.com/kacszat/ITAS" styleClass="obj-text" style="-fx-padding: 0 0 1em 0"/>
                     </VBox>
 
                 </VBox>
