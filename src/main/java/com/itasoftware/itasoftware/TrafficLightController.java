@@ -290,7 +290,7 @@ public class TrafficLightController {
                 hasDedicatedRightTurnLane.put(fromLoc, true);
                 TrafficLight.addTrafficLight(from, TrafficLight.LaneType.RIGHT);
             }
-            if (allowsStraight) {
+            if (allowsStraight || (allowsLeft && allowsRight)) {
                 hasDedicatedMainLane.put(fromLoc, true);
                 TrafficLight.addTrafficLight(from, TrafficLight.LaneType.MAIN);
             }
