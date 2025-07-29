@@ -206,6 +206,7 @@ public class SimulationController {
         if (isBackFromTLView) {
             SLS.restoreFromTempFile();
             isBackFromTLView = false;
+            areTrafficLightsActive = false;
             turnOnTrafficLights();  // Obecnie widoczność TL jest False, to po wywołaniu funkcji będzie True
         }
     }
